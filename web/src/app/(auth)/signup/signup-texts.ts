@@ -1,0 +1,16 @@
+export const texts = {
+  heading: 'Create Account',
+  subtitle: 'Join WESTLINE — track orders and save favorites.',
+  firstNameLabel: 'First name',
+  firstNamePlaceholder: 'Jamie',
+  lastNameLabel: 'Last name',
+  lastNamePlaceholder: 'Rivera',
+  emailLabel: 'Email',
+  emailPlaceholder: 'you@email.com',
+  passwordLabel: 'Password',
+  passwordPlaceholder: '••••••••',
+  submitIdle: 'Create Account',
+  submitLoading: 'Creating account…',
+  alreadyHaveAccountPrefix: 'Already have an account?',
+  signInLink: 'Sign in',
+};
