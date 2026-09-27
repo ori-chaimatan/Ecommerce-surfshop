@@ -7,7 +7,7 @@ export async function setupGoogleLogin(strapi: Core.Strapi, clientUrl: string) {
   if (googleClientId && googleClientSecret) {
     const grantStore = strapi.store({ type: 'plugin', name: 'users-permissions', key: 'grant' });
     const grantSettings = ((await grantStore.get()) ?? {}) as Record<string, Record<string, unknown>>;
-    const googleCallback = `${clientUrl}/connect/google/redirect`;
+    const googleCallback = `${clientUrl}/auth/connect/google/redirect`;
 
     const googleConfig = {
       ...grantSettings.google,

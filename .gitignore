@@ -6,4 +6,4 @@
 !.vscode/extensions.json
 
 # Each app manages its own dependencies/build output via its own .gitignore
-# (web/.gitignore, cms/.gitignore) — this file only covers repo-root cruft.
+# (frontend/.gitignore, cms/.gitignore) — this file only covers repo-root cruft.

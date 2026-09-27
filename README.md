@@ -10,16 +10,16 @@ Two independent top-level apps, each with its own `package.json`. No shared
 tooling/monorepo layer — there's no shared code between them yet.
 
 ```
-web/   # Next.js (React 18) + TypeScript + Tailwind CSS, SSR frontend
-cms/   # Strapi (TypeScript) headless CMS/backend, PostgreSQL via Strapi's data layer
+frontend/ # Next.js (React 18) + TypeScript + Tailwind CSS, SSR frontend
+cms/      # Strapi (TypeScript) headless CMS/backend, PostgreSQL via Strapi's data layer
 ```
 
 ## Getting started
 
-### web/
+### frontend/
 
 ```
-cd web
+cd frontend
 npm run dev
 ```
 

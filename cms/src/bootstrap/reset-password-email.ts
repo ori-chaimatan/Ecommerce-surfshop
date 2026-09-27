@@ -2,7 +2,7 @@ import type { Core } from '@strapi/strapi';
 import { buildEmailHtml } from './email-layout';
 
 export async function setupResetPasswordEmail(strapi: Core.Strapi, clientUrl: string) {
-  const resetPasswordUrl = `${clientUrl}/reset-password`;
+  const resetPasswordUrl = `${clientUrl}/auth/reset-password`;
 
   const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
   const advanced = ((await pluginStore.get({ key: 'advanced' })) ?? {}) as Record<string, unknown>;
