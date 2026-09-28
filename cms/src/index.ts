@@ -3,6 +3,7 @@ import { setupResetPasswordEmail } from './bootstrap/reset-password-email';
 import { setupGoogleLogin } from './bootstrap/google-login';
 import { setupWelcomeEmail } from './bootstrap/welcome-email';
 import { setupHomepage } from './bootstrap/homepage';
+import { setupCatalog } from './bootstrap/catalog';
 
 export default {
   register(/* { strapi }: { strapi: Core.Strapi } */) {},
@@ -13,5 +14,6 @@ export default {
     await setupGoogleLogin(strapi, clientUrl);
     setupWelcomeEmail(strapi, clientUrl);
     await setupHomepage(strapi);
+    await setupCatalog(strapi);
   },
 };
