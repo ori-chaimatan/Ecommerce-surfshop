@@ -1,0 +1,744 @@
+{
+  "categories": [
+    {
+      "Name": "Surfboards",
+      "Slug": "surfboards"
+    },
+    {
+      "Name": "Accessories",
+      "Slug": "accessories"
+    },
+    {
+      "Name": "Wetsuits",
+      "Slug": "wetsuits"
+    },
+    {
+      "Name": "Men's Clothing",
+      "Slug": "mens-clothing"
+    },
+    {
+      "Name": "Women's Clothing",
+      "Slug": "womens-clothing"
+    }
+  ],
+  "subcategories": [
+    {
+      "Name": "Performance Shortboard",
+      "Slug": "performance-shortboard",
+      "CategorySlug": "surfboards"
+    },
+    {
+      "Name": "Longboard",
+      "Slug": "longboard",
+      "CategorySlug": "surfboards"
+    },
+    {
+      "Name": "Fish & Twinfin",
+      "Slug": "fish-twinfin",
+      "CategorySlug": "surfboards"
+    },
+    {
+      "Name": "Fun Board",
+      "Slug": "fun-board",
+      "CategorySlug": "surfboards"
+    },
+    {
+      "Name": "Soft-top / Beginner",
+      "Slug": "soft-top-beginner",
+      "CategorySlug": "surfboards"
+    },
+    {
+      "Name": "Fins",
+      "Slug": "fins",
+      "CategorySlug": "accessories"
+    },
+    {
+      "Name": "Leashes",
+      "Slug": "leashes",
+      "CategorySlug": "accessories"
+    },
+    {
+      "Name": "Traction",
+      "Slug": "traction",
+      "CategorySlug": "accessories"
+    },
+    {
+      "Name": "Travel Bags",
+      "Slug": "travel-bags",
+      "CategorySlug": "accessories"
+    },
+    {
+      "Name": "Men's Wetsuits",
+      "Slug": "mens-wetsuits",
+      "CategorySlug": "wetsuits"
+    },
+    {
+      "Name": "Women's Wetsuits",
+      "Slug": "womens-wetsuits",
+      "CategorySlug": "wetsuits"
+    },
+    {
+      "Name": "Men's T-Shirts & Tanks",
+      "Slug": "mens-tshirts-tanks",
+      "CategorySlug": "mens-clothing"
+    },
+    {
+      "Name": "Men's Shorts",
+      "Slug": "mens-shorts",
+      "CategorySlug": "mens-clothing"
+    },
+    {
+      "Name": "Men's Boardshorts",
+      "Slug": "mens-boardshorts",
+      "CategorySlug": "mens-clothing"
+    },
+    {
+      "Name": "Women's Tops",
+      "Slug": "womens-tops",
+      "CategorySlug": "womens-clothing"
+    },
+    {
+      "Name": "Women's Shorts",
+      "Slug": "womens-shorts",
+      "CategorySlug": "womens-clothing"
+    },
+    {
+      "Name": "Women's Swimmers",
+      "Slug": "womens-swimmers",
+      "CategorySlug": "womens-clothing"
+    }
+  ],
+  "products": [
+    {
+      "Name": "Tideline 6'0\" Performance Shortboard",
+      "Slug": "tideline-6-0-performance-shortboard",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "performance-shortboard"
+      ],
+      "Price": 829,
+      "Featured": true,
+      "Description": "> \"The Tideline came out of a run of boards we kept shaping shorter and wider for the same rider — surfers who wanted their shortboard to still paddle like something bigger. It's got a touch more foam through the chest than a standard performance blank, pulled back through a tighter round tail so it never feels like you're riding a barge. Under your front foot it's got a single-to-double concave feeding into a vee out the tail, so it releases clean off the top without feeling nervous underfoot. This is the board I hand a strong intermediate who's ready to stop fighting their equipment and start surfing it.\"\n>\n> — House Shaper, WESTLINE",
+      "Sizes": [
+        {
+          "Label": "5'10\" · 27.6L",
+          "Stock": 3,
+          "LengthIn": 70,
+          "VolumeL": 27.6
+        },
+        {
+          "Label": "6'0\" · 29.4L",
+          "Stock": 5,
+          "LengthIn": 72,
+          "VolumeL": 29.4
+        },
+        {
+          "Label": "6'2\" · 31.0L",
+          "Stock": 4,
+          "LengthIn": 74,
+          "VolumeL": 31.0
+        },
+        {
+          "Label": "6'4\" · 32.8L",
+          "Stock": 2,
+          "LengthIn": 76,
+          "VolumeL": 32.8
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Intermediate",
+        "FinSetup": "Thruster",
+        "FinSetupNote": "Balanced drive and release for all-round performance surfing.",
+        "WaveSize": 34,
+        "Break": 50,
+        "Power": 44,
+        "Approach": 58,
+        "FootOrientation": 50,
+        "Foil": 46,
+        "NoseShape": 40,
+        "TailWidth": 52,
+        "EntryRocker": 45,
+        "ExitRocker": 48,
+        "RockerStyle": 42
+      },
+      "images": "tideline-6-0-performance-shortboard"
+    },
+    {
+      "Name": "Rincon Pro 6'0\" Performance",
+      "Slug": "rincon-pro-6-0-performance",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "performance-shortboard"
+      ],
+      "Price": 729,
+      "Description": "A pro-level performance shortboard for good waves: low volume, pulled-in nose and a squash tail that bites on rail.",
+      "Sizes": [
+        {
+          "Label": "5'10\" · 26.8L",
+          "Stock": 4,
+          "LengthIn": 70,
+          "VolumeL": 26.8
+        },
+        {
+          "Label": "6'0\" · 28.3L",
+          "Stock": 4,
+          "LengthIn": 72,
+          "VolumeL": 28.3
+        },
+        {
+          "Label": "6'2\" · 29.9L",
+          "Stock": 4,
+          "LengthIn": 74,
+          "VolumeL": 29.9
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Advanced",
+        "FinSetup": "Thruster",
+        "FinSetupNote": "Balanced drive and release for all-round performance surfing.",
+        "WaveSize": 62,
+        "Break": 20,
+        "Power": 72,
+        "Approach": 22,
+        "FootOrientation": 55,
+        "Foil": 30,
+        "NoseShape": 18,
+        "TailWidth": 38,
+        "EntryRocker": 70,
+        "ExitRocker": 64,
+        "RockerStyle": 40
+      }
+    },
+    {
+      "Name": "Needle 5'10\" Step-Up",
+      "Slug": "needle-5-10-step-up",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "performance-shortboard"
+      ],
+      "Price": 699,
+      "Description": "A step-up for when it gets overhead and hollow — narrow outline, pintail and extra rocker for steep drops.",
+      "Sizes": [
+        {
+          "Label": "5'10\" · 27.0L",
+          "Stock": 4,
+          "LengthIn": 70,
+          "VolumeL": 27.0
+        },
+        {
+          "Label": "6'2\" · 29.5L",
+          "Stock": 4,
+          "LengthIn": 74,
+          "VolumeL": 29.5
+        },
+        {
+          "Label": "6'6\" · 32.6L",
+          "Stock": 4,
+          "LengthIn": 78,
+          "VolumeL": 32.6
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Advanced",
+        "FinSetup": "Thruster",
+        "FinSetupNote": "Balanced drive and release for all-round performance surfing.",
+        "WaveSize": 85,
+        "Break": 15,
+        "Power": 90,
+        "Approach": 20,
+        "FootOrientation": 70,
+        "Foil": 25,
+        "NoseShape": 12,
+        "TailWidth": 20,
+        "EntryRocker": 82,
+        "ExitRocker": 78,
+        "RockerStyle": 35
+      }
+    },
+    {
+      "Name": "Sonar 5'11\" Performance",
+      "Slug": "sonar-5-11-performance",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "performance-shortboard"
+      ],
+      "Price": 749,
+      "Description": "An everyday performance quad: a little wider through the tail for speed in average waves.",
+      "Sizes": [
+        {
+          "Label": "5'9\" · 28.1L",
+          "Stock": 4,
+          "LengthIn": 69,
+          "VolumeL": 28.1
+        },
+        {
+          "Label": "5'11\" · 30.2L",
+          "Stock": 4,
+          "LengthIn": 71,
+          "VolumeL": 30.2
+        },
+        {
+          "Label": "6'1\" · 32.0L",
+          "Stock": 4,
+          "LengthIn": 73,
+          "VolumeL": 32.0
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Intermediate",
+        "FinSetup": "Quad",
+        "FinSetupNote": "Extra hold and speed through the pocket.",
+        "WaveSize": 40,
+        "Break": 55,
+        "Power": 48,
+        "Approach": 50,
+        "FootOrientation": 52,
+        "Foil": 48,
+        "NoseShape": 38,
+        "TailWidth": 60,
+        "EntryRocker": 46,
+        "ExitRocker": 50,
+        "RockerStyle": 45
+      }
+    },
+    {
+      "Name": "Driftwood 7'6\" Mid-Length",
+      "Slug": "driftwood-7-6-mid-length",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "fun-board"
+      ],
+      "Price": 799,
+      "Description": "A flowing mid-length for long, drawn-out lines — paddles into everything and trims like a dream.",
+      "Sizes": [
+        {
+          "Label": "7'0\" · 44.0L",
+          "Stock": 4,
+          "LengthIn": 84,
+          "VolumeL": 44.0
+        },
+        {
+          "Label": "7'6\" · 48.5L",
+          "Stock": 4,
+          "LengthIn": 90,
+          "VolumeL": 48.5
+        },
+        {
+          "Label": "8'0\" · 53.0L",
+          "Stock": 4,
+          "LengthIn": 96,
+          "VolumeL": 53.0
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Intermediate",
+        "FinSetup": "TwoPlusOne",
+        "FinSetupNote": "Single-fin trim with side bites for control in turns.",
+        "WaveSize": 30,
+        "Break": 60,
+        "Power": 25,
+        "Approach": 80,
+        "FootOrientation": 40,
+        "Foil": 70,
+        "NoseShape": 75,
+        "TailWidth": 55,
+        "EntryRocker": 25,
+        "ExitRocker": 30,
+        "RockerStyle": 70
+      }
+    },
+    {
+      "Name": "Twin Fin 5'8\" Keel",
+      "Slug": "twin-fin-5-8-keel",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "fish-twinfin"
+      ],
+      "Price": 599,
+      "Featured": true,
+      "Description": "A classic keel twin fish: wide, flat and fast — turns small, mushy days into a good session.",
+      "Sizes": [
+        {
+          "Label": "5'4\" · 30.5L",
+          "Stock": 4,
+          "LengthIn": 64,
+          "VolumeL": 30.5
+        },
+        {
+          "Label": "5'8\" · 33.8L",
+          "Stock": 4,
+          "LengthIn": 68,
+          "VolumeL": 33.8
+        },
+        {
+          "Label": "6'0\" · 37.0L",
+          "Stock": 4,
+          "LengthIn": 72,
+          "VolumeL": 37.0
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Intermediate",
+        "FinSetup": "Twin",
+        "FinSetupNote": "Loose, fast and skatey — maximum glide down the line.",
+        "WaveSize": 20,
+        "Break": 70,
+        "Power": 15,
+        "Approach": 60,
+        "FootOrientation": 35,
+        "Foil": 72,
+        "NoseShape": 70,
+        "TailWidth": 85,
+        "EntryRocker": 20,
+        "ExitRocker": 25,
+        "RockerStyle": 60
+      }
+    },
+    {
+      "Name": "Soft Cruiser 8'0\" Longboard",
+      "Slug": "soft-cruiser-8-0-longboard",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "longboard",
+        "soft-top-beginner"
+      ],
+      "Price": 449,
+      "Featured": true,
+      "Description": "A forgiving soft-top with loads of volume — the easiest way to catch your first green waves.",
+      "Sizes": [
+        {
+          "Label": "7'0\" · 58.0L",
+          "Stock": 4,
+          "LengthIn": 84,
+          "VolumeL": 58.0
+        },
+        {
+          "Label": "8'0\" · 70.0L",
+          "Stock": 4,
+          "LengthIn": 96,
+          "VolumeL": 70.0
+        },
+        {
+          "Label": "9'0\" · 82.0L",
+          "Stock": 4,
+          "LengthIn": 108,
+          "VolumeL": 82.0
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Beginner",
+        "FinSetup": "Thruster",
+        "FinSetupNote": "Balanced drive and release for all-round performance surfing.",
+        "WaveSize": 10,
+        "Break": 85,
+        "Power": 8,
+        "Approach": 90,
+        "FootOrientation": 30,
+        "Foil": 90,
+        "NoseShape": 90,
+        "TailWidth": 80,
+        "EntryRocker": 10,
+        "ExitRocker": 15,
+        "RockerStyle": 80
+      }
+    },
+    {
+      "Name": "Fun Series 7'0\" All-Rounder",
+      "Slug": "fun-series-7-0-all-rounder",
+      "CategorySlug": "surfboards",
+      "SubcategorySlugs": [
+        "fun-board"
+      ],
+      "Price": 579,
+      "Description": "A stable all-rounder that bridges the gap from foam to fiberglass.",
+      "Sizes": [
+        {
+          "Label": "6'8\" · 42.0L",
+          "Stock": 4,
+          "LengthIn": 80,
+          "VolumeL": 42.0
+        },
+        {
+          "Label": "7'0\" · 46.0L",
+          "Stock": 4,
+          "LengthIn": 84,
+          "VolumeL": 46.0
+        },
+        {
+          "Label": "7'4\" · 50.5L",
+          "Stock": 4,
+          "LengthIn": 88,
+          "VolumeL": 50.5
+        }
+      ],
+      "SurfboardSpecs": {
+        "SkillLevel": "Beginner",
+        "FinSetup": "Thruster",
+        "FinSetupNote": "Balanced drive and release for all-round performance surfing.",
+        "WaveSize": 20,
+        "Break": 80,
+        "Power": 18,
+        "Approach": 75,
+        "FootOrientation": 40,
+        "Foil": 80,
+        "NoseShape": 80,
+        "TailWidth": 70,
+        "EntryRocker": 18,
+        "ExitRocker": 22,
+        "RockerStyle": 75
+      }
+    },
+    {
+      "Name": "Samurai Pro 22\" Boardshort",
+      "Slug": "samurai-pro-22-boardshort",
+      "CategorySlug": "mens-clothing",
+      "SubcategorySlugs": [
+        "mens-boardshorts"
+      ],
+      "Price": 79,
+      "Subtitle": "Performance stretch",
+      "Featured": true,
+      "Description": "A nod to our early team riders. The Samurai Pro brings back the long boardshort silhouette from the WESTLINE archive, with artwork inspired by our founding team's original graphics and everyday stretch for all-day comfort. Featured here in the Dusty Blue colorway.\n\n**Details & Features** — Style WSB-2214 · Color Code DBU\n\n- Fabric: Woven 90% polyester, 10% spandex with partially recycled polyester\n- Product type: Men's boardshort\n- Outseam: 22 inches, long\n- Fit: Performance\n- Waist: Fixed waist\n- Branding: WESTLINE embroidery and patch\n- Other features: Side welt zip pocket\n- Other features: Engineered sublimation print\n- Other features: Product appearance may vary slightly depending on print placement",
+      "Sizes": [
+        {
+          "Label": "28",
+          "Stock": 8
+        },
+        {
+          "Label": "29",
+          "Stock": 8
+        },
+        {
+          "Label": "30",
+          "Stock": 8
+        },
+        {
+          "Label": "31",
+          "Stock": 8
+        },
+        {
+          "Label": "32",
+          "Stock": 8
+        },
+        {
+          "Label": "33",
+          "Stock": 8
+        },
+        {
+          "Label": "34",
+          "Stock": 8
+        },
+        {
+          "Label": "35",
+          "Stock": 8
+        },
+        {
+          "Label": "36",
+          "Stock": 2
+        },
+        {
+          "Label": "38",
+          "Stock": 2
+        },
+        {
+          "Label": "40",
+          "Stock": 8
+        }
+      ],
+      "images": "samurai-pro-22-boardshort"
+    },
+    {
+      "Name": "Tidal Rash Guard",
+      "Slug": "tidal-rash-guard",
+      "CategorySlug": "mens-clothing",
+      "SubcategorySlugs": [
+        "mens-tshirts-tanks"
+      ],
+      "Price": 49,
+      "Subtitle": "UPF 50+",
+      "Description": "A slim-fit long-sleeve rash guard with UPF 50+ protection and flatlock seams.",
+      "Sizes": [
+        {
+          "Label": "S",
+          "Stock": 8
+        },
+        {
+          "Label": "M",
+          "Stock": 8
+        },
+        {
+          "Label": "L",
+          "Stock": 8
+        },
+        {
+          "Label": "XL",
+          "Stock": 8
+        }
+      ]
+    },
+    {
+      "Name": "Boardwalk Hybrid Shorts",
+      "Slug": "boardwalk-hybrid-shorts",
+      "CategorySlug": "mens-clothing",
+      "SubcategorySlugs": [
+        "mens-shorts"
+      ],
+      "Price": 59,
+      "Description": "Walkshort looks, boardshort fabric — quick-drying hybrid shorts for land and sea.",
+      "Sizes": [
+        {
+          "Label": "30",
+          "Stock": 8
+        },
+        {
+          "Label": "32",
+          "Stock": 8
+        },
+        {
+          "Label": "34",
+          "Stock": 8
+        },
+        {
+          "Label": "36",
+          "Stock": 8
+        }
+      ]
+    },
+    {
+      "Name": "Archive Team Tee",
+      "Slug": "archive-team-tee",
+      "CategorySlug": "mens-clothing",
+      "SubcategorySlugs": [
+        "mens-tshirts-tanks"
+      ],
+      "Price": 29,
+      "Description": "Heavyweight cotton tee with archive WESTLINE team artwork.",
+      "Sizes": [
+        {
+          "Label": "S",
+          "Stock": 8
+        },
+        {
+          "Label": "M",
+          "Stock": 8
+        },
+        {
+          "Label": "L",
+          "Stock": 8
+        },
+        {
+          "Label": "XL",
+          "Stock": 2
+        }
+      ]
+    },
+    {
+      "Name": "Horizon Snapback Cap",
+      "Slug": "horizon-snapback-cap",
+      "CategorySlug": "accessories",
+      "SubcategorySlugs": [],
+      "Price": 32,
+      "Description": "Six-panel snapback with an embroidered Horizon logo.",
+      "Sizes": [
+        {
+          "Label": "One Size",
+          "Stock": 15
+        }
+      ]
+    },
+    {
+      "Name": "Performance Tri Fins",
+      "Slug": "performance-tri-fins",
+      "CategorySlug": "accessories",
+      "SubcategorySlugs": [
+        "fins"
+      ],
+      "Price": 89,
+      "Description": "A medium-size thruster fin set with a fiberglass core — balanced drive and release.",
+      "Sizes": [
+        {
+          "Label": "FCS II",
+          "Stock": 6
+        },
+        {
+          "Label": "Futures",
+          "Stock": 6
+        }
+      ]
+    },
+    {
+      "Name": "Comp Leash 6'",
+      "Slug": "comp-leash-6",
+      "CategorySlug": "accessories",
+      "SubcategorySlugs": [
+        "leashes"
+      ],
+      "Price": 39,
+      "Description": "A thin 6mm competition leash for shortboards up to 6'6\".",
+      "Sizes": [
+        {
+          "Label": "One Size",
+          "Stock": 12
+        }
+      ]
+    },
+    {
+      "Name": "Coldwater 4/3 Chest-Zip",
+      "Slug": "coldwater-4-3-chest-zip",
+      "CategorySlug": "wetsuits",
+      "SubcategorySlugs": [
+        "mens-wetsuits"
+      ],
+      "Price": 329,
+      "Subtitle": "4/3mm chest-zip fullsuit",
+      "Description": "A warm, flexible 4/3 chest-zip fullsuit for winter sessions, with sealed and taped seams.",
+      "Sizes": [
+        {
+          "Label": "S",
+          "Stock": 1
+        },
+        {
+          "Label": "M",
+          "Stock": 5
+        },
+        {
+          "Label": "L",
+          "Stock": 5
+        },
+        {
+          "Label": "XL",
+          "Stock": 5
+        }
+      ]
+    },
+    {
+      "Name": "Summer 2mm Spring Suit",
+      "Slug": "summer-2mm-spring-suit",
+      "CategorySlug": "wetsuits",
+      "SubcategorySlugs": [
+        "womens-wetsuits"
+      ],
+      "Price": 189,
+      "Subtitle": "2mm back-zip spring suit",
+      "Description": "A short-sleeve, short-leg spring suit for warm-water days.",
+      "Sizes": [
+        {
+          "Label": "XS",
+          "Stock": 6
+        },
+        {
+          "Label": "S",
+          "Stock": 6
+        },
+        {
+          "Label": "M",
+          "Stock": 6
+        },
+        {
+          "Label": "L",
+          "Stock": 6
+        }
+      ]
+    }
+  ]
+}
