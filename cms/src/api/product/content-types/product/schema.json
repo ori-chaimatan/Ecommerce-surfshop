@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": "Every catalog product — boards, apparel, wetsuits, accessories"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name",
+      "required": true
+    },
+    "Category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "required": true,
+      "inversedBy": "Products"
+    },
+    "Subcategories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::subcategory.subcategory",
+      "inversedBy": "Products"
+    },
+    "Gender": {
+      "type": "enumeration",
+      "enum": [
+        "Men",
+        "Women",
+        "Unisex"
+      ]
+    },
+    "Price": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "Images": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "Subtitle": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "richtext",
+      "required": true
+    },
+    "Featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "Sizes": {
+      "type": "component",
+      "component": "product.size",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    },
+    "SurfboardSpecs": {
+      "type": "component",
+      "component": "product.surfboard-specs",
+      "repeatable": false
+    }
+  }
+}
