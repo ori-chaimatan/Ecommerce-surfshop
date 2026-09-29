@@ -1,3 +1,5 @@
+import { strapiMediaUrl } from './media';
+
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337';
 
 const HOMEPAGE_QUERY = new URLSearchParams({
@@ -19,10 +21,6 @@ interface StrapiHero {
   Button?: { Text?: string | null; LinkUrl?: string | null } | null;
 }
 
-function absoluteUrl(url: string) {
-  return url.startsWith('/') ? `${STRAPI_URL}${url}` : url;
-}
-
 function normalizeHero(hero: StrapiHero): HeroSlide | null {
   const { Title, BackgroundImg, Button } = hero ?? {};
   if (!Title || !Button?.Text || !Button?.LinkUrl || !BackgroundImg?.url || !BackgroundImg.width || !BackgroundImg.height) {
@@ -31,7 +29,7 @@ function normalizeHero(hero: StrapiHero): HeroSlide | null {
 
   return {
     headline: Title,
-    image: { src: absoluteUrl(BackgroundImg.url), width: BackgroundImg.width, height: BackgroundImg.height },
+    image: { src: strapiMediaUrl(BackgroundImg.url), width: BackgroundImg.width, height: BackgroundImg.height },
     ctaLabel: Button.Text,
     ctaHref: Button.LinkUrl,
   };
