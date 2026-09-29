@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_shared_button_ctas",
+  "info": {
+    "displayName": "ButtonCTA",
+    "icon": "crown"
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "string",
+      "required": true
+    },
+    "LinkUrl": {
+      "type": "string"
+    },
+    "targetLink": {
+      "type": "component",
+      "component": "shared.target",
+      "repeatable": false
+    }
+  },
+  "config": {}
+}
