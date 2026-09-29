@@ -21,6 +21,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["Poppins", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       keyframes: {
         wave: {

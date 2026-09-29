@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import type { HeroSlide as HeroSlideData } from '@/lib/strapi/homepage';
+import { ButtonCTA } from '@/shared/components/button-cta';
 
 interface HeroSlideProps {
   slide: HeroSlideData;
@@ -13,10 +13,6 @@ interface HeroSlideProps {
   clone?: boolean;
 }
 
-function isInternal(href: string) {
-  return /^\/(?![\/\\])/.test(href) || href.startsWith('#');
-}
-
 export function HeroSlide({
   slide,
   active,
@@ -26,10 +22,7 @@ export function HeroSlide({
   clone = false,
 }: HeroSlideProps) {
   const hidden = clone || !active;
-  // React 18 has no typed `inert` prop; an empty-string attribute is passed through as-is.
   const inertProps = hidden ? ({ inert: '' } as Record<string, string>) : {};
-  const ctaClassName =
-    'inline-flex items-center gap-2 rounded-[9px] border-2 border-transparent bg-horizon px-[26px] py-[14px] text-sm font-bold uppercase tracking-[0.02em] text-horizon-ink no-underline hover:bg-horizon-deep';
 
   return (
     <div
@@ -67,15 +60,7 @@ export function HeroSlide({
           {slide.headline}
         </Heading>
         <div className="flex flex-wrap gap-3.5">
-          {isInternal(slide.ctaHref) ? (
-            <Link href={slide.ctaHref} tabIndex={hidden ? -1 : undefined} className={ctaClassName}>
-              {slide.ctaLabel}
-            </Link>
-          ) : (
-            <a href={slide.ctaHref} tabIndex={hidden ? -1 : undefined} className={ctaClassName}>
-              {slide.ctaLabel}
-            </a>
-          )}
+          <ButtonCTA {...slide.cta} tabIndex={hidden ? -1 : undefined} />
         </div>
       </div>
     </div>

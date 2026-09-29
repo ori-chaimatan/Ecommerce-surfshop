@@ -1,13 +1,9 @@
 import { getHomepageHero } from '@/lib/strapi/homepage';
-import { HeroCarousel } from './hero-carousel';
-import { HeroFallback } from './hero-fallback';
+import { HeroCarousel } from './HeroCarousel';
+import { HeroFallback } from './HeroFallback';
 
 export async function Hero() {
   const slides = await getHomepageHero();
 
-  if (slides.length === 0) {
-    return <HeroFallback />;
-  }
-
-  return <HeroCarousel slides={slides} />;
+  return slides.length === 0 ? <HeroFallback /> : <HeroCarousel slides={slides} />;
 }

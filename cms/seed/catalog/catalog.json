@@ -70,41 +70,49 @@
     {
       "Name": "Men's Wetsuits",
       "Slug": "mens-wetsuits",
+      "NavLabel": "Men",
       "CategorySlug": "wetsuits"
     },
     {
       "Name": "Women's Wetsuits",
       "Slug": "womens-wetsuits",
+      "NavLabel": "Women",
       "CategorySlug": "wetsuits"
     },
     {
       "Name": "Men's T-Shirts & Tanks",
       "Slug": "mens-tshirts-tanks",
+      "NavLabel": "T-Shirts & Tanks",
       "CategorySlug": "mens-clothing"
     },
     {
       "Name": "Men's Shorts",
       "Slug": "mens-shorts",
+      "NavLabel": "Shorts",
       "CategorySlug": "mens-clothing"
     },
     {
       "Name": "Men's Boardshorts",
       "Slug": "mens-boardshorts",
+      "NavLabel": "Boardshorts",
       "CategorySlug": "mens-clothing"
     },
     {
       "Name": "Women's Tops",
       "Slug": "womens-tops",
+      "NavLabel": "Tops",
       "CategorySlug": "womens-clothing"
     },
     {
       "Name": "Women's Shorts",
       "Slug": "womens-shorts",
+      "NavLabel": "Shorts",
       "CategorySlug": "womens-clothing"
     },
     {
       "Name": "Women's Swimmers",
       "Slug": "womens-swimmers",
+      "NavLabel": "Swimmers",
       "CategorySlug": "womens-clothing"
     }
   ],

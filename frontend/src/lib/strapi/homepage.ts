@@ -1,74 +1,50 @@
+import { toButtonCta, type ButtonCtaData, type StrapiButtonCta } from '@/shared/components/button-cta/button-cta';
+import { strapiFetch } from './client';
 import { strapiMediaUrl } from './media';
-
-const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337';
 
 const HOMEPAGE_QUERY = new URLSearchParams({
   'populate[Hero][populate][BackgroundImg]': 'true',
-  'populate[Hero][populate][Button]': 'true',
+  'populate[Hero][populate][Button][populate]': 'targetLink',
 }).toString();
 
 export interface HeroSlide {
   headline: string;
   image: { src: string; width: number; height: number };
-  ctaLabel: string;
-  ctaHref: string;
+  cta: ButtonCtaData;
 }
 
 interface StrapiHero {
   Title?: string | null;
   BackgroundImg?: { url?: string; width?: number; height?: number } | null;
-  Button?: { Text?: string | null; LinkUrl?: string | null } | null;
-}
-
-/** A same-site path, an in-page anchor, or an absolute http(s): / mailto: URL. Anything else (javascript:, //host) is dropped. */
-function isSafeHref(href: string) {
-  if (/^\/(?![\/\\])/.test(href) || href.startsWith('#')) return true;
-  try {
-    return ['http:', 'https:', 'mailto:'].includes(new URL(href).protocol);
-  } catch {
-    return false;
-  }
+  Button?: StrapiButtonCta | null;
 }
 
 function normalizeHero(hero: StrapiHero): HeroSlide | null {
   const { Title, BackgroundImg, Button } = hero ?? {};
-  if (!Title || !Button?.Text || !Button?.LinkUrl || !BackgroundImg?.url || !BackgroundImg.width || !BackgroundImg.height) {
-    return null;
-  }
-  if (!isSafeHref(Button.LinkUrl)) {
+  const cta = toButtonCta(Button);
+  if (!Title || !cta || !BackgroundImg?.url || !BackgroundImg.width || !BackgroundImg.height) {
     return null;
   }
 
   return {
     headline: Title,
     image: { src: strapiMediaUrl(BackgroundImg.url), width: BackgroundImg.width, height: BackgroundImg.height },
-    ctaLabel: Button.Text,
-    ctaHref: Button.LinkUrl,
+    cta,
   };
 }
 
 export async function getHomepageHero(): Promise<HeroSlide[]> {
-  try {
-    const response = await fetch(`${STRAPI_URL}/api/homepage?${HOMEPAGE_QUERY}`, {
-      next: { revalidate: 60 },
-    });
+  // 404 means the homepage single type hasn't been created yet — expected, not an error.
+  const json = (await strapiFetch(`homepage?${HOMEPAGE_QUERY}`, {
+    label: 'homepage',
+    fallback: null,
+    silentStatuses: [404],
+  })) as { data?: { Hero?: unknown } } | null;
 
-    if (!response.ok) {
-      if (response.status !== 404) {
-        console.error(`[homepage] Strapi responded ${response.status}`);
-      }
-      return [];
-    }
-
-    const json = await response.json();
-    const heroes = json?.data?.Hero;
-    if (!Array.isArray(heroes)) {
-      return [];
-    }
-
-    return heroes.map(normalizeHero).filter((hero): hero is HeroSlide => hero !== null);
-  } catch (error) {
-    console.error('[homepage] failed to load hero slides', error);
+  const heroes = json?.data?.Hero;
+  if (!Array.isArray(heroes)) {
     return [];
   }
+
+  return heroes.map(normalizeHero).filter((hero): hero is HeroSlide => hero !== null);
 }

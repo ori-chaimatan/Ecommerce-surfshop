@@ -7,7 +7,7 @@ vi.mock('@/lib/strapi/homepage', () => ({
   getHomepageHero: () => mockGetHomepageHero(),
 }));
 
-import { Hero } from '@/components/home/hero/hero';
+import { Hero } from '@/components/home/hero/Hero';
 
 describe('Hero', () => {
   beforeEach(() => {
@@ -18,8 +18,7 @@ describe('Hero', () => {
     mockGetHomepageHero.mockResolvedValue([
       {
         headline: 'Westline',
-        ctaLabel: 'Shop Now',
-        ctaHref: '/catalog',
+        cta: { text: 'Shop Now', href: '/catalog', target: '_self' },
         image: { src: 'http://localhost:1337/uploads/slide_1.jpg', width: 1050, height: 699 },
       },
     ]);

@@ -2,16 +2,12 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { Icon } from '@/shared/components/icons';
 import type { IProductCardMediaProps } from './product-card.types';
 import { styles } from './product-card-media.styles';
+import { texts } from './product-card-texts';
 
 const MAX_PHOTOS = 4;
-
-const HEART_ICON = (
-  <svg viewBox="0 0 24 24" aria-hidden className={styles.heart}>
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
 
 export const ProductCardMedia = ({
   product,
@@ -44,21 +40,21 @@ export const ProductCardMedia = ({
         <button
           type="button"
           aria-pressed={isFavorite}
-          aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={isFavorite ? texts.removeFromWishlist : texts.addToWishlist}
           onClick={() => onToggleFavorite(product.slug)}
           className={styles.favorite}
         >
-          {HEART_ICON}
+          <Icon name="heart" className={styles.heart} />
         </button>
       )}
 
       {photos.length > 1 && (
-        <div role="group" aria-label="Photos" className={styles.dots}>
+        <div role="group" aria-label={texts.photosLabel} className={styles.dots}>
           {photos.map((_photo, index) => (
             <button
               key={index}
               type="button"
-              aria-label={`Show photo ${index + 1}`}
+              aria-label={texts.showPhoto(index + 1)}
               aria-current={index === current ? 'true' : 'false'}
               onClick={() => setActive(index)}
               className={`${styles.dot.base} ${styles.dot.state[index === current ? 'active' : 'idle']}`}

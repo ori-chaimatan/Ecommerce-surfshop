@@ -21,6 +21,9 @@
       "targetField": "Name",
       "required": true
     },
+    "NavLabel": {
+      "type": "string"
+    },
     "Category": {
       "type": "relation",
       "relation": "manyToOne",

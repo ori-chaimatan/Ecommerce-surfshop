@@ -1,3 +1,4 @@
+import { productHref } from '@/lib/routes';
 import { strapiMediaUrl } from '@/lib/strapi/media';
 
 const MAX_IMAGES = 4;
@@ -32,7 +33,7 @@ export function toProductCard(product: StrapiProduct): ProductCard | null {
     slug: Slug,
     name: Name,
     price,
-    href: `/products/${Slug}`,
+    href: productHref(Slug),
     images: Images.slice(0, MAX_IMAGES).map((image) => ({
       src: strapiMediaUrl(image.url),
       width: image.width,

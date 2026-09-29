@@ -3,12 +3,13 @@ import { formatPrice } from './product-card';
 import type { IProductCardProps } from './product-card.types';
 import { styles } from './product-card.styles';
 import { ProductCardMedia } from './ProductCardMedia';
+import { texts } from './product-card-texts';
 
 export const ProductCard = ({ product, priority, isFavorite, onToggleFavorite }: IProductCardProps): React.JSX.Element => {
   return (
     <article className={styles.card}>
       <Link href={product.href} className={styles.link}>
-        <span className="sr-only">View {product.name}</span>
+        <span className="sr-only">{texts.viewProduct(product.name)}</span>
       </Link>
 
       <ProductCardMedia
