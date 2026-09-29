@@ -1,0 +1,17 @@
+export const texts = {
+  heading: 'Forgot Password',
+  subtitle: "Enter the email associated with your account and we'll send you a link to reset it.",
+  emailLabel: 'Email',
+  emailPlaceholder: 'you@email.com',
+  submitIdle: 'Send Reset Link',
+  submitLoading: 'Sending…',
+  backToSignInLink: 'Back to Sign In',
+  confirmedHeading: 'Check Your Email',
+  confirmedIntroPrefix: 'If an account exists for ',
+  confirmedIntroFallbackEmail: 'that address',
+  confirmedIntroSuffix: ", we've sent a link to reset your password.",
+  confirmedHint: 'Check your inbox for a reset link.',
+  resendPrefix: "Didn't get anything?",
+  resendLink: 'Resend email',
+  resentNotice: 'Email resent.',
+};

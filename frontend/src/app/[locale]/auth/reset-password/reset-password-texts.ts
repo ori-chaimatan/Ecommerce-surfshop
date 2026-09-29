@@ -1,0 +1,17 @@
+export const texts = {
+  invalidHeading: 'Link Invalid',
+  invalidMessage: 'This password reset link is invalid or has expired. Request a new one to continue.',
+  requestNewLinkButton: 'Request a New Link',
+  successHeading: 'Password Reset',
+  successMessage: "Your password has been updated, and you're signed in.",
+  continueButton: 'Continue to WESTLINE',
+  heading: 'Set New Password',
+  subtitle: 'Choose a new password for your account.',
+  newPasswordLabel: 'New password',
+  confirmPasswordLabel: 'Confirm new password',
+  passwordPlaceholder: '••••••••',
+  passwordMismatchError: 'Passwords do not match.',
+  submitIdle: 'Reset Password',
+  submitLoading: 'Resetting…',
+  backToSignInLink: 'Back to Sign In',
+};
