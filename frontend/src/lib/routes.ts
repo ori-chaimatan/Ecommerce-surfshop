@@ -1,26 +1,14 @@
-/**
- * Every storefront URL is built here, so links and the pages that serve them
- * can't drift apart. catalog-listing-page and product-detail-page must serve these.
- *
- * Reserved slugs: `category` (product slugs share `/products/<slug>`) and every
- * NAV_GROUPS slug (group slugs share `/products/category/<slug>`).
- */
+export const GENDERS = ['men', 'women'] as const;
+export type Gender = (typeof GENDERS)[number];
 
-/**
- * Menu items that group several Strapi categories into one. The group slug is a
- * virtual category: `/products/category/<slug>` resolves to the categories in its
- * columns. The Strapi model has no notion of this.
- */
-export const NAV_GROUPS = [
-  {
-    slug: 'clothing',
-    label: 'Clothing',
-    columns: [
-      { label: 'Men', categorySlug: 'mens-clothing' },
-      { label: 'Women', categorySlug: 'womens-clothing' },
-    ],
-  },
-];
+export type StrapiGender = 'Men' | 'Women' | 'Unisex';
+
+export const GENDER_FILTER: Record<Gender, StrapiGender[]> = {
+  men: ['Men', 'Unisex'],
+  women: ['Women', 'Unisex'],
+};
+
+export const GENDERED_CATEGORY_SLUGS = ['clothing'];
 
 export const HOME_HREF = '/';
 export const LOGIN_HREF = '/auth/login';
@@ -37,4 +25,12 @@ export function categoryHref(categorySlug: string) {
 
 export function subcategoryHref(categorySlug: string, subcategorySlug: string) {
   return `${categoryHref(categorySlug)}?sub=${subcategorySlug}`;
+}
+
+export function genderHref(categorySlug: string, gender: Gender) {
+  return `${categoryHref(categorySlug)}?gender=${gender}`;
+}
+
+export function subcategoryGenderHref(categorySlug: string, subcategorySlug: string, gender: Gender) {
+  return `${subcategoryHref(categorySlug, subcategorySlug)}&gender=${gender}`;
 }

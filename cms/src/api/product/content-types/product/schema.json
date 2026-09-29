@@ -25,14 +25,22 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::category.category",
-      "inversedBy": "Products",
-      "required": true
+      "required": true,
+      "inversedBy": "Products"
     },
     "Subcategories": {
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::subcategory.subcategory",
       "inversedBy": "Products"
+    },
+    "Gender": {
+      "type": "enumeration",
+      "enum": [
+        "Men",
+        "Women",
+        "Unisex"
+      ]
     },
     "Price": {
       "type": "decimal",

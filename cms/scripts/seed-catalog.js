@@ -144,6 +144,7 @@ async function seedProducts(strapi, products, categoryIds, subcategoryIds, summa
           Slug: product.Slug,
           Category: categoryId,
           Subcategories: subcategories,
+          Gender: product.Gender ?? null,
           Price: product.Price,
           Images: imageIds,
           Subtitle: product.Subtitle ?? null,

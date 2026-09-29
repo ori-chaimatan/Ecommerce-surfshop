@@ -1,6 +1,19 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { CART_HREF, HOME_HREF, LOGIN_HREF, NAV_GROUPS, WISHLIST_HREF, categoryHref, productHref, subcategoryHref } from '@/lib/routes';
+import {
+  CART_HREF,
+  GENDERS,
+  GENDER_FILTER,
+  GENDERED_CATEGORY_SLUGS,
+  HOME_HREF,
+  LOGIN_HREF,
+  WISHLIST_HREF,
+  categoryHref,
+  genderHref,
+  productHref,
+  subcategoryGenderHref,
+  subcategoryHref,
+} from '@/lib/routes';
 
 describe('routes', () => {
   it('builds product URLs (product-card AC1)', () => {
@@ -12,20 +25,23 @@ describe('routes', () => {
     expect(subcategoryHref('surfboards', 'soft-top-beginner')).toBe('/products/category/surfboards?sub=soft-top-beginner');
   });
 
-  it('exposes the fixed site URLs used by the header (site-nav AC8)', () => {
-    expect([HOME_HREF, LOGIN_HREF, WISHLIST_HREF, CART_HREF]).toEqual(['/', '/auth/login', '/account#wishlist', '/cart']);
+  it('builds gender URLs for gendered categories (site-nav AC5)', () => {
+    expect(genderHref('clothing', 'men')).toBe('/products/category/clothing?gender=men');
+    expect(genderHref('clothing', 'women')).toBe('/products/category/clothing?gender=women');
+    expect(GENDERED_CATEGORY_SLUGS).toEqual(['clothing']);
   });
 
-  it('exports the Clothing group for catalog-listing-page to resolve (site-nav AC5)', () => {
-    expect(NAV_GROUPS).toEqual([
-      {
-        slug: 'clothing',
-        label: 'Clothing',
-        columns: [
-          { label: 'Men', categorySlug: 'mens-clothing' },
-          { label: 'Women', categorySlug: 'womens-clothing' },
-        ],
-      },
-    ]);
+  it('builds subcategory + gender URLs (site-nav AC5)', () => {
+    expect(subcategoryGenderHref('clothing', 'shorts', 'men')).toBe('/products/category/clothing?sub=shorts&gender=men');
+    expect(subcategoryGenderHref('clothing', 'tops', 'women')).toBe('/products/category/clothing?sub=tops&gender=women');
+  });
+
+  it('defines what ?gender= matches: Unisex counts for both (product-content-model AC12)', () => {
+    expect(GENDERS).toEqual(['men', 'women']);
+    expect(GENDER_FILTER).toEqual({ men: ['Men', 'Unisex'], women: ['Women', 'Unisex'] });
+  });
+
+  it('exposes the fixed site URLs used by the header (site-nav AC8)', () => {
+    expect([HOME_HREF, LOGIN_HREF, WISHLIST_HREF, CART_HREF]).toEqual(['/', '/auth/login', '/account#wishlist', '/cart']);
   });
 });

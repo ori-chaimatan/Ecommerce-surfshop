@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getNavigationCategories } from '@/lib/strapi/navigation';
+import { getNavigation, getNavigationCategories, getSubcategoryGenders } from '@/lib/strapi/navigation';
 
 const mockFetch = vi.fn();
 
@@ -76,5 +76,111 @@ describe('getNavigationCategories', () => {
     mockFetch.mockResolvedValue(strapiResponse({ data: 'nope' }));
 
     await expect(getNavigationCategories()).resolves.toEqual([]);
+  });
+});
+
+function genderPage(data: unknown[], page = 1, pageCount = 1) {
+  return strapiResponse({ data, meta: { pagination: { page, pageCount } } });
+}
+
+describe('getSubcategoryGenders', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('fetches only Gender + Subcategory slugs of Clothing products, no media, revalidating every 60s (AC3)', async () => {
+    mockFetch.mockResolvedValue(genderPage([]));
+
+    await getSubcategoryGenders();
+
+    const [url, init] = mockFetch.mock.calls[0];
+    const decoded = decodeURIComponent(url);
+    expect(url).toContain('http://localhost:1337/api/products?');
+    expect(decoded).toContain('fields[0]=Gender');
+    expect(decoded).toContain('populate[Subcategories][fields][0]=Slug');
+    expect(decoded).toContain('filters[Category][Slug][$in][0]=clothing');
+    expect(decoded).not.toMatch(/Images|populate=\*/);
+    expect(init).toEqual(expect.objectContaining({ next: { revalidate: 60 } }));
+  });
+
+  it('maps each subcategory slug to the distinct Genders of its products (AC3)', async () => {
+    mockFetch.mockResolvedValue(
+      genderPage([
+        { Gender: 'Men', Subcategories: [{ Slug: 'shorts' }, { Slug: 'boardshorts' }] },
+        { Gender: 'Women', Subcategories: [{ Slug: 'shorts' }] },
+        { Gender: 'Men', Subcategories: [{ Slug: 'shorts' }] },
+        { Gender: 'Unisex', Subcategories: [{ Slug: 'tshirts-tanks' }] },
+        { Gender: null, Subcategories: [{ Slug: 'tops' }] },
+      ])
+    );
+
+    await expect(getSubcategoryGenders()).resolves.toEqual({
+      shorts: ['Men', 'Women'],
+      boardshorts: ['Men'],
+      'tshirts-tanks': ['Unisex'],
+    });
+  });
+
+  it('follows every page of products (AC3)', async () => {
+    mockFetch
+      .mockResolvedValueOnce(genderPage([{ Gender: 'Men', Subcategories: [{ Slug: 'shorts' }] }], 1, 2))
+      .mockResolvedValueOnce(genderPage([{ Gender: 'Women', Subcategories: [{ Slug: 'tops' }] }], 2, 2));
+
+    await expect(getSubcategoryGenders()).resolves.toEqual({ shorts: ['Men'], tops: ['Women'] });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(decodeURIComponent(mockFetch.mock.calls[1][0])).toContain('pagination[page]=2');
+  });
+
+  it('returns null when any request fails, so the menu falls back to all subcategories (AC3, AC11)', async () => {
+    mockFetch.mockRejectedValue(new TypeError('fetch failed'));
+    await expect(getSubcategoryGenders()).resolves.toBeNull();
+
+    mockFetch.mockReset();
+    mockFetch
+      .mockResolvedValueOnce(genderPage([{ Gender: 'Men', Subcategories: [{ Slug: 'shorts' }] }], 1, 2))
+      .mockResolvedValueOnce(strapiResponse({ error: { status: 500 } }, 500));
+    await expect(getSubcategoryGenders()).resolves.toBeNull();
+  });
+});
+
+describe('getNavigation', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('returns categories and subcategory genders together (AC1, AC3)', async () => {
+    mockFetch.mockImplementation(async (url: string) =>
+      url.includes('/api/categories?')
+        ? strapiResponse({ data: CATEGORIES })
+        : genderPage([{ Gender: 'Unisex', Subcategories: [{ Slug: 'tshirts-tanks' }] }])
+    );
+
+    const nav = await getNavigation();
+    expect(nav.categories.map((c) => c.Slug)).toEqual(['surfboards', 'wetsuits']);
+    expect(nav.subcategoryGenders).toEqual({ 'tshirts-tanks': ['Unisex'] });
+  });
+
+  it('keeps the categories when only the gender request fails (AC11)', async () => {
+    mockFetch.mockImplementation(async (url: string) =>
+      url.includes('/api/categories?') ? strapiResponse({ data: CATEGORIES }) : strapiResponse({}, 500)
+    );
+
+    const nav = await getNavigation();
+    expect(nav.categories).toHaveLength(2);
+    expect(nav.subcategoryGenders).toBeNull();
   });
 });
