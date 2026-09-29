@@ -19,6 +19,7 @@ const SHAPES: Record<IconName, React.JSX.Element> = {
   ),
   'arrow-left': <path d="M15 18l-6-6 6-6" />,
   'arrow-right': <path d="M9 6l6 6-6 6" />,
+  'chevron-down': <path d="M6 9l6 6 6-6" />,
 };
 
 /** Decorative icon — the control around it carries the accessible name. */

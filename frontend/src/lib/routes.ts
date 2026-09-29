@@ -11,6 +11,7 @@ export const GENDER_FILTER: Record<Gender, StrapiGender[]> = {
 export const GENDERED_CATEGORY_SLUGS = ['clothing'];
 
 export const HOME_HREF = '/';
+export const PRODUCTS_HREF = '/products';
 export const LOGIN_HREF = '/auth/login';
 export const WISHLIST_HREF = '/account#wishlist';
 export const CART_HREF = '/cart';
@@ -33,4 +34,22 @@ export function genderHref(categorySlug: string, gender: Gender) {
 
 export function subcategoryGenderHref(categorySlug: string, subcategorySlug: string, gender: Gender) {
   return `${subcategoryHref(categorySlug, subcategorySlug)}&gender=${gender}`;
+}
+
+export interface CatalogHrefOptions {
+  categorySlug?: string;
+  subcategorySlug?: string;
+  gender?: Gender;
+  page?: number;
+}
+
+/** A catalog listing URL: `?sub` and `?gender` only on a category (gender only on gendered ones), `?page` omitted on page 1. */
+export function catalogHref({ categorySlug, subcategorySlug, gender, page }: CatalogHrefOptions = {}) {
+  const query: string[] = [];
+  if (categorySlug && subcategorySlug) query.push(`sub=${subcategorySlug}`);
+  if (categorySlug && gender && GENDERED_CATEGORY_SLUGS.includes(categorySlug)) query.push(`gender=${gender}`);
+  if (page && page > 1) query.push(`page=${page}`);
+
+  const path = categorySlug ? categoryHref(categorySlug) : PRODUCTS_HREF;
+  return query.length ? `${path}?${query.join('&')}` : path;
 }

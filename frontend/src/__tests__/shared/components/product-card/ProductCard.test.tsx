@@ -39,6 +39,16 @@ describe('ProductCard', () => {
     expect(screen.getByText('$49.50')).toBeInTheDocument();
   });
 
+  it('pins the price row to the bottom of a flex-column card so prices line up across a row (AC4)', () => {
+    const { container } = render(<ProductCard product={card()} />);
+
+    const article = container.querySelector('article')!;
+    expect(article).toHaveClass('flex', 'h-full', 'flex-col');
+    const priceRow = screen.getByText('$829').parentElement!;
+    expect(priceRow).toHaveClass('mt-auto');
+    expect(priceRow.parentElement).toHaveClass('flex', 'flex-1', 'flex-col');
+  });
+
   it('links the whole card to the product page with visually hidden "View <name>" text (AC7)', () => {
     render(<ProductCard product={card()} />);
 
