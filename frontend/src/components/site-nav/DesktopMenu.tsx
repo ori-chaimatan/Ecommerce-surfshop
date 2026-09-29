@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import type { FocusEvent, KeyboardEvent } from 'react';
+import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react';
 import type { NavItem } from './nav-menu';
 import { texts } from './site-nav-texts';
-
 
 const CLOSE_DELAY_MS = 250;
 
@@ -16,7 +16,16 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
   const closeTimer = useRef<ReturnType<typeof setTimeout>>();
   const topLinks = useRef(new Map<string, HTMLAnchorElement>());
 
+  const pathname = usePathname();
+
   useEffect(() => () => clearTimeout(closeTimer.current), []);
+
+  // Safety net: the header doesn't remount on client-side navigation, so close whatever is open when the route changes.
+  useEffect(() => {
+    clearTimeout(closeTimer.current);
+    setHoveredHref(null);
+    setFocusedHref(null);
+  }, [pathname]);
 
   const openItem = [hoveredHref, focusedHref].find((href) => href !== null && href !== dismissedHref) ?? null;
 
@@ -31,11 +40,30 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
     closeTimer.current = setTimeout(() => setHoveredHref((current) => (current === href ? null : current)), CLOSE_DELAY_MS);
   }
 
+  function handleFocus(href: string, e: FocusEvent<HTMLLIElement>) {
+    setFocusedHref(href);
+    // Focus arriving from outside the item lifts an earlier dismissal (Escape moves focus within the item, so it holds).
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+      setDismissedHref((current) => (current === href ? null : current));
+    }
+  }
+
   function handleBlur(href: string, e: FocusEvent<HTMLLIElement>) {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
       setFocusedHref((current) => (current === href ? null : current));
       setDismissedHref((current) => (current === href ? null : current));
     }
+  }
+
+  // Any link click closes the menu: the clicked link would otherwise keep focus (and the panel open) after navigating.
+  function handleClick(href: string, e: MouseEvent<HTMLLIElement>) {
+    const link = (e.target as Element).closest('a');
+    if (!link) return;
+    link.blur();
+    clearTimeout(closeTimer.current);
+    setHoveredHref(null);
+    setFocusedHref(null);
+    setDismissedHref(href);
   }
 
   function handleKeyDown(href: string, e: KeyboardEvent<HTMLLIElement>) {
@@ -53,9 +81,10 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
             key={item.href}
             onMouseEnter={() => handleMouseEnter(item.href)}
             onMouseLeave={() => handleMouseLeave(item.href)}
-            onFocus={() => setFocusedHref(item.href)}
+            onFocus={(e) => handleFocus(item.href, e)}
             onBlur={(e) => handleBlur(item.href, e)}
             onKeyDown={(e) => handleKeyDown(item.href, e)}
+            onClick={(e) => handleClick(item.href, e)}
           >
             <Link
               ref={(el) => {

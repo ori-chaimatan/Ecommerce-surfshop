@@ -7,7 +7,9 @@ import {
   GENDERED_CATEGORY_SLUGS,
   HOME_HREF,
   LOGIN_HREF,
+  PRODUCTS_HREF,
   WISHLIST_HREF,
+  catalogHref,
   categoryHref,
   genderHref,
   productHref,
@@ -43,5 +45,34 @@ describe('routes', () => {
 
   it('exposes the fixed site URLs used by the header (site-nav AC8)', () => {
     expect([HOME_HREF, LOGIN_HREF, WISHLIST_HREF, CART_HREF]).toEqual(['/', '/auth/login', '/account#wishlist', '/cart']);
+  });
+
+  describe('catalogHref (catalog-listing-page AC1, AC3, AC7)', () => {
+    it('builds the all-products and category URLs', () => {
+      expect(PRODUCTS_HREF).toBe('/products');
+      expect(catalogHref()).toBe('/products');
+      expect(catalogHref({ categorySlug: 'surfboards' })).toBe('/products/category/surfboards');
+    });
+
+    it('matches the existing builders for the same inputs', () => {
+      expect(catalogHref({ categorySlug: 'surfboards', subcategorySlug: 'longboard' })).toBe(subcategoryHref('surfboards', 'longboard'));
+      expect(catalogHref({ categorySlug: 'clothing', gender: 'men' })).toBe(genderHref('clothing', 'men'));
+      expect(catalogHref({ categorySlug: 'clothing', subcategorySlug: 'shorts', gender: 'women' })).toBe(
+        subcategoryGenderHref('clothing', 'shorts', 'women')
+      );
+    });
+
+    it('appends ?page last and omits it on page 1', () => {
+      expect(catalogHref({ page: 1 })).toBe('/products');
+      expect(catalogHref({ page: 2 })).toBe('/products?page=2');
+      expect(catalogHref({ categorySlug: 'clothing', subcategorySlug: 'shorts', gender: 'men', page: 3 })).toBe(
+        '/products/category/clothing?sub=shorts&gender=men&page=3'
+      );
+    });
+
+    it('never puts gender on a non-gendered category, and no sub on /products', () => {
+      expect(catalogHref({ categorySlug: 'surfboards', gender: 'men', page: 2 })).toBe('/products/category/surfboards?page=2');
+      expect(catalogHref({ subcategorySlug: 'longboard', gender: 'men' })).toBe('/products');
+    });
   });
 });

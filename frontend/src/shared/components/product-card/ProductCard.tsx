@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, priority, isFavorite, onToggleFavorite }: ProductCardProps) {
   return (
-    <article className="relative overflow-hidden rounded-[9px] border border-border bg-white">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-[9px] border border-border bg-white">
       <Link href={product.href} className="absolute inset-0 z-[1]">
         <span className="sr-only">{texts.viewProduct(product.name)}</span>
       </Link>
@@ -24,9 +24,9 @@ export function ProductCard({ product, priority, isFavorite, onToggleFavorite }:
         onToggleFavorite={onToggleFavorite}
       />
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="mb-1.5 text-base font-bold text-ink">{product.name}</h3>
-        <div className="flex items-center justify-between gap-2.5">
+        <div className="mt-auto flex items-center justify-between gap-2.5">
           <span className="text-base text-ink">{formatPrice(product.price)}</span>
         </div>
       </div>

@@ -7,7 +7,11 @@ const mockGetNavigation = vi.fn();
 
 vi.mock('@/lib/auth/session', () => ({ getSession: () => mockGetSession() }));
 vi.mock('@/lib/strapi/navigation', () => ({ getNavigation: () => mockGetNavigation() }));
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+const mockPathname = vi.fn(() => '/');
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => mockPathname(),
+}));
 
 import { SiteNav } from '@/components/site-nav';
 
@@ -44,6 +48,7 @@ function panelOf(label: string) {
 describe('SiteNav', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    mockPathname.mockReturnValue('/');
   });
 
   afterEach(() => {
@@ -166,6 +171,56 @@ describe('SiteNav', () => {
 
     expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'false');
     expect(top).toHaveFocus();
+  });
+
+  it('closes the mega-menu when a link inside it is clicked; hovering or focusing again reopens it (AC6)', async () => {
+    await renderNav();
+    const item = desktopItem('Wetsuits');
+    const inner = within(panelOf('Wetsuits')).getByRole('link', { name: 'Men' });
+
+    fireEvent.mouseEnter(item);
+    inner.focus();
+    fireEvent.click(inner);
+
+    expect(panelOf('Wetsuits')).toHaveAttribute('data-open', 'false');
+    expect(inner).not.toHaveFocus();
+    act(() => vi.advanceTimersByTime(500));
+    expect(panelOf('Wetsuits')).toHaveAttribute('data-open', 'false');
+
+    fireEvent.mouseLeave(item);
+    fireEvent.mouseEnter(item);
+    expect(panelOf('Wetsuits')).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(within(panelOf('Wetsuits')).getByRole('link', { name: 'All Wetsuits' }));
+    expect(panelOf('Wetsuits')).toHaveAttribute('data-open', 'false');
+    fireEvent.focus(within(desktop()).getByRole('link', { name: 'Wetsuits' }));
+    expect(panelOf('Wetsuits')).toHaveAttribute('data-open', 'true');
+  });
+
+  it('closes the mega-menu when its top-level link or a column head is clicked (AC6)', async () => {
+    await renderNav();
+    const top = within(desktop()).getByRole('link', { name: 'Surfboards' });
+
+    fireEvent.mouseEnter(desktopItem('Surfboards'));
+    top.focus();
+    fireEvent.click(top);
+    expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'false');
+    expect(top).not.toHaveFocus();
+
+    fireEvent.mouseEnter(desktopItem('Clothing'));
+    fireEvent.click(within(panelOf('Clothing')).getByRole('link', { name: 'Women' }));
+    expect(panelOf('Clothing')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('closes an open mega-menu when the pathname changes (AC6)', async () => {
+    const { rerender } = await renderNav();
+
+    fireEvent.focus(within(desktop()).getByRole('link', { name: 'Surfboards' }));
+    expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'true');
+
+    mockPathname.mockReturnValue('/products/category/surfboards');
+    rerender(await SiteNav());
+    expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'false');
   });
 
   it('toggles the mobile panel with the hamburger (AC7)', async () => {

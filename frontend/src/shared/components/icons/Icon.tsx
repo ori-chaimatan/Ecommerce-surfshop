@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-export type IconName = 'heart' | 'account' | 'cart' | 'arrow-left' | 'arrow-right';
+export type IconName = 'heart' | 'account' | 'cart' | 'arrow-left' | 'arrow-right' | 'chevron-down';
 
 // 24×24 shapes from the WESTLINE design. Size, stroke and fill come from the caller.
 const SHAPES: Record<IconName, JSX.Element> = {
@@ -21,6 +21,7 @@ const SHAPES: Record<IconName, JSX.Element> = {
   ),
   'arrow-left': <path d="M15 18l-6-6 6-6" />,
   'arrow-right': <path d="M9 6l6 6-6 6" />,
+  'chevron-down': <path d="M6 9l6 6 6-6" />,
 };
 
 interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children' | 'viewBox'> {

@@ -6,5 +6,5 @@ export const texts = {
   slidesLabel: 'Slides',
   slide: (n: number) => `Slide ${n}`,
   fallbackWordmark: 'WESTLINE',
-  fallbackMessage: 'Something Wrong!',
+  fallbackMessage: 'Coming Soon',
 };
