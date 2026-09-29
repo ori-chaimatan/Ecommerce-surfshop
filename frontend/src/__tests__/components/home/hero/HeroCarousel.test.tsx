@@ -1,26 +1,23 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { HeroCarousel } from '@/components/home/hero/hero-carousel';
+import { HeroCarousel } from '@/components/home/hero/HeroCarousel';
 import type { HeroSlide } from '@/lib/strapi/homepage';
 
 const SLIDES: HeroSlide[] = [
   {
     headline: 'Westline',
-    ctaLabel: 'Shop Now',
-    ctaHref: '/catalog',
+    cta: { text: 'Shop Now', href: '/catalog', target: '_self' },
     image: { src: 'http://localhost:1337/uploads/slide_1.jpg', width: 1050, height: 699 },
   },
   {
     headline: 'Find your Surfboard',
     subtext: 'Five questions, one board.',
-    ctaLabel: 'Take the Finder',
-    ctaHref: '/surfboard-finder',
+    cta: { text: 'Take the Finder', href: '/surfboard-finder', target: '_self' },
     image: { src: 'http://localhost:1337/uploads/slide_2.jpg', width: 1920, height: 1080 },
   },
   {
     headline: 'The Dawn Patrol Collection',
-    ctaLabel: 'Shop the Collection',
-    ctaHref: 'https://example.com/dawn-patrol',
+    cta: { text: 'Shop the Collection', href: 'https://example.com/dawn-patrol', target: '_self' },
     image: { src: 'http://localhost:1337/uploads/slide_3.jpg', width: 1742, height: 788 },
   },
 ];

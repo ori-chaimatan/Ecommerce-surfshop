@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { formatPrice, type ProductCard as ProductCardData } from './product-card';
 import { ProductCardMedia } from './ProductCardMedia';
+import { texts } from './product-card-texts';
 
 interface ProductCardProps {
   product: ProductCardData;
@@ -13,7 +14,7 @@ export function ProductCard({ product, priority, isFavorite, onToggleFavorite }:
   return (
     <article className="relative overflow-hidden rounded-[9px] border border-border bg-white">
       <Link href={product.href} className="absolute inset-0 z-[1]">
-        <span className="sr-only">View {product.name}</span>
+        <span className="sr-only">{texts.viewProduct(product.name)}</span>
       </Link>
 
       <ProductCardMedia

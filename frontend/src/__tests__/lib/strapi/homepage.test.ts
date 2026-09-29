@@ -41,7 +41,7 @@ describe('getHomepageHero', () => {
     expect(url).toContain('http://localhost:1337/api/homepage?');
     const decoded = decodeURIComponent(url);
     expect(decoded).toContain('populate[Hero][populate][BackgroundImg]=true');
-    expect(decoded).toContain('populate[Hero][populate][Button]=true');
+    expect(decoded).toContain('populate[Hero][populate][Button][populate]=targetLink');
     expect(init).toEqual(expect.objectContaining({ next: { revalidate: 60 } }));
   });
 
@@ -65,14 +65,12 @@ describe('getHomepageHero', () => {
       {
         headline: 'Westline',
         image: { src: 'http://localhost:1337/uploads/slide_1.jpg', width: 1050, height: 699 },
-        ctaLabel: 'Shop Now',
-        ctaHref: '/catalog',
+        cta: { text: 'Shop Now', href: '/catalog', target: '_self' },
       },
       {
         headline: 'Find your Surfboard',
         image: { src: 'https://cdn.example.com/slide_2.jpg', width: 1920, height: 1080 },
-        ctaLabel: 'Take the Finder',
-        ctaHref: '/surfboard-finder',
+        cta: { text: 'Take the Finder', href: '/surfboard-finder', target: '_self' },
       },
     ]);
   });
@@ -95,6 +93,18 @@ describe('getHomepageHero', () => {
     const heroes = await getHomepageHero();
 
     expect(heroes.map((h) => h.headline)).toEqual(['Kept']);
+  });
+
+  it("opens a slide's button in a new tab when its Strapi targetLink is _blank (button-cta AC7)", async () => {
+    mockFetch.mockResolvedValue(
+      strapiResponse({
+        data: { Hero: [hero({ Button: { Text: 'Shop Now', LinkUrl: 'https://example.com', targetLink: { targetLink: '_blank' } } })] },
+      })
+    );
+
+    const [slide] = await getHomepageHero();
+
+    expect(slide.cta).toEqual({ text: 'Shop Now', href: 'https://example.com', target: '_blank' });
   });
 
   it('returns [] when the homepage document does not exist (404) (AC13)', async () => {

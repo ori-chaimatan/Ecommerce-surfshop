@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { Icon } from '@/shared/components/icons';
 import type { ProductCard } from './product-card';
+import { texts } from './product-card-texts';
 
 const MAX_PHOTOS = 4;
 
@@ -11,14 +13,6 @@ interface ProductCardMediaProps {
   priority?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: (slug: string) => void;
-}
-
-function HeartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className="h-[17px] w-[17px] fill-none stroke-current stroke-2 group-aria-pressed:fill-current">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
 }
 
 export function ProductCardMedia({ product, priority = false, isFavorite, onToggleFavorite }: ProductCardMediaProps) {
@@ -47,25 +41,25 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
         <button
           type="button"
           aria-pressed={isFavorite}
-          aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={isFavorite ? texts.removeFromWishlist : texts.addToWishlist}
           onClick={() => onToggleFavorite(product.slug)}
           className="group absolute right-2.5 top-2.5 z-[2] flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-horizon shadow-[0_1px_4px_rgba(16,24,40,.10)] transition-colors duration-150 hover:border-horizon"
         >
-          <HeartIcon />
+          <Icon name="heart" className="h-[17px] w-[17px] fill-none stroke-current stroke-2 group-aria-pressed:fill-current" />
         </button>
       )}
 
       {photos.length > 1 && (
         <div
           role="group"
-          aria-label="Photos"
+          aria-label={texts.photosLabel}
           className="absolute bottom-3 left-1/2 z-[2] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/85 px-2 py-1.5 shadow-[0_1px_4px_rgba(16,24,40,.12)]"
         >
           {photos.map((photo, index) => (
             <button
               key={photo.src}
               type="button"
-              aria-label={`Show photo ${index + 1}`}
+              aria-label={texts.showPhoto(index + 1)}
               aria-current={index === active ? 'true' : 'false'}
               onClick={() => setActive(index)}
               className={`relative h-2 rounded-full transition-[width,background-color] duration-200 before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] ${

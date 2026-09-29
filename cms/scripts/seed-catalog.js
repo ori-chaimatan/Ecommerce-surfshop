@@ -133,6 +133,7 @@ async function main() {
     const subcategoryIds = await seedBySlug(strapi, SUBCATEGORY_UID, 'subcategory', subcategories, (s) => ({
       Name: s.Name,
       Slug: s.Slug,
+      NavLabel: s.NavLabel ?? null,
       Category: lookup(categoryIds, s.CategorySlug, `Subcategory ${s.Slug}`),
     }), summary);
     await seedProducts(strapi, products, categoryIds, subcategoryIds, summary);

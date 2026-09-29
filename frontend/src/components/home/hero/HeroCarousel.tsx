@@ -3,34 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TouchEvent, TransitionEvent } from 'react';
 import type { HeroSlide as HeroSlideData } from '@/lib/strapi/homepage';
-import { HeroSlide } from './hero-slide';
+import { Icon } from '@/shared/components/icons';
+import { HeroSlide } from './HeroSlide';
+import { texts } from './hero-texts';
 
 const AUTOPLAY_MS = 5000;
-// The track transition is 300ms; the settle fallback runs shortly after in case
-// transitionend is missed (backgrounded tab, interrupted transition).
 const SETTLE_FALLBACK_MS = 400;
 const SWIPE_THRESHOLD = 40;
-
-function ArrowIcon({ direction }: { direction: 'prev' | 'next' }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth="2"
-      fill="none"
-      className="h-[18px] w-[18px] max-[640px]:h-[15px] max-[640px]:w-[15px]"
-    >
-      <path d={direction === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 6l6 6-6 6'} />
-    </svg>
-  );
-}
 
 export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
   const count = slides.length;
   const loop = count > 1;
 
-  // Track position: with looping, the first and last slides are cloned at either
-  // end, so positions 1..count are the real slides and 0 / count + 1 are clones.
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -51,8 +35,6 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    // Touch devices can fire a synthetic mouseenter with no matching mouseleave,
-    // which would pause autoplay forever — only honour hover on real pointers.
     setSupportsHover(window.matchMedia('(hover: hover) and (pointer: fine)').matches);
   }, []);
 
@@ -135,8 +117,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
 
   return (
     <section
-      aria-roledescription="carousel"
-      aria-label="Featured"
+      aria-roledescription={texts.carouselRole}
+      aria-label={texts.carouselLabel}
       className="relative z-0 h-[calc(100vh-64px)] min-h-[420px] overflow-hidden bg-ink"
       onMouseEnter={() => supportsHover && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -167,33 +149,33 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
         <>
           <button
             type="button"
-            aria-label="Previous slide"
+            aria-label={texts.previousSlide}
             onClick={() => {
               prev();
               restartAutoplay();
             }}
             className="absolute left-5 top-1/2 z-[3] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-[rgba(18,33,42,.35)] text-white hover:bg-[rgba(18,33,42,.55)] max-[640px]:left-3 max-[640px]:h-9 max-[640px]:w-9"
           >
-            <ArrowIcon direction="prev" />
+            <Icon name="arrow-left" stroke="currentColor" strokeWidth="2" fill="none" className="h-[18px] w-[18px] max-[640px]:h-[15px] max-[640px]:w-[15px]" />
           </button>
           <button
             type="button"
-            aria-label="Next slide"
+            aria-label={texts.nextSlide}
             onClick={() => {
               next();
               restartAutoplay();
             }}
             className="absolute right-5 top-1/2 z-[3] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-[rgba(18,33,42,.35)] text-white hover:bg-[rgba(18,33,42,.55)] max-[640px]:right-3 max-[640px]:h-9 max-[640px]:w-9"
           >
-            <ArrowIcon direction="next" />
+            <Icon name="arrow-right" stroke="currentColor" strokeWidth="2" fill="none" className="h-[18px] w-[18px] max-[640px]:h-[15px] max-[640px]:w-[15px]" />
           </button>
           <div className="pointer-events-none absolute inset-x-0 bottom-14 z-[5] flex justify-center max-[640px]:bottom-10">
-            <div role="group" aria-label="Slides" className="pointer-events-auto flex items-center gap-2">
+            <div role="group" aria-label={texts.slidesLabel} className="pointer-events-auto flex items-center gap-2">
               {slides.map((slide, index) => (
                 <button
                   key={index}
                   type="button"
-                  aria-label={`Slide ${index + 1}`}
+                  aria-label={texts.slide(index + 1)}
                   aria-current={index === active ? 'true' : 'false'}
                   onClick={() => {
                     goTo(index + 1);
