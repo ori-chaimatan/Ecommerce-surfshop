@@ -1,3 +1,4 @@
+import { GENDERED_CATEGORY_SLUGS, type StrapiGender } from '@/lib/routes';
 import { strapiFetch } from './client';
 
 const NAVIGATION_QUERY = new URLSearchParams({
@@ -51,4 +52,51 @@ export async function getNavigationCategories(): Promise<StrapiNavCategory[]> {
   }
 
   return json.data.map(normalize).filter((c: StrapiNavCategory | null): c is StrapiNavCategory => c !== null);
+}
+
+/** Subcategory slug → the Genders of its products (gendered categories only). */
+export type SubcategoryGenders = Record<string, StrapiGender[]>;
+
+const GENDER_PAGE_SIZE = 100;
+
+function genderQuery(page: number) {
+  const params = new URLSearchParams({
+    'fields[0]': 'Gender',
+    'populate[Subcategories][fields][0]': 'Slug',
+    'pagination[page]': String(page),
+    'pagination[pageSize]': String(GENDER_PAGE_SIZE),
+  });
+  GENDERED_CATEGORY_SLUGS.forEach((slug, i) => params.set(`filters[Category][Slug][$in][${i}]`, slug));
+  return params.toString();
+}
+
+interface RawGenderPage {
+  data?: { Gender?: StrapiGender | null; Subcategories?: { Slug?: string | null }[] | null }[];
+  meta?: { pagination?: { pageCount?: number } };
+}
+
+export async function getSubcategoryGenders(): Promise<SubcategoryGenders | null> {
+  const genders: SubcategoryGenders = {};
+
+  for (let page = 1, pageCount = 1; page <= pageCount; page++) {
+    const json = (await strapiFetch(`products?${genderQuery(page)}`, { label: 'navigation', fallback: null })) as RawGenderPage | null;
+    if (!Array.isArray(json?.data)) return null;
+
+    for (const product of json.data) {
+      if (!product.Gender) continue;
+      for (const sub of product.Subcategories ?? []) {
+        if (!sub?.Slug) continue;
+        const list = (genders[sub.Slug] ??= []);
+        if (!list.includes(product.Gender)) list.push(product.Gender);
+      }
+    }
+    pageCount = json.meta?.pagination?.pageCount ?? 1;
+  }
+
+  return genders;
+}
+
+export async function getNavigation(): Promise<{ categories: StrapiNavCategory[]; subcategoryGenders: SubcategoryGenders | null }> {
+  const [categories, subcategoryGenders] = await Promise.all([getNavigationCategories(), getSubcategoryGenders()]);
+  return { categories, subcategoryGenders };
 }

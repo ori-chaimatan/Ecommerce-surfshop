@@ -1,12 +1,12 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { StrapiNavCategory } from '@/lib/strapi/navigation';
+import type { StrapiNavCategory, SubcategoryGenders } from '@/lib/strapi/navigation';
 
 const mockGetSession = vi.fn();
-const mockGetNavigationCategories = vi.fn();
+const mockGetNavigation = vi.fn();
 
 vi.mock('@/lib/auth/session', () => ({ getSession: () => mockGetSession() }));
-vi.mock('@/lib/strapi/navigation', () => ({ getNavigationCategories: () => mockGetNavigationCategories() }));
+vi.mock('@/lib/strapi/navigation', () => ({ getNavigation: () => mockGetNavigation() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 
 import { SiteNav } from '@/components/site-nav';
@@ -18,13 +18,14 @@ function cat(Slug: string, Name: string, subs: [string, string, string?][]): Str
 const CATEGORIES = [
   cat('surfboards', 'Surfboards', [['longboard', 'Longboard'], ['soft-top-beginner', 'Soft-top / Beginner']]),
   cat('wetsuits', 'Wetsuits', [['mens-wetsuits', "Men's Wetsuits", 'Men']]),
-  cat('mens-clothing', "Men's Clothing", [['mens-shorts', "Men's Shorts", 'Shorts']]),
-  cat('womens-clothing', "Women's Clothing", [['womens-tops', "Women's Tops", 'Tops']]),
+  cat('clothing', 'Clothing', [['tshirts-tanks', 'T-Shirts & Tanks'], ['shorts', 'Shorts'], ['tops', 'Tops']]),
 ];
 
-async function renderNav({ loggedIn = false, categories = CATEGORIES } = {}) {
+const SUBCATEGORY_GENDERS: SubcategoryGenders = { 'tshirts-tanks': ['Unisex'], shorts: ['Men'], tops: ['Women'] };
+
+async function renderNav({ loggedIn = false, categories = CATEGORIES, subcategoryGenders = SUBCATEGORY_GENDERS as SubcategoryGenders | null } = {}) {
   mockGetSession.mockReturnValue(loggedIn ? { jwt: 'a.jwt' } : null);
-  mockGetNavigationCategories.mockResolvedValue(categories);
+  mockGetNavigation.mockResolvedValue({ categories, subcategoryGenders });
   return render(await SiteNav());
 }
 
@@ -64,7 +65,7 @@ describe('SiteNav', () => {
     ]);
   });
 
-  it('renders each mega-menu server-side: "All <Category>" then subcategories, Clothing as Men/Women columns (AC3, AC4, AC5)', async () => {
+  it('renders each mega-menu server-side: "All <Category>" then subcategories, Clothing as Men / Women columns (AC3, AC4, AC5)', async () => {
     await renderNav();
 
     const surf = within(panelOf('Surfboards'));
@@ -81,10 +82,12 @@ describe('SiteNav', () => {
 
     const clothing = within(panelOf('Clothing'));
     expect(clothing.getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-      ['Men', '/products/category/mens-clothing'],
-      ['Shorts', '/products/category/mens-clothing?sub=mens-shorts'],
-      ['Women', '/products/category/womens-clothing'],
-      ['Tops', '/products/category/womens-clothing?sub=womens-tops'],
+      ['Men', '/products/category/clothing?gender=men'],
+      ['T-Shirts & Tanks', '/products/category/clothing?sub=tshirts-tanks&gender=men'],
+      ['Shorts', '/products/category/clothing?sub=shorts&gender=men'],
+      ['Women', '/products/category/clothing?gender=women'],
+      ['T-Shirts & Tanks', '/products/category/clothing?sub=tshirts-tanks&gender=women'],
+      ['Tops', '/products/category/clothing?sub=tops&gender=women'],
     ]);
   });
 
@@ -179,7 +182,7 @@ describe('SiteNav', () => {
     expect(screen.queryByRole('navigation', { name: 'Mobile' })).not.toBeInTheDocument();
   });
 
-  it('expands each mobile group as an accordion, Clothing under Men/Women heads (AC7)', async () => {
+  it('expands each mobile group as an accordion, Clothing under Men / Women heads (AC7)', async () => {
     await renderNav();
     fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
     const mobile = within(screen.getByRole('navigation', { name: 'Mobile' }));
@@ -190,9 +193,15 @@ describe('SiteNav', () => {
 
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(mobile.getByRole('link', { name: 'Men' })).toHaveAttribute('href', '/products/category/mens-clothing');
-    expect(mobile.getByRole('link', { name: 'Shorts' })).toHaveAttribute('href', '/products/category/mens-clothing?sub=mens-shorts');
-    expect(mobile.getByRole('link', { name: 'Tops' })).toBeInTheDocument();
+    const heads = mobile.getAllByRole('link').filter((a) => ['Men', 'Women'].includes(a.textContent ?? ''));
+    expect(heads.map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['Men', '/products/category/clothing?gender=men'],
+      ['Women', '/products/category/clothing?gender=women'],
+    ]);
+    expect(mobile.getByRole('link', { name: 'Shorts' })).toHaveAttribute('href', '/products/category/clothing?sub=shorts&gender=men');
+    expect(mobile.getByRole('link', { name: 'Tops' })).toHaveAttribute('href', '/products/category/clothing?sub=tops&gender=women');
+    expect(mobile.getAllByRole('link', { name: 'T-Shirts & Tanks' })).toHaveLength(2);
+    expect(mobile.queryByRole('link', { name: /^Shop / })).not.toBeInTheDocument();
     expect(mobile.getByRole('button', { name: 'Toggle Surfboards submenu' })).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -241,8 +250,15 @@ describe('SiteNav', () => {
     expect(container.textContent).not.toMatch(/Not sure where to start/i);
   });
 
+  it('falls back to every Clothing subcategory under both heads when gender data is unavailable (AC3, AC11)', async () => {
+    await renderNav({ subcategoryGenders: null });
+
+    const labels = within(panelOf('Clothing')).getAllByRole('link').map((a) => a.textContent);
+    expect(labels).toEqual(['Men', 'T-Shirts & Tanks', 'Shorts', 'Tops', 'Women', 'T-Shirts & Tanks', 'Shorts', 'Tops']);
+  });
+
   it('still renders the header, wordmark and icons with no menu when Strapi returns nothing (AC11)', async () => {
-    await renderNav({ categories: [] });
+    await renderNav({ categories: [], subcategoryGenders: null });
 
     expect(screen.getByRole('link', { name: 'WESTLINE' })).toBeInTheDocument();
     expect(within(desktop()).queryAllByRole('link')).toHaveLength(0);

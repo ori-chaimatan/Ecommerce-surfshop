@@ -3,8 +3,8 @@
  *
  *   npm run verify:catalog            # STRAPI_URL defaults to http://localhost:1337
  *
- * Covers product-content-model AC6–AC10 over public REST, plus the
- * Category/Subcategory consistency hook (AC6) by loading Strapi in-process —
+ * Covers product-content-model AC7–AC10 and AC12 over public REST, plus the
+ * lifecycle hook (AC6 Category/Subcategory consistency, AC11 Gender rule) by loading Strapi in-process —
  * the public role can't write, so rejected saves are exercised through the
  * Document Service with throwaway products that are always deleted again.
  * Expects `npm run seed:catalog` to have been run; checks key off the seeded
@@ -41,6 +41,8 @@ const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].s
 const expectSlugs = (filter) => catalog.products.filter(filter).map((p) => p.Slug);
 
 // AC6 — the lifecycle hook rejects Subcategories outside the product's Category.
+// AC6 + AC11 — the lifecycle hook rejects Subcategories outside the product's Category,
+// a Clothing product without Gender, and a non-Clothing product with one.
 async function verifyConsistencyHook() {
   const require = createRequire(import.meta.url);
   const { createStrapi, compileStrapi } = require('@strapi/strapi');
@@ -50,47 +52,54 @@ async function verifyConsistencyHook() {
   const P = 'api::product.product';
   const docId = async (uid, Slug) => (await strapi.documents(uid).findFirst({ filters: { Slug } }))?.documentId;
   const surfboards = await docId('api::category.category', 'surfboards');
-  const mensClothing = await docId('api::category.category', 'mens-clothing');
+  const clothing = await docId('api::category.category', 'clothing');
   const funBoard = await docId('api::subcategory.subcategory', 'fun-board');
-  const boardshorts = await docId('api::subcategory.subcategory', 'mens-boardshorts');
+  const boardshorts = await docId('api::subcategory.subcategory', 'boardshorts');
   const imageId = (await strapi.db.query(P).findOne({ where: { Slug: 'tideline-6-0-performance-shortboard' }, populate: { Images: { select: ['id'] } } }))?.Images?.[0]?.id;
   const base = { Price: 1, Images: imageId ? [imageId] : [], Description: 'verify:catalog throwaway', Sizes: [{ Label: 'x', Stock: 0 }] };
+  const throwaway = [];
 
-  const rejected = async (name, save) => {
+  // Only the hook's own error counts — a required-field ValidationError would be a false pass.
+  const rejected = async (name, pattern, save) => {
     try {
-      await save();
+      const doc = await save();
+      if (doc?.documentId) throwaway.push(doc.documentId);
       check(name, false, 'save was accepted');
     } catch (error) {
-      // Only the hook's own error counts — a required-field ValidationError would be a false pass.
-      check(name, error.name === 'ValidationError' && /Subcategories must belong/.test(error.message), `${error.name}: ${error.message}`);
+      check(name, error.name === 'ValidationError' && pattern.test(error.message), `${error.name}: ${error.message}`);
     }
   };
+  const create = (Slug, data) => strapi.documents(P).create({ data: { Name: Slug, Slug, ...base, ...data } });
+  const SUBCATEGORY = /Subcategories must belong/;
+  const GENDER = /Gender/;
 
-  const throwaway = [];
   try {
-    await rejected('AC6 create with a Subcategory from another Category is rejected', async () => {
-      const doc = await strapi.documents(P).create({
-        data: { Name: 'verify-mismatch', Slug: 'verify-catalog-mismatch', Category: surfboards, Subcategories: [boardshorts], ...base },
-      });
-      throwaway.push(doc.documentId);
-    });
+    await rejected('AC6 create with a Subcategory from another Category is rejected', SUBCATEGORY, () =>
+      create('verify-catalog-mismatch', { Category: surfboards, Subcategories: [boardshorts] }));
 
-    const valid = await strapi.documents(P).create({
-      data: { Name: 'verify-valid', Slug: 'verify-catalog-valid', Category: surfboards, Subcategories: [funBoard], ...base },
-    });
+    const valid = await create('verify-catalog-valid', { Category: surfboards, Subcategories: [funBoard] });
     throwaway.push(valid.documentId);
     check('AC6 create with a matching Subcategory is accepted', Boolean(valid.documentId));
 
-    await rejected('AC6 update connecting a Subcategory from another Category is rejected', () =>
+    await rejected('AC6 update connecting a Subcategory from another Category is rejected', SUBCATEGORY, () =>
       strapi.documents(P).update({ documentId: valid.documentId, data: { Subcategories: { connect: [boardshorts] } } }));
-    await rejected('AC6 update changing Category away from the existing Subcategories is rejected', () =>
-      strapi.documents(P).update({ documentId: valid.documentId, data: { Category: mensClothing } }));
+    await rejected('AC6 update changing Category away from the existing Subcategories is rejected', SUBCATEGORY, () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { Category: clothing } }));
 
     const moved = await strapi.documents(P).update({
       documentId: valid.documentId,
-      data: { Category: mensClothing, Subcategories: { set: [boardshorts] } },
+      data: { Category: clothing, Subcategories: { set: [boardshorts] }, Gender: 'Men' },
     });
     check('AC6 update changing Category and Subcategories together is accepted', Boolean(moved?.documentId));
+
+    await rejected('AC11 a Clothing product without Gender is rejected', GENDER, () =>
+      create('verify-catalog-no-gender', { Category: clothing, Subcategories: [boardshorts] }));
+    await rejected('AC11 a non-Clothing product with Gender is rejected', GENDER, () =>
+      create('verify-catalog-gender-board', { Category: surfboards, Subcategories: [funBoard], Gender: 'Unisex' }));
+    await rejected('AC11 clearing Gender on a Clothing product is rejected', GENDER, () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { Gender: null } }));
+    await rejected('AC11 moving a gendered product out of Clothing without clearing Gender is rejected', GENDER, () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { Category: surfboards, Subcategories: { set: [funBoard] } } }));
   } finally {
     for (const documentId of throwaway) await strapi.documents(P).delete({ documentId }).catch(() => {});
     await strapi.destroy();
@@ -164,6 +173,10 @@ async function main() {
       !same(bySlug[p.Slug].Subcategories.map((s) => s.Slug), p.SubcategorySlugs))
     .map((p) => p.Slug);
   check('AC9 every seeded product has its design Category and Subcategories', wrongRelations.length === 0, wrongRelations.join(', '));
+  const wrongGender = catalog.products
+    .filter((p) => bySlug[p.Slug] && (bySlug[p.Slug].Gender ?? null) !== (p.Gender ?? null))
+    .map((p) => `${p.Slug} (${bySlug[p.Slug].Gender ?? 'none'})`);
+  check('AC9 every seeded product has its design Gender (Clothing only)', wrongGender.length === 0, wrongGender.join(', '));
   const boardsWithoutSpecs = seededBoards.filter((slug) => bySlug[slug] && !bySlug[slug].SurfboardSpecs);
   check('AC9 every seeded surfboard has SurfboardSpecs', boardsWithoutSpecs.length === 0, boardsWithoutSpecs.join(', '));
 
@@ -214,6 +227,18 @@ async function main() {
       check(`AC8 "${product.Slug}" (${product.SubcategorySlugs.length} subcategories) appears under "${sub}"`, got.includes(product.Slug));
     }
   }
+
+  // AC12 — Clothing gender filters: Men → Gender in [Men, Unisex], Women → [Women, Unisex].
+  for (const [label, genders] of [['Men', ['Men', 'Unisex']], ['Women', ['Women', 'Unisex']]]) {
+    const q = `filters[Category][Slug][$eq]=clothing&filters[Gender][$in][0]=${genders[0]}&filters[Gender][$in][1]=${genders[1]}`;
+    const got = await productSlugs(q);
+    const expected = expectSlugs((p) => p.CategorySlug === 'clothing' && genders.includes(p.Gender));
+    check(`AC12 Clothing ${label} filter returns Gender ${genders.join(' or ')}`, got.length > 0 && same(got, expected), `got ${got.join(', ')}`);
+    const unisex = expectSlugs((p) => p.CategorySlug === 'clothing' && p.Gender === 'Unisex');
+    check(`AC12 Clothing ${label} filter includes the Unisex products`, unisex.length > 0 && unisex.every((s) => got.includes(s)), `got ${got.join(', ')}`);
+  }
+  const genderless = catalog.products.filter((p) => (p.CategorySlug === 'clothing') !== Boolean(p.Gender)).map((p) => p.Slug);
+  check('AC11 seed data: every Clothing product has a Gender and no other product does', genderless.length === 0, genderless.join(', '));
 
   const featured = await productSlugs('filters[Featured][$eq]=true');
   check('AC8 Featured=true', same(featured, expectSlugs((p) => p.Featured)), `got ${featured.join(', ')}`);

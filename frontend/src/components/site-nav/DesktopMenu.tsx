@@ -6,13 +6,10 @@ import type { FocusEvent, KeyboardEvent } from 'react';
 import type { NavItem } from './nav-menu';
 import { texts } from './site-nav-texts';
 
-// Bridges the gap between the nav link's hover box and the panel below it,
-// so moving the pointer down into the menu doesn't close it mid-transit.
+
 const CLOSE_DELAY_MS = 250;
 
-/** Inline category links with hover/focus mega-menus, shown above 860px. */
 export function DesktopMenu({ items }: { items: NavItem[] }) {
-  // One item at a time: the open item is the hovered or focused one, unless Escape dismissed it.
   const [hoveredHref, setHoveredHref] = useState<string | null>(null);
   const [focusedHref, setFocusedHref] = useState<string | null>(null);
   const [dismissedHref, setDismissedHref] = useState<string | null>(null);

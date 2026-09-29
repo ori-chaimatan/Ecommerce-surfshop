@@ -527,6 +527,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     Description: Schema.Attribute.RichText & Schema.Attribute.Required;
     Featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    Gender: Schema.Attribute.Enumeration<['Men', 'Women', 'Unisex']>;
     Images: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<

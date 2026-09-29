@@ -13,12 +13,8 @@
       "Slug": "wetsuits"
     },
     {
-      "Name": "Men's Clothing",
-      "Slug": "mens-clothing"
-    },
-    {
-      "Name": "Women's Clothing",
-      "Slug": "womens-clothing"
+      "Name": "Clothing",
+      "Slug": "clothing"
     }
   ],
   "subcategories": [
@@ -80,40 +76,29 @@
       "CategorySlug": "wetsuits"
     },
     {
-      "Name": "Men's T-Shirts & Tanks",
-      "Slug": "mens-tshirts-tanks",
-      "NavLabel": "T-Shirts & Tanks",
-      "CategorySlug": "mens-clothing"
+      "Name": "T-Shirts & Tanks",
+      "Slug": "tshirts-tanks",
+      "CategorySlug": "clothing"
     },
     {
-      "Name": "Men's Shorts",
-      "Slug": "mens-shorts",
-      "NavLabel": "Shorts",
-      "CategorySlug": "mens-clothing"
+      "Name": "Shorts",
+      "Slug": "shorts",
+      "CategorySlug": "clothing"
     },
     {
-      "Name": "Men's Boardshorts",
-      "Slug": "mens-boardshorts",
-      "NavLabel": "Boardshorts",
-      "CategorySlug": "mens-clothing"
+      "Name": "Boardshorts",
+      "Slug": "boardshorts",
+      "CategorySlug": "clothing"
     },
     {
-      "Name": "Women's Tops",
-      "Slug": "womens-tops",
-      "NavLabel": "Tops",
-      "CategorySlug": "womens-clothing"
+      "Name": "Tops",
+      "Slug": "tops",
+      "CategorySlug": "clothing"
     },
     {
-      "Name": "Women's Shorts",
-      "Slug": "womens-shorts",
-      "NavLabel": "Shorts",
-      "CategorySlug": "womens-clothing"
-    },
-    {
-      "Name": "Women's Swimmers",
-      "Slug": "womens-swimmers",
-      "NavLabel": "Swimmers",
-      "CategorySlug": "womens-clothing"
+      "Name": "Swimmers",
+      "Slug": "swimmers",
+      "CategorySlug": "clothing"
     }
   ],
   "products": [
@@ -499,10 +484,11 @@
     {
       "Name": "Samurai Pro 22\" Boardshort",
       "Slug": "samurai-pro-22-boardshort",
-      "CategorySlug": "mens-clothing",
+      "CategorySlug": "clothing",
       "SubcategorySlugs": [
-        "mens-boardshorts"
+        "boardshorts"
       ],
+      "Gender": "Men",
       "Price": 79,
       "Subtitle": "Performance stretch",
       "Featured": true,
@@ -558,10 +544,11 @@
     {
       "Name": "Tidal Rash Guard",
       "Slug": "tidal-rash-guard",
-      "CategorySlug": "mens-clothing",
+      "CategorySlug": "clothing",
       "SubcategorySlugs": [
-        "mens-tshirts-tanks"
+        "tops"
       ],
+      "Gender": "Women",
       "Price": 49,
       "Subtitle": "UPF 50+",
       "Description": "A slim-fit long-sleeve rash guard with UPF 50+ protection and flatlock seams.",
@@ -587,10 +574,11 @@
     {
       "Name": "Boardwalk Hybrid Shorts",
       "Slug": "boardwalk-hybrid-shorts",
-      "CategorySlug": "mens-clothing",
+      "CategorySlug": "clothing",
       "SubcategorySlugs": [
-        "mens-shorts"
+        "shorts"
       ],
+      "Gender": "Men",
       "Price": 59,
       "Description": "Walkshort looks, boardshort fabric — quick-drying hybrid shorts for land and sea.",
       "Sizes": [
@@ -615,10 +603,11 @@
     {
       "Name": "Archive Team Tee",
       "Slug": "archive-team-tee",
-      "CategorySlug": "mens-clothing",
+      "CategorySlug": "clothing",
       "SubcategorySlugs": [
-        "mens-tshirts-tanks"
+        "tshirts-tanks"
       ],
+      "Gender": "Unisex",
       "Price": 29,
       "Description": "Heavyweight cotton tee with archive WESTLINE team artwork.",
       "Sizes": [

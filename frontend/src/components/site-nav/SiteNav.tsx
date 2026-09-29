@@ -3,7 +3,7 @@ import { LogoutButton } from '@/components/logout-button';
 import { Icon } from '@/shared/components/icons';
 import { getSession } from '@/lib/auth/session';
 import { CART_HREF, HOME_HREF, LOGIN_HREF, WISHLIST_HREF } from '@/lib/routes';
-import { getNavigationCategories } from '@/lib/strapi/navigation';
+import { getNavigation } from '@/lib/strapi/navigation';
 import { DesktopMenu } from './DesktopMenu';
 import { MobileMenu } from './MobileMenu';
 import { buildNavMenu } from './nav-menu';
@@ -13,7 +13,8 @@ const ICON_LINK = 'flex p-1.5 text-ink hover:text-horizon';
 
 export async function SiteNav() {
   const session = getSession();
-  const items = buildNavMenu(await getNavigationCategories());
+  const { categories, subcategoryGenders } = await getNavigation();
+  const items = buildNavMenu(categories, subcategoryGenders);
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-white">

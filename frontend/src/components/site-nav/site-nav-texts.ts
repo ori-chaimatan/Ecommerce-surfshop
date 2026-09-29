@@ -9,4 +9,6 @@ export const texts = {
   mobileNavLabel: 'Mobile',
   allCategory: (name: string) => `All ${name}`,
   toggleSubmenu: (item: string) => `Toggle ${item} submenu`,
+  men: 'Men',
+  women: 'Women',
 };
