@@ -1,3 +1,5 @@
+import { strapiMediaUrl } from './media';
+
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337';
 
 const HOMEPAGE_QUERY = new URLSearchParams({
@@ -16,10 +18,6 @@ interface StrapiHero {
   Title?: string | null;
   BackgroundImg?: { url?: string; width?: number; height?: number } | null;
   Button?: { Text?: string | null; LinkUrl?: string | null } | null;
-}
-
-function absoluteUrl(url: string) {
-  return url.startsWith('/') ? `${STRAPI_URL}${url}` : url;
 }
 
 /** A same-site path, an in-page anchor, or an absolute http(s): / mailto: URL. Anything else (javascript:, //host) is dropped. */
@@ -43,7 +41,7 @@ function normalizeHero(hero: StrapiHero): HeroSlide | null {
 
   return {
     headline: Title,
-    image: { src: absoluteUrl(BackgroundImg.url), width: BackgroundImg.width, height: BackgroundImg.height },
+    image: { src: strapiMediaUrl(BackgroundImg.url), width: BackgroundImg.width, height: BackgroundImg.height },
     ctaLabel: Button.Text,
     ctaHref: Button.LinkUrl,
   };
