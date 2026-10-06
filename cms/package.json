@@ -14,6 +14,7 @@
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "seed:catalog": "node scripts/seed-catalog.js",
+    "reset:catalog": "node scripts/reset-catalog.js",
     "verify:catalog": "node scripts/verify-catalog.mjs"
   },
   "dependencies": {

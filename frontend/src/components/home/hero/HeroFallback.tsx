@@ -23,7 +23,7 @@ const WAVES = (
 
 export function HeroFallback() {
   return (
-    <div className="relative flex min-h-[calc(100vh-64px)] flex-col items-center justify-center overflow-hidden bg-[#F9F9F9] px-4">
+    <div className="relative flex min-h-[calc(100vh-64px)] flex-col items-center justify-center overflow-hidden bg-background px-4">
       <div className="relative z-10 flex flex-col items-center text-center">
         <h1 className="font-display text-5xl font-extrabold uppercase leading-none tracking-wide text-ink sm:text-6xl">
           {texts.fallbackWordmark}

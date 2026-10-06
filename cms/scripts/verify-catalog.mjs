@@ -3,8 +3,9 @@
  *
  *   npm run verify:catalog            # STRAPI_URL defaults to http://localhost:1337
  *
- * Covers product-content-model AC7–AC10 and AC12 over public REST, plus the
- * lifecycle hook (AC6 Category/Subcategory consistency, AC11 Gender rule) by loading Strapi in-process —
+ * Covers product-content-model AC5, AC7–AC10 and AC12 over public REST, plus the
+ * lifecycle hook (AC6 Category/Subcategory consistency, AC11 Gender rule, AC14 size
+ * rules, AC15 stale-size clearing) by loading Strapi in-process —
  * the public role can't write, so rejected saves are exercised through the
  * Document Service with throwaway products that are always deleted again.
  * Expects `npm run seed:catalog` to have been run; checks key off the seeded
@@ -40,9 +41,9 @@ async function productSlugs(query) {
 const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 const expectSlugs = (filter) => catalog.products.filter(filter).map((p) => p.Slug);
 
-// AC6 — the lifecycle hook rejects Subcategories outside the product's Category.
-// AC6 + AC11 — the lifecycle hook rejects Subcategories outside the product's Category,
-// a Clothing product without Gender, and a non-Clothing product with one.
+// AC6 + AC11 + AC14 — the lifecycle hook rejects Subcategories outside the product's
+// Category, a Clothing product without Gender, a non-Clothing product with one, and
+// any save that breaks the size model. AC15 — omitted stale sizes are cleared.
 async function verifyConsistencyHook() {
   const require = createRequire(import.meta.url);
   const { createStrapi, compileStrapi } = require('@strapi/strapi');
@@ -55,8 +56,11 @@ async function verifyConsistencyHook() {
   const clothing = await docId('api::category.category', 'clothing');
   const funBoard = await docId('api::subcategory.subcategory', 'fun-board');
   const boardshorts = await docId('api::subcategory.subcategory', 'boardshorts');
-  const imageId = (await strapi.db.query(P).findOne({ where: { Slug: 'tideline-6-0-performance-shortboard' }, populate: { Images: { select: ['id'] } } }))?.Images?.[0]?.id;
-  const base = { Price: 1, Images: imageId ? [imageId] : [], Description: 'verify:catalog throwaway', Sizes: [{ Label: 'x', Stock: 0 }] };
+  // Any seeded product's first photo will do for the throwaway products.
+  const imageId = (await strapi.db.query(P).findOne({ where: { Slug: { $in: [...seededProducts] } }, populate: { Images: { select: ['id'] } } }))?.Images?.[0]?.id;
+  const base = { Price: 1, Images: imageId ? [imageId] : [], Description: 'verify:catalog throwaway' };
+  const BOARD = { SizeType: 'Surfboard', BoardSizes: [{ LengthFt: 6, LengthInches: 0, VolumeL: 29.4, Stock: 0 }] };
+  const STANDARD = { SizeType: 'Standard', StandardSizes: [{ Size: 'M', Stock: 0 }] };
   const throwaway = [];
 
   // Only the hook's own error counts — a required-field ValidationError would be a false pass.
@@ -72,12 +76,17 @@ async function verifyConsistencyHook() {
   const create = (Slug, data) => strapi.documents(P).create({ data: { Name: Slug, Slug, ...base, ...data } });
   const SUBCATEGORY = /Subcategories must belong/;
   const GENDER = /Gender/;
+  const SIZE_TYPE = /Size type/;
+  const NEEDS_SIZE = /Add at least one/;
+  const WRONG_COMPONENT = /only apply to Size type/;
+  const DUPLICATE = /Duplicate/;
+  const ONE_SIZE = /OneSize must be the only/;
 
   try {
     await rejected('AC6 create with a Subcategory from another Category is rejected', SUBCATEGORY, () =>
-      create('verify-catalog-mismatch', { Category: surfboards, Subcategories: [boardshorts] }));
+      create('verify-catalog-mismatch', { Category: surfboards, Subcategories: [boardshorts], ...BOARD }));
 
-    const valid = await create('verify-catalog-valid', { Category: surfboards, Subcategories: [funBoard] });
+    const valid = await create('verify-catalog-valid', { Category: surfboards, Subcategories: [funBoard], ...BOARD });
     throwaway.push(valid.documentId);
     check('AC6 create with a matching Subcategory is accepted', Boolean(valid.documentId));
 
@@ -88,18 +97,54 @@ async function verifyConsistencyHook() {
 
     const moved = await strapi.documents(P).update({
       documentId: valid.documentId,
-      data: { Category: clothing, Subcategories: { set: [boardshorts] }, Gender: 'Men' },
+      data: { Category: clothing, Subcategories: { set: [boardshorts] }, Gender: 'Men', ...STANDARD },
     });
     check('AC6 update changing Category and Subcategories together is accepted', Boolean(moved?.documentId));
+    // AC15 — BoardSizes was omitted from that update (as the admin does once it's hidden), so it's cleared.
+    const movedSizes = await strapi.documents(P).findOne({ documentId: valid.documentId, populate: ['BoardSizes', 'StandardSizes'] });
+    check('AC15 switching SizeType clears the omitted, now-hidden BoardSizes',
+      movedSizes?.BoardSizes?.length === 0 && movedSizes?.StandardSizes?.length === 1,
+      `BoardSizes ${movedSizes?.BoardSizes?.length}, StandardSizes ${movedSizes?.StandardSizes?.length}`);
 
     await rejected('AC11 a Clothing product without Gender is rejected', GENDER, () =>
-      create('verify-catalog-no-gender', { Category: clothing, Subcategories: [boardshorts] }));
+      create('verify-catalog-no-gender', { Category: clothing, Subcategories: [boardshorts], ...STANDARD }));
     await rejected('AC11 a non-Clothing product with Gender is rejected', GENDER, () =>
-      create('verify-catalog-gender-board', { Category: surfboards, Subcategories: [funBoard], Gender: 'Unisex' }));
+      create('verify-catalog-gender-board', { Category: surfboards, Subcategories: [funBoard], Gender: 'Unisex', ...BOARD }));
     await rejected('AC11 clearing Gender on a Clothing product is rejected', GENDER, () =>
       strapi.documents(P).update({ documentId: valid.documentId, data: { Gender: null } }));
     await rejected('AC11 moving a gendered product out of Clothing without clearing Gender is rejected', GENDER, () =>
       strapi.documents(P).update({ documentId: valid.documentId, data: { Category: surfboards, Subcategories: { set: [funBoard] } } }));
+
+    // AC14 rule 1 — Surfboards ⇔ Surfboard, everything else ⇔ Standard.
+    await rejected('AC14 a Surfboards product with SizeType Standard is rejected', SIZE_TYPE, () =>
+      create('verify-catalog-board-standard', { Category: surfboards, ...STANDARD }));
+    await rejected('AC14 a Clothing product with SizeType Surfboard is rejected', SIZE_TYPE, () =>
+      create('verify-catalog-tee-surfboard', { Category: clothing, Gender: 'Men', ...BOARD }));
+    // Rule 2 — the matching component needs ≥1 entry; the other one none.
+    await rejected('AC14 a Surfboard product without BoardSizes is rejected', NEEDS_SIZE, () =>
+      create('verify-catalog-no-board-sizes', { Category: surfboards, SizeType: 'Surfboard', BoardSizes: [] }));
+    await rejected('AC14 a Standard product without StandardSizes is rejected', NEEDS_SIZE, () =>
+      create('verify-catalog-no-standard-sizes', { Category: clothing, Gender: 'Men', SizeType: 'Standard' }));
+    await rejected('AC14 explicit StandardSizes on a Surfboard product are rejected', WRONG_COMPONENT, () =>
+      create('verify-catalog-both-sizes', { Category: surfboards, ...BOARD, StandardSizes: [{ Size: 'M', Stock: 1 }] }));
+    // Rule 3 — no duplicates.
+    await rejected('AC14 a duplicate Standard size is rejected', DUPLICATE, () =>
+      create('verify-catalog-dup-size', { Category: clothing, Gender: 'Men', SizeType: 'Standard', StandardSizes: [{ Size: 'M', Stock: 1 }, { Size: 'M', Stock: 2 }] }));
+    await rejected('AC14 a duplicate length + VolumeL pair is rejected', DUPLICATE, () =>
+      create('verify-catalog-dup-board', { Category: surfboards, SizeType: 'Surfboard', BoardSizes: [{ LengthFt: 6, LengthInches: 0, VolumeL: 29.4, Stock: 1 }, { LengthFt: 6, LengthInches: 0, VolumeL: 29.4, Stock: 2 }] }));
+    // Feet + inches stay in range: LengthFt 4–12, LengthInches 0–11 (schema min/max).
+    for (const [label, size] of [['LengthInches 12', { LengthFt: 6, LengthInches: 12 }], ['LengthFt 3', { LengthFt: 3, LengthInches: 0 }], ['LengthFt 13', { LengthFt: 13, LengthInches: 0 }]]) {
+      await rejected(`AC5 a board size with ${label} is rejected`, /must be (less|greater) than or equal to/, () =>
+        create(`verify-catalog-range-${label.replace(' ', '-').toLowerCase()}`, { Category: surfboards, SizeType: 'Surfboard', BoardSizes: [{ ...size, VolumeL: 29.4, Stock: 1 }] }));
+    }
+    // Rule 4 — OneSize stands alone.
+    await rejected('AC14 OneSize alongside another size is rejected', ONE_SIZE, () =>
+      create('verify-catalog-one-size', { Category: clothing, Gender: 'Men', SizeType: 'Standard', StandardSizes: [{ Size: 'OneSize', Stock: 1 }, { Size: 'M', Stock: 1 }] }));
+    // Update path — only the size field changes, the rest comes from the stored product.
+    await rejected('AC14 an update adding a duplicate Standard size is rejected', DUPLICATE, () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { StandardSizes: [{ Size: 'L', Stock: 1 }, { Size: 'L', Stock: 1 }] } }));
+    const resized = await strapi.documents(P).update({ documentId: valid.documentId, data: { StandardSizes: [{ Size: 'OneSize', Stock: 3 }] } });
+    check('AC14 a valid size-only update is accepted', Boolean(resized?.documentId));
   } finally {
     for (const documentId of throwaway) await strapi.documents(P).delete({ documentId }).catch(() => {});
     await strapi.destroy();
@@ -157,7 +202,7 @@ async function main() {
   check('AC9 every seeded subcategory belongs to its design category', wrongCat.length === 0, `wrong: ${wrongCat.join(', ')}`);
 
   const full = await api(
-    'products?pagination[pageSize]=100&populate[Images][fields][0]=url&populate[Sizes]=true&populate[SurfboardSpecs]=true&populate[Category][fields][0]=Slug&populate[Subcategories][fields][0]=Slug'
+    'products?pagination[pageSize]=100&populate[Images][fields][0]=url&populate[BoardSizes]=true&populate[StandardSizes]=true&populate[SurfboardSpecs]=true&populate[Category][fields][0]=Slug&populate[Subcategories][fields][0]=Slug'
   );
   const bySlug = Object.fromEntries(full.body.data.map((p) => [p.Slug, p]));
   const missing = [...seededProducts].filter((slug) => !bySlug[slug]);
@@ -165,8 +210,22 @@ async function main() {
 
   const incomplete = [...seededProducts]
     .filter((slug) => bySlug[slug])
-    .filter((slug) => !bySlug[slug].Images?.length || !bySlug[slug].Sizes?.length || !bySlug[slug].Category);
-  check('AC9 every seeded product has images, sizes and a category', incomplete.length === 0, incomplete.join(', '));
+    .filter((slug) => !bySlug[slug].Images?.length || !bySlug[slug].Category);
+  check('AC9 every seeded product has images and a category', incomplete.length === 0, incomplete.join(', '));
+
+  // AC5 + AC9 — SizeType follows the Category; only the matching component has entries.
+  const wrongSizes = catalog.products
+    .filter((p) => bySlug[p.Slug])
+    .filter((p) => {
+      const product = bySlug[p.Slug];
+      const isBoard = p.CategorySlug === 'surfboards';
+      const [own, other] = isBoard ? [product.BoardSizes, product.StandardSizes] : [product.StandardSizes, product.BoardSizes];
+      return product.SizeType !== (isBoard ? 'Surfboard' : 'Standard') || !own?.length || other?.length || 'Sizes' in product || 'Label' in (own?.[0] ?? {});
+    })
+    .map((p) => `${p.Slug} (${bySlug[p.Slug].SizeType})`);
+  check('AC9 every seeded product has the SizeType of its Category and only the matching sizes', wrongSizes.length === 0, wrongSizes.join(', '));
+  const badSeed = catalog.products.filter((p) => 'Sizes' in p || !p.SizeType || !(p.SizeType === 'Surfboard' ? p.BoardSizes : p.StandardSizes)?.length).map((p) => p.Slug);
+  check('AC9 seed data: every product has a SizeType and its matching sizes (no Sizes/Label)', badSeed.length === 0, badSeed.join(', '));
   const wrongRelations = catalog.products
     .filter((p) => bySlug[p.Slug])
     .filter((p) => bySlug[p.Slug].Category?.Slug !== p.CategorySlug ||
@@ -180,23 +239,13 @@ async function main() {
   const boardsWithoutSpecs = seededBoards.filter((slug) => bySlug[slug] && !bySlug[slug].SurfboardSpecs);
   check('AC9 every seeded surfboard has SurfboardSpecs', boardsWithoutSpecs.length === 0, boardsWithoutSpecs.join(', '));
 
-  const tideline = bySlug['tideline-6-0-performance-shortboard'];
-  const tidelineSeed = catalog.products.find((p) => p.Slug === 'tideline-6-0-performance-shortboard');
-  if (tideline) {
-    const specsMatch = Object.entries(tidelineSeed.SurfboardSpecs).every(([k, v]) => tideline.SurfboardSpecs?.[k] === v);
-    check('AC9 Tideline matches the design (price, sizes, specs, 2 photos)',
-      Number(tideline.Price) === 829 &&
-        same(tideline.Sizes.map((s) => s.Label), tidelineSeed.Sizes.map((s) => s.Label)) &&
-        specsMatch &&
-        tideline.Images.length === 2,
-      `price ${tideline.Price}, sizes ${tideline.Sizes.map((s) => s.Label).join(' | ')}, images ${tideline.Images.length}`);
-  }
   const samurai = bySlug['samurai-pro-22-boardshort'];
   if (samurai) {
-    const low = samurai.Sizes.filter((s) => s.Stock <= 2).map((s) => s.Label);
-    check('AC9 Samurai Pro matches the design (price, 11 sizes, 36/38 low stock, 6 photos)',
-      Number(samurai.Price) === 79 && samurai.Sizes.length === 11 && same(low, ['36', '38']) && samurai.Images.length === 6 && samurai.Subtitle === 'Performance stretch',
-      `price ${samurai.Price}, sizes ${samurai.Sizes.length}, low ${low.join(',')}, images ${samurai.Images.length}`);
+    // Waist sizes 28–40 bucketed into S/M/L/XL with stock summed (see spec.md Technical Approach).
+    const sizes = (samurai.StandardSizes ?? []).map((s) => `${s.Size}:${s.Stock}`);
+    check('AC9 Samurai Pro matches the design (price, S/M/L/XL with summed stock, 6 photos)',
+      Number(samurai.Price) === 79 && same(sizes, ['S:16', 'M:24', 'L:24', 'XL:12']) && samurai.Images.length === 6 && samurai.Subtitle === 'Performance stretch',
+      `price ${samurai.Price}, sizes ${sizes.join(' ')}, images ${samurai.Images.length}`);
   }
 
   // AC8 — component and relation filters + sort
@@ -204,16 +253,21 @@ async function main() {
   check('AC8 SkillLevel=Intermediate returns exactly the intermediate boards',
     same(intermediate, expectSlugs((p) => p.SurfboardSpecs?.SkillLevel === 'Intermediate')), `got ${intermediate.join(', ')}`);
 
-  const volume = await productSlugs('filters[Sizes][VolumeL][$between][0]=30&filters[Sizes][VolumeL][$between][1]=40');
-  check('AC8 Sizes.VolumeL between 30–40 matches products with any size in range',
-    same(volume, expectSlugs((p) => p.Sizes.some((s) => s.VolumeL >= 30 && s.VolumeL <= 40))), `got ${volume.join(', ')}`);
+  const volume = await productSlugs('filters[BoardSizes][VolumeL][$between][0]=30&filters[BoardSizes][VolumeL][$between][1]=40');
+  check('AC8 BoardSizes.VolumeL between 30–40 matches boards with any size in range',
+    same(volume, expectSlugs((p) => (p.BoardSizes ?? []).some((s) => s.VolumeL >= 30 && s.VolumeL <= 40))), `got ${volume.join(', ')}`);
+
+  const medium = await productSlugs('filters[StandardSizes][Size][$eq]=M');
+  const expectedMedium = expectSlugs((p) => (p.StandardSizes ?? []).some((s) => s.Size === 'M'));
+  check('AC8 StandardSizes.Size = M returns exactly the products offering M',
+    medium.length > 0 && same(medium, expectedMedium), `got ${medium.join(', ')}`);
 
   for (const { Slug } of catalog.categories) {
     const got = await productSlugs(`filters[Category][Slug][$eq]=${Slug}`);
     check(`AC8 main category "${Slug}"`, same(got, expectSlugs((p) => p.CategorySlug === Slug)), `got ${got.join(', ')}`);
   }
   const surfboards = await productSlugs('filters[Category][Slug][$eq]=surfboards');
-  check('AC8 main category "surfboards" returns exactly the 8 boards', surfboards.length === 8 && same(surfboards, seededBoards), `got ${surfboards.length}`);
+  check(`AC8 main category "surfboards" returns exactly the ${seededBoards.length} seeded boards`, same(surfboards, seededBoards), `got ${surfboards.length}`);
 
   for (const { Slug } of catalog.subcategories) {
     const got = await productSlugs(`filters[Subcategories][Slug][$eq]=${Slug}`);

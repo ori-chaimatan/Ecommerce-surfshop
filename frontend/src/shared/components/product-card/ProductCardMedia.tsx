@@ -8,6 +8,11 @@ import { texts } from './product-card-texts';
 
 const MAX_PHOTOS = 4;
 
+// Dots are hover-revealed only where hover is real (mouse/trackpad); touch keeps them visible. Opacity, not display,
+// so they stay focusable and nothing shifts; focus inside the card reveals them for keyboard users.
+const DOTS_REVEAL =
+  'transition-opacity duration-200 motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover/card:opacity-100 group-focus-within/card:opacity-100';
+
 interface ProductCardMediaProps {
   product: ProductCard;
   priority?: boolean;
@@ -21,7 +26,7 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
   const showFavorite = isFavorite !== undefined && onToggleFavorite !== undefined;
 
   return (
-    <div className="relative aspect-[4/5] bg-[#F9F9F9]">
+    <div className="relative aspect-[4/5] bg-background">
       {photos.map((photo, index) => (
         <Image
           key={photo.src}
@@ -53,7 +58,7 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
         <div
           role="group"
           aria-label={texts.photosLabel}
-          className="absolute bottom-3 left-1/2 z-[2] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/85 px-2 py-1.5 shadow-[0_1px_4px_rgba(16,24,40,.12)]"
+          className={`absolute bottom-3 left-1/2 z-[2] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/85 px-2 py-1.5 shadow-[0_1px_4px_rgba(16,24,40,.12)] ${DOTS_REVEAL}`}
         >
           {photos.map((photo, index) => (
             <button

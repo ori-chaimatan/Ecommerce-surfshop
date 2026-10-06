@@ -39,4 +39,14 @@ describe('Hero', () => {
     expect(screen.getByText('Coming Soon')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Featured' })).not.toBeInTheDocument();
   });
+
+  it('puts the fallback on the page background token (AC13)', async () => {
+    mockGetHomepageHero.mockResolvedValue([]);
+
+    render(await Hero());
+
+    const fallback = screen.getByRole('heading', { level: 1, name: 'WESTLINE' }).parentElement!.parentElement!;
+    expect(fallback).toHaveClass('bg-background');
+    expect(fallback.className).not.toMatch(/F9F9F9/i);
+  });
 });

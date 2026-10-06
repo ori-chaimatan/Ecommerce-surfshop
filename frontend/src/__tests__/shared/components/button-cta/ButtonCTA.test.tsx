@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ButtonCTA } from '@/shared/components/button-cta';
 
@@ -94,5 +95,43 @@ describe('ButtonCTA', () => {
 
     rerender(<ButtonCTA text="Partner" href="https://example.com" tabIndex={-1} />);
     expect(screen.getByRole('link')).toHaveAttribute('tabindex', '-1');
+  });
+
+  describe('without href: an action button (AC9)', () => {
+    it('renders a type="button" with the same classes as the link, plus disabled styling', () => {
+      render(<ButtonCTA text="Add to Cart" />);
+
+      const button = screen.getByRole('button', { name: 'Add to Cart' });
+      expect(button).toHaveAttribute('type', 'button');
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      const extra = classes(button).filter((c) => !HERO_MD_CLASSES.split(' ').includes(c));
+      expect(classes(button)).toEqual(expect.arrayContaining(HERO_MD_CLASSES.split(' ')));
+      expect(extra.sort()).toEqual(['disabled:bg-muted', 'disabled:cursor-not-allowed'].sort());
+    });
+
+    it('calls onClick when clicked', () => {
+      const onClick = vi.fn();
+      render(<ButtonCTA text="Add to Cart" onClick={onClick} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('can be disabled, and then ignores clicks', () => {
+      const onClick = vi.fn();
+      render(<ButtonCTA text="Sold out" onClick={onClick} disabled />);
+
+      const button = screen.getByRole('button', { name: 'Sold out' });
+      expect(button).toBeDisabled();
+      fireEvent.click(button);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('keeps the size variants', () => {
+      render(<ButtonCTA text="Add" size="lg" />);
+
+      expect(classes(screen.getByRole('button'))).toEqual(expect.arrayContaining(['px-[32px]', 'py-[18px]', 'text-base']));
+    });
   });
 });

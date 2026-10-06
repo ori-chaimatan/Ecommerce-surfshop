@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, priority, isFavorite, onToggleFavorite }: ProductCardProps) {
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-[9px] border border-border bg-white">
+    <article className="group/card relative flex h-full flex-col overflow-hidden rounded-[9px] border border-border bg-white transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(16,24,40,.08)] focus-within:shadow-[0_8px_24px_rgba(16,24,40,.08)] motion-reduce:transition-none">
       <Link href={product.href} className="absolute inset-0 z-[1]">
         <span className="sr-only">{texts.viewProduct(product.name)}</span>
       </Link>

@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_product_board_sizes",
+  "info": {
+    "displayName": "Board Size",
+    "icon": "layer",
+    "description": "One purchasable surfboard size (length in feet + inches, volume), with its own stock"
+  },
+  "options": {},
+  "attributes": {
+    "LengthFt": {
+      "type": "integer",
+      "required": true,
+      "min": 4,
+      "max": 12
+    },
+    "LengthInches": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 11
+    },
+    "VolumeL": {
+      "type": "decimal",
+      "required": true
+    },
+    "Stock": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "default": 0
+    }
+  },
+  "config": {}
+}

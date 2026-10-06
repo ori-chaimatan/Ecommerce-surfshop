@@ -28,16 +28,32 @@ export interface HomeHeroSlide extends Struct.ComponentSchema {
   };
 }
 
-export interface ProductSize extends Struct.ComponentSchema {
-  collectionName: 'components_product_sizes';
+export interface ProductBoardSize extends Struct.ComponentSchema {
+  collectionName: 'components_product_board_sizes';
   info: {
-    description: 'One purchasable size of a product, with its own stock';
-    displayName: 'Size';
+    description: 'One purchasable surfboard size (length in feet + inches, volume), with its own stock';
+    displayName: 'Board Size';
     icon: 'layer';
   };
   attributes: {
-    Label: Schema.Attribute.String & Schema.Attribute.Required;
-    LengthIn: Schema.Attribute.Decimal;
+    LengthFt: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 12;
+          min: 4;
+        },
+        number
+      >;
+    LengthInches: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 11;
+          min: 0;
+        },
+        number
+      >;
     Stock: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -47,7 +63,29 @@ export interface ProductSize extends Struct.ComponentSchema {
         number
       > &
       Schema.Attribute.DefaultTo<0>;
-    VolumeL: Schema.Attribute.Decimal;
+    VolumeL: Schema.Attribute.Decimal & Schema.Attribute.Required;
+  };
+}
+
+export interface ProductStandardSize extends Struct.ComponentSchema {
+  collectionName: 'components_product_standard_sizes';
+  info: {
+    description: 'One purchasable apparel/accessory size, with its own stock';
+    displayName: 'Standard Size';
+    icon: 'layer';
+  };
+  attributes: {
+    Size: Schema.Attribute.Enumeration<['S', 'M', 'L', 'XL', 'OneSize']> &
+      Schema.Attribute.Required;
+    Stock: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
   };
 }
 
@@ -213,7 +251,8 @@ declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
       'home.hero-slide': HomeHeroSlide;
-      'product.size': ProductSize;
+      'product.board-size': ProductBoardSize;
+      'product.standard-size': ProductStandardSize;
       'product.surfboard-specs': ProductSurfboardSpecs;
       'shared.button-cta': SharedButtonCta;
       'shared.carousel-hero': SharedCarouselHero;

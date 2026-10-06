@@ -131,3 +131,11 @@ build
 .strapi-cloud.json
 
 node_modules
+
+############################
+# Seed (local-only images)
+############################
+
+# Downloaded/local-only product photos not committed to the repo. seed-catalog.js
+# checks here first, before the committed seed/catalog/<slug>/ folders.
+seed/catalog/images-local/

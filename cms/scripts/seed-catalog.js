@@ -5,7 +5,17 @@
  *
  * Create-only: any category, subcategory or product whose Slug already exists is skipped
  * untouched, so edits made in the admin always survive a re-run. Safe to run
- * while `strapi develop` is up — both just talk to the same database.
+ * while `strapi develop` is up — both just talk to the same database. To re-seed
+ * products after a seed format change, clear them first with `npm run reset:catalog`
+ * (dev databases only).
+ *
+ * Sizes: each product carries a `SizeType` and the matching component — `BoardSizes`
+ * ({ LengthFt, LengthInches, VolumeL, Stock }) for Surfboards, `StandardSizes` ({ Size, Stock },
+ * Size one of S | M | L | XL | OneSize) for everything else.
+ *
+ * Product photos, per product, first match wins: seed/catalog/images-local/<slug>/
+ * (gitignored, local-only — for photos not cleared for the repo), then the
+ * committed seed/catalog/<slug>/ folder, then a generated placeholder.
  */
 const fs = require('fs');
 const os = require('os');
@@ -17,7 +27,7 @@ const SEED_DIR = path.join(__dirname, '..', 'seed', 'catalog');
 const CATEGORY_UID = 'api::category.category';
 const SUBCATEGORY_UID = 'api::subcategory.subcategory';
 const PRODUCT_UID = 'api::product.product';
-const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' };
+const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 
 function escapeXml(text) {
   return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
@@ -51,16 +61,30 @@ async function uploadImage(strapi, filepath, name) {
   return file.id;
 }
 
+async function uploadDirImages(strapi, dir, slug) {
+  const files = fs.readdirSync(dir).filter((f) => MIME[path.extname(f).toLowerCase()]).sort();
+  const ids = [];
+  for (const [i, file] of files.entries()) {
+    ids.push(await uploadImage(strapi, path.join(dir, file), `${slug}-${i + 1}${path.extname(file)}`));
+  }
+  return ids;
+}
+
+// Local-only photos (seed/catalog/images-local/<slug>/, gitignored) win over the
+// committed seed/catalog/<slug>/ folder, which wins over a generated placeholder.
 async function productImageIds(strapi, product) {
+  const localDir = path.join(SEED_DIR, 'images-local', product.Slug);
+  if (fs.existsSync(localDir)) {
+    return uploadDirImages(strapi, localDir, product.Slug);
+  }
+
   if (product.images) {
     const dir = path.join(SEED_DIR, product.images);
-    const files = fs.readdirSync(dir).filter((f) => MIME[path.extname(f).toLowerCase()]).sort();
-    const ids = [];
-    for (const [i, file] of files.entries()) {
-      ids.push(await uploadImage(strapi, path.join(dir, file), `${product.Slug}-${i + 1}${path.extname(file)}`));
+    if (fs.existsSync(dir)) {
+      return uploadDirImages(strapi, dir, product.Slug);
     }
-    return ids;
   }
+
   const placeholder = await renderPlaceholder(product.Name, product.Slug);
   try {
     return [await uploadImage(strapi, placeholder, `${product.Slug}-placeholder.jpg`)];
@@ -115,7 +139,9 @@ async function seedProducts(strapi, products, categoryIds, subcategoryIds, summa
         Subtitle: product.Subtitle ?? null,
         Description: product.Description,
         Featured: product.Featured ?? false,
-        Sizes: product.Sizes,
+        SizeType: product.SizeType,
+        BoardSizes: product.BoardSizes ?? [],
+        StandardSizes: product.StandardSizes ?? [],
         SurfboardSpecs: product.SurfboardSpecs ?? null,
       },
     });

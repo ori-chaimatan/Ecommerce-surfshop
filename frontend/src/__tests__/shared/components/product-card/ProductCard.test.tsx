@@ -87,6 +87,38 @@ describe('ProductCard', () => {
     expect(dots().map((d) => d.getAttribute('aria-current'))).toEqual(['true', 'false', 'false']);
   });
 
+  it('keeps the dots in the DOM and focusable, revealed on hover only on fine-pointer hover devices (AC5)', () => {
+    const { container } = render(<ProductCard product={card({}, 2)} />);
+
+    const group = screen.getByRole('group', { name: 'Photos' });
+    expect(group).toHaveClass(
+      '[@media(hover:hover)_and_(pointer:fine)]:opacity-0',
+      '[@media(hover:hover)_and_(pointer:fine)]:group-hover/card:opacity-100',
+      'group-focus-within/card:opacity-100',
+      'transition-opacity',
+      'motion-reduce:transition-none'
+    );
+    expect(group).not.toHaveClass('hidden', 'opacity-0');
+    expect(container.querySelector('article')).toHaveClass('group/card');
+
+    dots().forEach((dot) => {
+      expect(dot).not.toHaveAttribute('tabindex', '-1');
+      dot.focus();
+      expect(dot).toHaveFocus();
+    });
+  });
+
+  it('adds a subtle shadow on hover and focus-within, with no transition under reduced motion (AC4)', () => {
+    const { container } = render(<ProductCard product={card()} />);
+
+    expect(container.querySelector('article')).toHaveClass(
+      'hover:shadow-[0_8px_24px_rgba(16,24,40,.08)]',
+      'focus-within:shadow-[0_8px_24px_rgba(16,24,40,.08)]',
+      'transition-shadow',
+      'motion-reduce:transition-none'
+    );
+  });
+
   it('never shows more than 4 photos or dots (AC5)', () => {
     const { container } = render(<ProductCard product={card({}, 6)} />);
 
@@ -104,6 +136,14 @@ describe('ProductCard', () => {
     expect(photos(container)[0]).toHaveClass('opacity-0');
     expect(photos(container)[2]).not.toHaveClass('opacity-0');
     expect(dots().map((d) => d.getAttribute('aria-current'))).toEqual(['false', 'false', 'true']);
+  });
+
+  it('puts the photo frame on the page background token, not a hard-coded grey (AC4)', () => {
+    const { container } = render(<ProductCard product={card({}, 2)} />);
+
+    const frame = photos(container)[0].parentElement!;
+    expect(frame).toHaveClass('aspect-[4/5]', 'bg-background');
+    expect(frame.className).not.toMatch(/F9F9F9/i);
   });
 
   it('fits photos with contain or cover per imageFit (AC4)', () => {
