@@ -66,12 +66,43 @@
       "type": "boolean",
       "default": false
     },
-    "Sizes": {
+    "SizeType": {
+      "type": "enumeration",
+      "enum": [
+        "Surfboard",
+        "Standard"
+      ],
+      "required": true
+    },
+    "BoardSizes": {
       "type": "component",
-      "component": "product.size",
+      "component": "product.board-size",
       "repeatable": true,
-      "required": true,
-      "min": 1
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "SizeType"
+            },
+            "Surfboard"
+          ]
+        }
+      }
+    },
+    "StandardSizes": {
+      "type": "component",
+      "component": "product.standard-size",
+      "repeatable": true,
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "SizeType"
+            },
+            "Standard"
+          ]
+        }
+      }
     },
     "SurfboardSpecs": {
       "type": "component",

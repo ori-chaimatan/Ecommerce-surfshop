@@ -9,4 +9,6 @@ export const styles = {
     lg: 'px-[32px] py-[18px] text-base',
   } satisfies Record<ButtonCtaSize, string>,
   type: 'font-bold uppercase tracking-[0.02em] text-horizon-ink no-underline hover:bg-horizon-deep',
+  // Action-button mode only.
+  disabled: 'disabled:cursor-not-allowed disabled:bg-muted',
 } as const;

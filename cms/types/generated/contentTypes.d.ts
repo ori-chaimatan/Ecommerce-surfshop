@@ -520,6 +520,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    BoardSizes: Schema.Attribute.Component<'product.board-size', true>;
     Category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'> &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -545,15 +546,10 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
         number
       >;
     publishedAt: Schema.Attribute.DateTime;
-    Sizes: Schema.Attribute.Component<'product.size', true> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMax<
-        {
-          min: 1;
-        },
-        number
-      >;
+    SizeType: Schema.Attribute.Enumeration<['Surfboard', 'Standard']> &
+      Schema.Attribute.Required;
     Slug: Schema.Attribute.UID<'Name'> & Schema.Attribute.Required;
+    StandardSizes: Schema.Attribute.Component<'product.standard-size', true>;
     Subcategories: Schema.Attribute.Relation<
       'manyToMany',
       'api::subcategory.subcategory'
