@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { SurfboardBuyPanel } from '@/components/product-detail/SurfboardBuyPanel';
+import { SurfboardBuyPanel } from '@/components/product-detail/surfboard/SurfboardBuyPanel';
 
 const SIZES = [
   { label: '5\'10" · 27.6L', soldOut: true },

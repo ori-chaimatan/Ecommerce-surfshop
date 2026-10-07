@@ -1,5 +1,6 @@
 import { strapiFetch } from './client';
-import type { ProductSizeType, StrapiBoardSize } from './sizes';
+import type { StrapiGender } from '@/lib/routes';
+import type { ProductSizeType, StrapiBoardSize, StrapiStandardSize } from './sizes';
 
 export type StrapiSkillLevel = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -26,9 +27,11 @@ export interface StrapiProductDetail {
   Price?: number | string | null;
   Description?: string | null;
   SizeType?: ProductSizeType | null;
+  Gender?: StrapiGender | null;
   Images?: { url: string; width: number; height: number }[] | null;
   Category?: { Name?: string; Slug?: string } | null;
   BoardSizes?: StrapiBoardSize[] | null;
+  StandardSizes?: StrapiStandardSize[] | null;
   SurfboardSpecs?: StrapiSurfboardSpecs | null;
 }
 
@@ -45,12 +48,14 @@ function productDetailQuery(slug: string) {
     'fields[2]': 'Price',
     'fields[3]': 'Description',
     'fields[4]': 'SizeType',
+    'fields[5]': 'Gender',
     'populate[Images][fields][0]': 'url',
     'populate[Images][fields][1]': 'width',
     'populate[Images][fields][2]': 'height',
     'populate[Category][fields][0]': 'Name',
     'populate[Category][fields][1]': 'Slug',
     'populate[BoardSizes]': 'true',
+    'populate[StandardSizes]': 'true',
     'populate[SurfboardSpecs][populate][Video][fields][0]': 'url',
     'populate[SurfboardSpecs][populate][Video][fields][1]': 'mime',
     'pagination[pageSize]': '1',

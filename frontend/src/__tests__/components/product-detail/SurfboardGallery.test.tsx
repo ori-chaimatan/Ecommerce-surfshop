@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { SurfboardGallery } from '@/components/product-detail/SurfboardGallery';
+import { SurfboardGallery } from '@/components/product-detail/surfboard/SurfboardGallery';
 
 // Deliberately different shapes: a tall board, a wide detail shot, a square.
 const IMAGES = [

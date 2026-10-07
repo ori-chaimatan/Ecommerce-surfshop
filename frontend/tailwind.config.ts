@@ -18,6 +18,7 @@ const config: Config = {
         horizon: "#155EEF",
         "horizon-deep": "#0E40A3",
         "horizon-ink": "#F5F9FA",
+        danger: "#C0392B",
       },
       fontFamily: {
         display: ["Poppins", "sans-serif"],
