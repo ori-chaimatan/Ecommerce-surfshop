@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_product_standard_sizes",
+  "info": {
+    "displayName": "Standard Size",
+    "icon": "layer",
+    "description": "One purchasable apparel/accessory size, with its own stock"
+  },
+  "options": {},
+  "attributes": {
+    "Size": {
+      "type": "enumeration",
+      "enum": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "OneSize"
+      ],
+      "required": true
+    },
+    "Stock": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "default": 0
+    }
+  },
+  "config": {}
+}

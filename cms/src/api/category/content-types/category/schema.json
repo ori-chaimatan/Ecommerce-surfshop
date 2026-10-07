@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "categories",
+  "info": {
+    "singularName": "category",
+    "pluralName": "categories",
+    "displayName": "Category",
+    "description": "Main catalog category (Surfboards, Accessories, …). Finer grouping lives in Subcategory."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name",
+      "required": true
+    },
+    "Subcategories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subcategory.subcategory",
+      "mappedBy": "Category"
+    },
+    "Products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product",
+      "mappedBy": "Category"
+    }
+  }
+}
