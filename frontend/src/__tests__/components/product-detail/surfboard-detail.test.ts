@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildBreadcrumb, toSurfboardDetail } from '@/components/product-detail/surfboard-detail';
+import { buildBreadcrumb } from '@/components/product-detail/shared/breadcrumb';
+import { toSurfboardDetail } from '@/components/product-detail/surfboard/surfboard-detail';
 import type { StrapiProductDetail, StrapiSurfboardSpecs } from '@/lib/strapi/product';
 
 const specs: StrapiSurfboardSpecs = {

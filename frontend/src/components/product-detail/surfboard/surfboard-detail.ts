@@ -1,9 +1,9 @@
-import { HOME_HREF, categoryHref } from '@/lib/routes';
+import { categoryHref } from '@/lib/routes';
 import { strapiMediaUrl } from '@/lib/strapi/media';
 import type { StrapiProductDetail, StrapiSkillLevel, StrapiSurfboardSpecs } from '@/lib/strapi/product';
 import { boardLengthInches, formatBoardSize } from '@/lib/strapi/sizes';
 import { formatPrice } from '@/shared/components/product-card/product-card';
-import { texts } from './product-detail-texts';
+import { texts } from '../product-detail-texts';
 
 export const SCALE_MIN = 1;
 export const SCALE_MAX = 100;
@@ -63,11 +63,6 @@ export interface SurfboardDetail {
   attributes?: { title: string; items: AttributeScale[] }[];
 }
 
-export interface BreadcrumbItem {
-  label: string;
-  href?: string;
-}
-
 /** Guards against out-of-range data only; in-range values pass through unrounded. */
 function clampScale(value: number) {
   return Math.min(SCALE_MAX, Math.max(SCALE_MIN, value));
@@ -111,9 +106,4 @@ export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail
     defaultSizeIndex: boardSizes.findIndex((size) => Number(size.Stock) > 0),
     ...(SurfboardSpecs ? { attributes: toAttributes(SurfboardSpecs) } : {}),
   };
-}
-
-export function buildBreadcrumb(detail: SurfboardDetail | null): BreadcrumbItem[] {
-  if (!detail) return [{ label: texts.home }];
-  return [{ label: texts.home, href: HOME_HREF }, { label: detail.category.name, href: detail.category.href }, { label: detail.name }];
 }

@@ -63,6 +63,33 @@ describe('getProductBySlug', () => {
     expect(init).toEqual(expect.objectContaining({ next: { revalidate: 60 } }));
   });
 
+  it('also requests Gender and StandardSizes for standard products (standard-product-detail-page AC2)', async () => {
+    mockFetch.mockResolvedValue(strapiResponse({ data: [] }));
+
+    await getProductBySlug('samurai');
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const decoded = requestedUrl();
+    expect(decoded).toContain('fields[5]=Gender');
+    expect(decoded).toContain('populate[StandardSizes]=true');
+  });
+
+  it('passes a standard product through with its sizes and gender', async () => {
+    const samurai = {
+      ...tideline,
+      Name: 'Samurai Pro 22" Boardshort',
+      Slug: 'samurai',
+      SizeType: 'Standard',
+      Gender: 'Men',
+      Category: { Name: 'Clothing', Slug: 'clothing' },
+      BoardSizes: [],
+      StandardSizes: [{ Size: 'M', Stock: 24 }],
+    };
+    mockFetch.mockResolvedValue(strapiResponse({ data: [samurai] }));
+
+    await expect(getProductBySlug('samurai')).resolves.toEqual({ kind: 'ok', product: samurai });
+  });
+
   it('encodes the slug so it cannot inject extra query params', async () => {
     mockFetch.mockResolvedValue(strapiResponse({ data: [] }));
 

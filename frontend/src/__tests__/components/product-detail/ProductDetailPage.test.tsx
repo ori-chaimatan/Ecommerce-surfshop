@@ -174,8 +174,9 @@ describe('ProductDetailPage', () => {
       await expect(renderPage({ kind: 'not-found' })).rejects.toThrow('NEXT_NOT_FOUND');
     });
 
-    it('404s for a non-surfboard product', async () => {
-      await expect(renderPage({ kind: 'ok', product: surfboard({ SizeType: 'Standard' }) })).rejects.toThrow('NEXT_NOT_FOUND');
+    it('404s for a product type no layout renders', async () => {
+      const product = surfboard({ SizeType: 'Other' as unknown as StrapiProductDetail['SizeType'] });
+      await expect(renderPage({ kind: 'ok', product })).rejects.toThrow('NEXT_NOT_FOUND');
     });
 
     it('404s when a required field is missing', async () => {
@@ -200,5 +201,95 @@ describe('ProductDetailPage', () => {
     expect(screen.queryByText(/thruster|fin setup|3-fin|hidden note/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/wishlist|share|material|fin system|more options|you might also like|house shaper/i)).not.toBeInTheDocument();
     expect(screen.queryByText('Hidden subtitle')).not.toBeInTheDocument();
+  });
+
+  describe('standard products (standard-product-detail-page)', () => {
+    function standard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetail {
+      return {
+        Name: 'Samurai Pro 22" Boardshort',
+        Slug: 'samurai-pro-22-boardshort',
+        Price: 79,
+        Description: 'Built for **long sessions**.',
+        SizeType: 'Standard',
+        Gender: 'Men',
+        Images: [
+          { url: '/uploads/s1.jpg', width: 700, height: 874 },
+          { url: '/uploads/s2.jpg', width: 700, height: 874 },
+        ],
+        Category: { Name: 'Clothing', Slug: 'clothing' },
+        BoardSizes: [],
+        StandardSizes: [
+          { Size: 'M', Stock: 24 },
+          { Size: 'S', Stock: 2 },
+        ],
+        SurfboardSpecs: null,
+        ...extra,
+      };
+    }
+
+    it('renders a Standard product from a single fetch (AC1)', async () => {
+      await renderPage({ kind: 'ok', product: standard() });
+
+      expect(mockGetProductBySlug).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('heading', { level: 1, name: 'Samurai Pro 22" Boardshort' })).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: /^Open photo/ })).toHaveLength(2);
+      expect(screen.queryByRole('meter')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Dimensions')).not.toBeInTheDocument();
+    });
+
+    it('shows the gender level in the breadcrumb for clothing (AC5)', async () => {
+      await renderPage({ kind: 'ok', product: standard() });
+
+      const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+      expect(within(breadcrumb).getByRole('link', { name: 'Clothing' })).toHaveAttribute('href', '/products/category/clothing');
+      expect(within(breadcrumb).getByRole('link', { name: 'Men' })).toHaveAttribute('href', '/products/category/clothing?gender=men');
+      expect(breadcrumb).toHaveTextContent('Home/Clothing/Men/Samurai Pro 22" Boardshort');
+    });
+
+    it('lays out the 2-column grid with a sticky buy column (AC6)', async () => {
+      await renderPage({ kind: 'ok', product: standard() });
+
+      const heading = screen.getByRole('heading', { level: 1 });
+      const buyColumn = heading.parentElement!;
+      expect(buyColumn).toHaveClass('sticky', 'top-[88px]', 'max-[900px]:static');
+      expect(buyColumn.parentElement).toHaveClass('grid', 'grid-cols-[1.6fr_1fr]', 'gap-14', 'max-[900px]:grid-cols-1', 'max-[900px]:gap-7');
+    });
+
+    it('renders the buy column header, sizes, CTA, trust list and accordions (AC10–AC15)', async () => {
+      await renderPage({ kind: 'ok', product: standard() });
+
+      expect(screen.getByRole('heading', { level: 1 })).toHaveClass('font-display', 'font-extrabold', 'uppercase', 'text-[clamp(26px,3.4vw,38px)]');
+      expect(screen.getByText('$79')).toHaveClass('text-2xl', 'font-bold', 'tabular-nums');
+      expect(screen.getByRole('group', { name: 'Size — S' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'S — Low stock' })).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: 'Add to Cart' })).toBeEnabled();
+      expect(screen.getByText('Free shipping over $75')).toBeInTheDocument();
+      expect(screen.getByText('30-day returns')).toBeInTheDocument();
+      expect(screen.getByText('Ships in 3–5 business days')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Description' })).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByText('long sessions').tagName).toBe('STRONG');
+      expect(screen.getByRole('button', { name: 'Shipping & Returns' })).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('uses the category name as the eyebrow (AC10)', async () => {
+      await renderPage({ kind: 'ok', product: standard({ Gender: null }) });
+
+      const heading = screen.getByRole('heading', { level: 1 });
+      const eyebrow = heading.previousElementSibling!;
+      expect(eyebrow).toHaveTextContent('Clothing');
+      expect(eyebrow).toHaveClass('font-mono', 'text-horizon');
+    });
+
+    it('404s when a required field is missing (AC3)', async () => {
+      await expect(renderPage({ kind: 'ok', product: standard({ Category: null }) })).rejects.toThrow('NEXT_NOT_FOUND');
+    });
+
+    it('renders none of the hidden design features (AC16)', async () => {
+      const product = standard({ Subtitle: 'Performance stretch' } as Partial<StrapiProductDetail>);
+      await renderPage({ kind: 'ok', product });
+
+      expect(screen.queryByText('Performance stretch')).not.toBeInTheDocument();
+      expect(screen.queryByText(/size chart|color|wishlist|you might also like|details & features|see details|quantity/i)).not.toBeInTheDocument();
+    });
   });
 });

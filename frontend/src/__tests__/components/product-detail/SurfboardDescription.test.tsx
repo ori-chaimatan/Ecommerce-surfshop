@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SurfboardDescription } from '@/components/product-detail/SurfboardDescription';
+import { SurfboardDescription } from '@/components/product-detail/surfboard/SurfboardDescription';
 
 /** jsdom has no layout, so fake the clamped box's heights to say whether the text overflows 6 lines. */
 function stubOverflow(overflows: boolean) {
