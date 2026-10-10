@@ -21,7 +21,7 @@ export function StandardProductDetail({ detail }: StandardProductDetailProps) {
             {detail.name}
           </h1>
           <p className="mb-4 mt-2.5 text-2xl font-bold tabular-nums text-ink">{detail.price}</p>
-          <StandardBuyPanel sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
+          <StandardBuyPanel documentId={detail.documentId} sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
           <TrustList />
           <StandardAccordions markdown={detail.descriptionMarkdown} />
         </div>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { CartProvider } from "@/components/cart";
+import { getSession } from "@/lib/auth/session";
 import { SiteNav } from "@/components/site-nav";
 import "../globals.css";
 
@@ -33,8 +35,10 @@ export default function RootLayout({
         />
       </head>
       <body className="font-[Inter,sans-serif] antialiased">
-        <SiteNav />
-        {children}
+        <CartProvider signedIn={getSession() !== null}>
+          <SiteNav />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

@@ -34,6 +34,8 @@ const SHAPES: Record<IconName, React.JSX.Element> = {
       <path d="M12 7v5l3 3" />
     </>
   ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
 };
 
 /** Decorative icon — the control around it carries the accessible name. */

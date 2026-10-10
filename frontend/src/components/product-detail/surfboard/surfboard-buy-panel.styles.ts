@@ -9,4 +9,5 @@ export const styles = {
   chevron: 'pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 fill-none stroke-muted stroke-2',
   buyRow: 'flex flex-wrap items-center justify-between gap-3.5 border-t border-border pt-[18px]',
   price: 'm-0 border-b-2 border-ink pb-0.5 text-2xl font-bold tabular-nums text-ink',
+  error: 'mb-0 mt-2.5 text-[13px] text-danger',
 } as const;

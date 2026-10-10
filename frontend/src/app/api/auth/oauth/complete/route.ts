@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookieOptions, SESSION_COOKIE_NAME } from '@/lib/auth/session';
+import { withGuestCartMerge } from '@/lib/cart/merge-on-auth';
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -11,5 +12,5 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ ok: true }, { status: 200 });
   response.cookies.set(SESSION_COOKIE_NAME, jwt, getSessionCookieOptions());
-  return response;
+  return withGuestCartMerge(request, response, jwt);
 }

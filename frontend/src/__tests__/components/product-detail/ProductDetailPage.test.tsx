@@ -1,6 +1,7 @@
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ProductBySlugResult, StrapiProductDetail } from '@/lib/strapi/product';
+import { renderWithCart } from '../cart/cart-test-utils';
 
 const mockGetProductBySlug = vi.fn();
 
@@ -15,6 +16,7 @@ import { ProductDetailPage } from '@/components/product-detail';
 
 function surfboard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetail {
   return {
+    documentId: 'board-doc',
     Name: 'Tideline 6\'0" Performance Shortboard',
     Slug: 'tideline',
     Price: 829,
@@ -44,7 +46,7 @@ function surfboard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetai
 
 async function renderPage(result: ProductBySlugResult = { kind: 'ok', product: surfboard() }) {
   mockGetProductBySlug.mockResolvedValue(result);
-  return render(await ProductDetailPage({ productSlug: 'tideline' }));
+  return renderWithCart(await ProductDetailPage({ productSlug: 'tideline' }));
 }
 
 function meter(label: string) {
@@ -206,6 +208,7 @@ describe('ProductDetailPage', () => {
   describe('standard products (standard-product-detail-page)', () => {
     function standard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetail {
       return {
+        documentId: 'shorts-doc',
         Name: 'Samurai Pro 22" Boardshort',
         Slug: 'samurai-pro-22-boardshort',
         Price: 79,

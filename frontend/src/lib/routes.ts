@@ -16,6 +16,10 @@ export const LOGIN_HREF = '/auth/login';
 export const WISHLIST_HREF = '/account#wishlist';
 export const CART_HREF = '/cart';
 
+/** The storefront's own cart API (route handlers in app/api/cart). */
+export const CART_API_HREF = '/api/cart';
+export const CART_LINES_API_HREF = '/api/cart/lines';
+
 export function productHref(productSlug: string) {
   return `/products/${productSlug}`;
 }

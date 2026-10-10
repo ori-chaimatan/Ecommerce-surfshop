@@ -3,14 +3,16 @@
 import { useId, useState } from 'react';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { texts } from '../product-detail-texts';
+import { useAddToCart } from '../shared/use-add-to-cart';
 import { styles } from './standard-buy-panel.styles';
 import type { IStandardBuyPanelProps } from './standard.types';
 
-export const StandardBuyPanel = ({ sizes, defaultSizeIndex }: IStandardBuyPanelProps): React.JSX.Element => {
+export const StandardBuyPanel = ({ documentId, sizes, defaultSizeIndex }: IStandardBuyPanelProps): React.JSX.Element => {
   const [selected, setSelected] = useState(defaultSizeIndex);
   const labelId = useId();
   const inStock = defaultSizeIndex >= 0;
   const current = selected >= 0 ? sizes[selected] : undefined;
+  const { adding, message, addSize, clearMessage } = useAddToCart(documentId);
 
   return (
     <div>
@@ -33,7 +35,10 @@ export const StandardBuyPanel = ({ sizes, defaultSizeIndex }: IStandardBuyPanelP
                       ? texts.standard.lowStockSize(size.label)
                       : undefined
                 }
-                onClick={() => setSelected(index)}
+                onClick={() => {
+                  setSelected(index);
+                  clearMessage();
+                }}
                 className={`${styles.size.base} ${styles.size.state[size.soldOut ? 'soldOut' : index === selected ? 'selected' : 'idle']}`}
               >
                 {size.label}
@@ -54,7 +59,16 @@ export const StandardBuyPanel = ({ sizes, defaultSizeIndex }: IStandardBuyPanelP
       )}
 
       <div className={styles.buy}>
-        <ButtonCTA text={inStock ? texts.addToCart : texts.soldOut} disabled={!inStock} />
+        <ButtonCTA
+          text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
+          disabled={!inStock || adding || !current}
+          onClick={() => current && void addSize(current.key)}
+        />
+        {message && (
+          <p role="alert" className={styles.error}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );

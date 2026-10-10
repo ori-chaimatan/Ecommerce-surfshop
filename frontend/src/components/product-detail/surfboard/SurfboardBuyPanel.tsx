@@ -5,12 +5,14 @@ import { ButtonCTA } from '@/shared/components/button-cta';
 import { Icon } from '@/shared/components/icons';
 import { texts } from '../product-detail-texts';
 import { TrustList } from '../shared/TrustList';
+import { useAddToCart } from '../shared/use-add-to-cart';
 import { styles } from './surfboard-buy-panel.styles';
 import type { ISurfboardBuyPanelProps } from './surfboard.types';
 
-export const SurfboardBuyPanel = ({ price, sizes, defaultSizeIndex }: ISurfboardBuyPanelProps): React.JSX.Element => {
+export const SurfboardBuyPanel = ({ documentId, price, sizes, defaultSizeIndex }: ISurfboardBuyPanelProps): React.JSX.Element => {
   const [selected, setSelected] = useState(Math.max(0, defaultSizeIndex));
   const inStock = defaultSizeIndex >= 0;
+  const { adding, message, addSize, clearMessage } = useAddToCart(documentId);
 
   return (
     <div className={styles.panel}>
@@ -25,7 +27,10 @@ export const SurfboardBuyPanel = ({ price, sizes, defaultSizeIndex }: ISurfboard
                 id="surfboard-dimensions"
                 value={selected}
                 disabled={!inStock}
-                onChange={(event) => setSelected(Number(event.target.value))}
+                onChange={(event) => {
+                  setSelected(Number(event.target.value));
+                  clearMessage();
+                }}
                 className={styles.select}
               >
                 {sizes.map((size, index) => (
@@ -41,8 +46,17 @@ export const SurfboardBuyPanel = ({ price, sizes, defaultSizeIndex }: ISurfboard
 
         <div className={styles.buyRow}>
           <p className={styles.price}>{price}</p>
-          <ButtonCTA text={inStock ? texts.addToCart : texts.soldOut} disabled={!inStock} />
+          <ButtonCTA
+            text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
+            disabled={!inStock || adding}
+            onClick={() => void addSize(sizes[selected].key)}
+          />
         </div>
+        {message && (
+          <p role="alert" className={styles.error}>
+            {message}
+          </p>
+        )}
 
         <TrustList />
       </div>

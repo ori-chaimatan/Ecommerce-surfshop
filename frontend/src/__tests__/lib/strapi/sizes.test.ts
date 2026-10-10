@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { boardLengthInches, formatBoardSize, formatStandardSize } from '@/lib/strapi/sizes';
+import {
+  boardLengthInches,
+  boardSizeFromKey,
+  boardSizeKey,
+  formatBoardSize,
+  formatStandardSize,
+  standardSizeKey,
+} from '@/lib/strapi/sizes';
 
 describe('formatBoardSize', () => {
   it('builds feet/inches and litres from LengthFt/LengthInches/VolumeL (AC5)', () => {
@@ -45,5 +52,28 @@ describe('formatStandardSize', () => {
 
   it('spells OneSize as "One Size" (AC5)', () => {
     expect(formatStandardSize('OneSize')).toBe('One Size');
+  });
+});
+
+// Same cases as cms/tests/cart/cart-logic.test.ts — the two sides must derive identical keys.
+describe('size keys (add-to-cart AC3)', () => {
+  it('derives board keys as LengthFt-LengthInches-VolumeL', () => {
+    expect(boardSizeKey({ LengthFt: 6, LengthInches: 0, VolumeL: 29.4 })).toBe('6-0-29.4');
+  });
+
+  it('normalises decimal strings so "27.50" and 27.5 give the same key', () => {
+    expect(boardSizeKey({ LengthFt: 5, LengthInches: 10, VolumeL: '27.50' as unknown as number })).toBe('5-10-27.5');
+  });
+
+  it('uses the enum value for standard sizes', () => {
+    expect(standardSizeKey({ Size: 'OneSize' })).toBe('OneSize');
+    expect(standardSizeKey({ Size: 'M' })).toBe('M');
+  });
+
+  it('parses a board key back into its fields, or null when malformed', () => {
+    expect(boardSizeFromKey('6-0-29.4')).toEqual({ LengthFt: 6, LengthInches: 0, VolumeL: 29.4 });
+    expect(boardSizeFromKey('5-10-27.5')).toEqual({ LengthFt: 5, LengthInches: 10, VolumeL: 27.5 });
+    expect(boardSizeFromKey('M')).toBeNull();
+    expect(boardSizeFromKey('6-x-29')).toBeNull();
   });
 });
