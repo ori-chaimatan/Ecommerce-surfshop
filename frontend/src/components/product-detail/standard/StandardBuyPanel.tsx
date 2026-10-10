@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { texts } from '../product-detail-texts';
+import { useAddToCart } from '../shared/use-add-to-cart';
 import type { StandardDetail } from './standard-detail';
 
 const SIZE_BOX = 'relative rounded-[9px] border px-1 py-2.5 text-center font-mono text-[13px] font-semibold transition-colors';
@@ -13,15 +14,17 @@ const SIZE_STATE = {
 };
 
 interface StandardBuyPanelProps {
+  documentId: string;
   sizes: StandardDetail['sizes'];
   defaultSizeIndex: number;
 }
 
-export function StandardBuyPanel({ sizes, defaultSizeIndex }: StandardBuyPanelProps) {
+export function StandardBuyPanel({ documentId, sizes, defaultSizeIndex }: StandardBuyPanelProps) {
   const [selected, setSelected] = useState(defaultSizeIndex);
   const labelId = useId();
   const inStock = defaultSizeIndex >= 0;
   const current = selected >= 0 ? sizes[selected] : undefined;
+  const { adding, message, addSize, clearMessage } = useAddToCart(documentId);
 
   return (
     <div>
@@ -44,7 +47,10 @@ export function StandardBuyPanel({ sizes, defaultSizeIndex }: StandardBuyPanelPr
                       ? texts.standard.lowStockSize(size.label)
                       : undefined
                 }
-                onClick={() => setSelected(index)}
+                onClick={() => {
+                  setSelected(index);
+                  clearMessage();
+                }}
                 className={`${SIZE_BOX} ${size.soldOut ? SIZE_STATE.soldOut : index === selected ? SIZE_STATE.selected : SIZE_STATE.idle}`}
               >
                 {size.label}
@@ -68,7 +74,16 @@ export function StandardBuyPanel({ sizes, defaultSizeIndex }: StandardBuyPanelPr
       )}
 
       <div className="mb-5 mt-[22px]">
-        <ButtonCTA text={inStock ? texts.addToCart : texts.soldOut} disabled={!inStock} />
+        <ButtonCTA
+          text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
+          disabled={!inStock || adding || !current}
+          onClick={() => current && void addSize(current.key)}
+        />
+        {message && (
+          <p role="alert" className="mb-0 mt-2.5 text-[13px] text-danger">
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );

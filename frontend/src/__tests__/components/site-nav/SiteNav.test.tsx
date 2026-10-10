@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StrapiNavCategory, SubcategoryGenders } from '@/lib/strapi/navigation';
+import { CartContext } from '@/components/cart/cart-context';
+import { cartContext, makeCart } from '../cart/cart-test-utils';
 
 const mockGetSession = vi.fn();
 const mockGetNavigation = vi.fn();
@@ -30,7 +32,10 @@ const SUBCATEGORY_GENDERS: SubcategoryGenders = { 'tshirts-tanks': ['Unisex'], s
 async function renderNav({ loggedIn = false, categories = CATEGORIES, subcategoryGenders = SUBCATEGORY_GENDERS as SubcategoryGenders | null } = {}) {
   mockGetSession.mockReturnValue(loggedIn ? { jwt: 'a.jwt' } : null);
   mockGetNavigation.mockResolvedValue({ categories, subcategoryGenders });
-  return render(await SiteNav());
+  const cart = cartContext({ cart: makeCart([]) });
+  return render(await SiteNav(), {
+    wrapper: ({ children }) => <CartContext.Provider value={cart}>{children}</CartContext.Provider>,
+  });
 }
 
 function desktop() {
@@ -282,11 +287,11 @@ describe('SiteNav', () => {
     expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('shows Sign In when logged out and Log Out when logged in, plus Wishlist and Cart links (AC8)', async () => {
+  it('shows Sign In when logged out and Log Out when logged in, plus the Wishlist link and the Cart button (AC8; cart button per add-to-cart AC10)', async () => {
     const { unmount } = await renderNav();
     expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/auth/login');
     expect(screen.getByRole('link', { name: 'Wishlist' })).toHaveAttribute('href', '/account#wishlist');
-    expect(screen.getByRole('link', { name: 'Cart' })).toHaveAttribute('href', '/cart');
+    expect(screen.getByRole('button', { name: 'Cart' })).toHaveAttribute('aria-haspopup', 'dialog');
     expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
     unmount();
 
@@ -295,13 +300,13 @@ describe('SiteNav', () => {
     expect(screen.queryByRole('link', { name: 'Account' })).not.toBeInTheDocument();
   });
 
-  it('renders no search, cart count or Surfboard Finder link/promo (AC9)', async () => {
+  it('renders no search or Surfboard Finder link/promo, and no cart count for an empty cart (AC9; count per add-to-cart AC10)', async () => {
     const { container } = await renderNav();
     fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
 
     expect(screen.queryByRole('button', { name: /search/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/finder/i)).not.toBeInTheDocument();
-    expect(within(screen.getByRole('link', { name: 'Cart' })).queryByText(/^\d+$/)).not.toBeInTheDocument();
+    expect(within(screen.getByRole('button', { name: 'Cart' })).queryByText(/^\d+$/)).not.toBeInTheDocument();
     expect(container.textContent).not.toMatch(/Not sure where to start/i);
   });
 
@@ -317,7 +322,7 @@ describe('SiteNav', () => {
 
     expect(screen.getByRole('link', { name: 'WESTLINE' })).toBeInTheDocument();
     expect(within(desktop()).queryAllByRole('link')).toHaveLength(0);
-    expect(screen.getByRole('link', { name: 'Cart' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cart' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument();
   });
 });

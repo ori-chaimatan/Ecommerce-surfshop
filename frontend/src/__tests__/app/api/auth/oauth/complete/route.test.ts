@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { NextRequest } from 'next/server';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 function makeRequest(body: unknown) {
   return new NextRequest('http://localhost/api/auth/oauth/complete', {
@@ -34,5 +34,42 @@ describe('POST /api/auth/oauth/complete', () => {
 
     expect(res.status).toBe(400);
     expect(res.cookies.get('westline_session')).toBeUndefined();
+  });
+});
+
+describe('POST /api/auth/oauth/complete — guest cart merge (add-to-cart AC5)', () => {
+  const cartFetch = vi.fn();
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', cartFetch);
+    cartFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('merges the guest cart into the new session and clears the guest cookie', async () => {
+    cartFetch
+      .mockResolvedValueOnce(json({ lines: [], removedCount: 0 }));
+
+    const { POST } = await import('@/app/api/auth/oauth/complete/route');
+    const res = await POST(
+      new NextRequest('http://localhost/api/auth/oauth/complete', {
+        method: 'POST',
+        body: JSON.stringify({ jwt: 'a.jwt.token' }),
+        headers: { cookie: 'westline_cart=guest-token' },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(cartFetch).toHaveBeenLastCalledWith(
+      'http://localhost:1337/api/carts/merge',
+      expect.objectContaining({ headers: { Authorization: 'Bearer a.jwt.token', 'x-cart-token': 'guest-token' } })
+    );
+    expect(res.cookies.get('westline_session')?.value).toBe('a.jwt.token');
+    expect(res.cookies.get('westline_cart')?.maxAge).toBe(0);
   });
 });

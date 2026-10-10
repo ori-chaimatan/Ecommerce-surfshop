@@ -1,7 +1,7 @@
 import { categoryHref } from '@/lib/routes';
 import { strapiMediaUrl } from '@/lib/strapi/media';
 import type { StrapiProductDetail, StrapiSkillLevel, StrapiSurfboardSpecs } from '@/lib/strapi/product';
-import { boardLengthInches, formatBoardSize } from '@/lib/strapi/sizes';
+import { boardLengthInches, boardSizeKey, formatBoardSize } from '@/lib/strapi/sizes';
 import { formatPrice } from '@/shared/components/product-card/product-card';
 import { texts } from '../product-detail-texts';
 
@@ -51,13 +51,16 @@ export interface AttributeScale {
 }
 
 export interface SurfboardDetail {
+  /** The product's Strapi documentId, for Add to Cart. */
+  documentId: string;
   name: string;
   price: string;
   category: { name: string; href: string };
   descriptionMarkdown: string;
   video?: { src: string; type?: string };
   images: { src: string; width: number; height: number }[];
-  sizes: { label: string; soldOut: boolean }[];
+  /** `key` identifies the size in a cart line (`boardSizeKey`). */
+  sizes: { label: string; soldOut: boolean; key: string }[];
   /** Index of the first in-stock size, or -1 when nothing is in stock. */
   defaultSizeIndex: number;
   attributes?: { title: string; items: AttributeScale[] }[];
@@ -85,10 +88,10 @@ function toAttributes(specs: StrapiSurfboardSpecs) {
 }
 
 export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail | null {
-  const { Name, Images, Category, SurfboardSpecs } = product;
+  const { documentId, Name, Images, Category, SurfboardSpecs } = product;
   const price = Number(product.Price ?? NaN);
 
-  if (product.SizeType !== 'Surfboard' || !Name || !Number.isFinite(price) || !Images?.length || !Category?.Name || !Category.Slug) {
+  if (product.SizeType !== 'Surfboard' || !documentId || !Name || !Number.isFinite(price) || !Images?.length || !Category?.Name || !Category.Slug) {
     return null;
   }
 
@@ -96,13 +99,18 @@ export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail
   const video = SurfboardSpecs?.Video?.url;
 
   return {
+    documentId,
     name: Name,
     price: formatPrice(price),
     category: { name: Category.Name, href: categoryHref(Category.Slug) },
     descriptionMarkdown: product.Description ?? '',
     ...(video ? { video: { src: strapiMediaUrl(video), type: SurfboardSpecs?.Video?.mime } } : {}),
     images: Images.map((image) => ({ src: strapiMediaUrl(image.url), width: image.width, height: image.height })),
-    sizes: boardSizes.map((size) => ({ label: formatBoardSize(size), soldOut: !(Number(size.Stock) > 0) })),
+    sizes: boardSizes.map((size) => ({
+      label: formatBoardSize(size),
+      soldOut: !(Number(size.Stock) > 0),
+      key: boardSizeKey(size),
+    })),
     defaultSizeIndex: boardSizes.findIndex((size) => Number(size.Stock) > 0),
     ...(SurfboardSpecs ? { attributes: toAttributes(SurfboardSpecs) } : {}),
   };

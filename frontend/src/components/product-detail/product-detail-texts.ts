@@ -1,3 +1,8 @@
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
+import { formatPrice } from '@/shared/components/product-card/product-card';
+
+const FREE_SHIPPING = formatPrice(FREE_SHIPPING_THRESHOLD);
+
 export const texts = {
   home: 'Home',
   breadcrumbLabel: 'Breadcrumb',
@@ -24,8 +29,11 @@ export const texts = {
   dimensions: 'Dimensions',
   soldOutOption: (label: string) => `${label} — Sold out`,
   addToCart: 'Add to Cart',
+  adding: 'Adding…',
+  addFailed: "Couldn't add to cart. Try again.",
+  addSoldOut: 'This size just sold out.',
   soldOut: 'Sold out',
-  trust: { shipping: 'Free shipping over $75', returns: '30-day returns', dispatch: 'Ships in 3–5 business days' },
+  trust: { shipping: `Free shipping over ${FREE_SHIPPING}`, returns: '30-day returns', dispatch: 'Ships in 3–5 business days' },
   standard: {
     size: 'Size',
     selectedSize: (label: string) => `Size — ${label}`,
@@ -34,7 +42,7 @@ export const texts = {
     lowStock: 'Low stock',
     description: 'Description',
     shippingReturns: 'Shipping & Returns',
-    shippingLines: ['Free shipping on orders over $75.', '30-day returns.'],
+    shippingLines: [`Free shipping on orders over ${FREE_SHIPPING}.`, '30-day returns.'],
   },
   previousPhoto: 'Previous photo',
   nextPhoto: 'Next photo',

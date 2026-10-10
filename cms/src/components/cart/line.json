@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_cart_lines",
+  "info": {
+    "displayName": "Cart Line",
+    "icon": "shoppingCart",
+    "description": "One product + size in a cart. Price and stock are always read live from the product"
+  },
+  "options": {},
+  "attributes": {
+    "Product": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product.product",
+      "required": true
+    },
+    "SizeKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 32
+    },
+    "Quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "max": 99
+    }
+  },
+  "config": {}
+}

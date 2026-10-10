@@ -5,17 +5,20 @@ import { ButtonCTA } from '@/shared/components/button-cta';
 import { Icon } from '@/shared/components/icons';
 import { texts } from '../product-detail-texts';
 import { TrustList } from '../shared/TrustList';
+import { useAddToCart } from '../shared/use-add-to-cart';
 import type { SurfboardDetail } from './surfboard-detail';
 
 interface SurfboardBuyPanelProps {
+  documentId: string;
   price: string;
   sizes: SurfboardDetail['sizes'];
   defaultSizeIndex: number;
 }
 
-export function SurfboardBuyPanel({ price, sizes, defaultSizeIndex }: SurfboardBuyPanelProps) {
+export function SurfboardBuyPanel({ documentId, price, sizes, defaultSizeIndex }: SurfboardBuyPanelProps) {
   const [selected, setSelected] = useState(Math.max(0, defaultSizeIndex));
   const inStock = defaultSizeIndex >= 0;
+  const { adding, message, addSize, clearMessage } = useAddToCart(documentId);
 
   return (
     <div className="sticky top-24 self-start max-[900px]:static max-[900px]:order-2">
@@ -33,7 +36,10 @@ export function SurfboardBuyPanel({ price, sizes, defaultSizeIndex }: SurfboardB
                 id="surfboard-dimensions"
                 value={selected}
                 disabled={!inStock}
-                onChange={(event) => setSelected(Number(event.target.value))}
+                onChange={(event) => {
+                  setSelected(Number(event.target.value));
+                  clearMessage();
+                }}
                 className="w-full appearance-none rounded-[9px] border border-border bg-white py-3 pl-3.5 pr-9 text-[14.5px] font-semibold text-ink disabled:opacity-60"
               >
                 {sizes.map((size, index) => (
@@ -52,8 +58,17 @@ export function SurfboardBuyPanel({ price, sizes, defaultSizeIndex }: SurfboardB
 
         <div className="flex flex-wrap items-center justify-between gap-3.5 border-t border-border pt-[18px]">
           <p className="m-0 border-b-2 border-ink pb-0.5 text-2xl font-bold tabular-nums text-ink">{price}</p>
-          <ButtonCTA text={inStock ? texts.addToCart : texts.soldOut} disabled={!inStock} />
+          <ButtonCTA
+            text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
+            disabled={!inStock || adding}
+            onClick={() => void addSize(sizes[selected].key)}
+          />
         </div>
+        {message && (
+          <p role="alert" className="mb-0 mt-2.5 text-[13px] text-danger">
+            {message}
+          </p>
+        )}
 
         <TrustList />
       </div>

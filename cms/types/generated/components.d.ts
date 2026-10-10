@@ -1,5 +1,32 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface CartLine extends Struct.ComponentSchema {
+  collectionName: 'components_cart_lines';
+  info: {
+    description: 'One product + size in a cart. Price and stock are always read live from the product';
+    displayName: 'Cart Line';
+    icon: 'shoppingCart';
+  };
+  attributes: {
+    Product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'> &
+      Schema.Attribute.Required;
+    Quantity: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 99;
+          min: 1;
+        },
+        number
+      >;
+    SizeKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 32;
+      }>;
+  };
+}
+
 export interface HomeHeroSlide extends Struct.ComponentSchema {
   collectionName: 'components_home_hero_slides';
   info: {
@@ -250,6 +277,7 @@ export interface SharedTarget extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
+      'cart.line': CartLine;
       'home.hero-slide': HomeHeroSlide;
       'product.board-size': ProductBoardSize;
       'product.standard-size': ProductStandardSize;

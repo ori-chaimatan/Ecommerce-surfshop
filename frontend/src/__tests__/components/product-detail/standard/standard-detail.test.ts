@@ -4,6 +4,7 @@ import type { StrapiProductDetail } from '@/lib/strapi/product';
 
 function samurai(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetail {
   return {
+    documentId: 'shorts-doc',
     Name: 'Samurai Pro 22" Boardshort',
     Slug: 'samurai-pro-22-boardshort',
     Price: 79,
@@ -38,8 +39,15 @@ describe('toStandardDetail (AC3)', () => {
     ['a category without a slug', { Category: { Name: 'Clothing' } }],
     ['a non-numeric price', { Price: 'abc' }],
     ['a missing price', { Price: null }],
+    ['no documentId (add-to-cart AC9)', { documentId: undefined }],
   ])('returns null for %s', (_, extra) => {
     expect(toStandardDetail(samurai(extra))).toBeNull();
+  });
+
+  it('carries the documentId and OneSize key for Add to Cart (add-to-cart AC9)', () => {
+    const detail = toStandardDetail(samurai({ StandardSizes: [{ Size: 'OneSize', Stock: 2 }] }))!;
+    expect(detail.documentId).toBe('shorts-doc');
+    expect(detail.sizes[0]).toMatchObject({ label: 'One Size', key: 'OneSize' });
   });
 
   it('maps the header, price, description and images', () => {
@@ -91,10 +99,10 @@ describe('toStandardDetail sizes (AC11, AC12)', () => {
 
     expect(LOW_STOCK_MAX).toBe(3);
     expect(detail.sizes).toEqual([
-      { label: 'S', soldOut: true, lowStock: false },
-      { label: 'M', soldOut: false, lowStock: true },
-      { label: 'L', soldOut: false, lowStock: true },
-      { label: 'XL', soldOut: false, lowStock: false },
+      { label: 'S', soldOut: true, lowStock: false, key: 'S' },
+      { label: 'M', soldOut: false, lowStock: true, key: 'M' },
+      { label: 'L', soldOut: false, lowStock: true, key: 'L' },
+      { label: 'XL', soldOut: false, lowStock: false, key: 'XL' },
     ]);
   });
 

@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import { CartNavButton } from '@/components/cart';
 import { LogoutButton } from '@/components/logout-button';
 import { Icon } from '@/shared/components/icons';
 import { getSession } from '@/lib/auth/session';
-import { CART_HREF, HOME_HREF, LOGIN_HREF, WISHLIST_HREF } from '@/lib/routes';
+import { HOME_HREF, LOGIN_HREF, WISHLIST_HREF } from '@/lib/routes';
 import { getNavigation } from '@/lib/strapi/navigation';
 import { DesktopMenu } from './DesktopMenu';
 import { MobileMenu } from './MobileMenu';
@@ -41,9 +42,7 @@ export async function SiteNav() {
           <Link href={WISHLIST_HREF} aria-label={texts.wishlistLabel} className={ICON_LINK}>
             <Icon name="heart" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
           </Link>
-          <Link href={CART_HREF} aria-label={texts.cartLabel} className={ICON_LINK}>
-            <Icon name="cart" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
-          </Link>
+          <CartNavButton />
           <MobileMenu items={items} />
         </div>
       </div>

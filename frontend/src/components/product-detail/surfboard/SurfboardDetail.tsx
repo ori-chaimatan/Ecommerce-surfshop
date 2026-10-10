@@ -104,7 +104,7 @@ export function SurfboardDetail({ detail }: SurfboardDetailProps) {
 
         <SurfboardGallery images={detail.images} name={detail.name} />
 
-        <SurfboardBuyPanel price={detail.price} sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
+        <SurfboardBuyPanel documentId={detail.documentId} price={detail.price} sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
       </div>
     </section>
   );

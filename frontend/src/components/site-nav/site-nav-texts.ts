@@ -3,7 +3,6 @@ export const texts = {
   signIn: 'Sign In',
   accountLabel: 'Account',
   wishlistLabel: 'Wishlist',
-  cartLabel: 'Cart',
   mainNavLabel: 'Main',
   menuButtonLabel: 'Menu',
   mobileNavLabel: 'Mobile',

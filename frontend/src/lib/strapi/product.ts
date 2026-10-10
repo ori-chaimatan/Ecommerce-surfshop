@@ -22,6 +22,8 @@ export interface StrapiSurfboardSpecs {
 
 /** One product as the detail page requests it; every field may be missing, so the mapper validates. */
 export interface StrapiProductDetail {
+  /** Strapi v5 returns it on every document, whatever `fields` asks for. */
+  documentId?: string;
   Name?: string;
   Slug?: string;
   Price?: number | string | null;

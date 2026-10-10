@@ -36,3 +36,52 @@ export async function strapiFetch<T>(
     return fallback;
   }
 }
+
+interface StrapiRequestOptions {
+  /** Prefix for log lines, e.g. "cart". */
+  label: string;
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  /** Sent as JSON. */
+  body?: unknown;
+  headers?: Record<string, string>;
+  /** Non-2xx statuses that are expected and shouldn't be logged (e.g. 409 for a sold-out size). */
+  silentStatuses?: number[];
+}
+
+export interface StrapiResponse {
+  ok: boolean;
+  /** 0 when the request never got a response. */
+  status: number;
+  /** The parsed body, or null when it wasn't JSON. */
+  data: unknown;
+}
+
+/**
+ * Uncached request against the Strapi REST API, for per-shopper data and writes (the cart).
+ * Never throws: a network failure is `{ ok: false, status: 0 }`. Error bodies are returned
+ * so callers can read Strapi's error code.
+ */
+export async function strapiRequest(
+  path: string,
+  { label, method = 'GET', body, headers = {}, silentStatuses = [] }: StrapiRequestOptions
+): Promise<StrapiResponse> {
+  let response: Response;
+  try {
+    response = await fetch(`${STRAPI_URL}/api/${path}`, {
+      method,
+      headers: body === undefined ? headers : { 'Content-Type': 'application/json', ...headers },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: 'no-store',
+    });
+  } catch (error) {
+    console.error(`[${label}] request failed`, error);
+    return { ok: false, status: 0, data: null };
+  }
+
+  if (!response.ok && !silentStatuses.includes(response.status)) {
+    console.error(`[${label}] Strapi responded ${response.status}`);
+  }
+
+  const data = await response.json().catch(() => null);
+  return { ok: response.ok, status: response.status, data };
+}

@@ -21,6 +21,7 @@ const specs: StrapiSurfboardSpecs = {
 
 function surfboard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetail {
   return {
+    documentId: 'board-doc',
     Name: 'Tideline 6\'0" Performance Shortboard',
     Slug: 'tideline',
     Price: 829,
@@ -65,6 +66,7 @@ describe('toSurfboardDetail', () => {
 
   it.each([
     ['a Standard product', { SizeType: 'Standard' as const }],
+    ['no documentId (add-to-cart AC9)', { documentId: undefined }],
     ['no SizeType', { SizeType: null }],
     ['no name', { Name: '' }],
     ['a non-numeric price', { Price: 'abc' }],
@@ -80,14 +82,18 @@ describe('toSurfboardDetail', () => {
     expect(toSurfboardDetail(surfboard({ Price: '829.5' }))!.price).toBe('$829.50');
   });
 
+  it('carries the documentId for Add to Cart (add-to-cart AC9)', () => {
+    expect(toSurfboardDetail(surfboard())!.documentId).toBe('board-doc');
+  });
+
   describe('sizes (AC11)', () => {
     it('sorts by length, formats with formatBoardSize, flags sold out and defaults to the first in-stock size', () => {
       const detail = toSurfboardDetail(surfboard())!;
 
       expect(detail.sizes).toEqual([
-        { label: '5\'10" · 27.6L', soldOut: true },
-        { label: '6\'0" · 29.4L', soldOut: false },
-        { label: '6\'2" · 31L', soldOut: false },
+        { label: '5\'10" · 27.6L', soldOut: true, key: '5-10-27.6' },
+        { label: '6\'0" · 29.4L', soldOut: false, key: '6-0-29.4' },
+        { label: '6\'2" · 31L', soldOut: false, key: '6-2-31' },
       ]);
       expect(detail.defaultSizeIndex).toBe(1);
     });
@@ -110,7 +116,7 @@ describe('toSurfboardDetail', () => {
     it('has no default when every size is sold out', () => {
       const detail = toSurfboardDetail(surfboard({ BoardSizes: [{ LengthFt: 6, LengthInches: 0, VolumeL: 29.4, Stock: 0 }] }))!;
 
-      expect(detail.sizes).toEqual([{ label: '6\'0" · 29.4L', soldOut: true }]);
+      expect(detail.sizes).toEqual([{ label: '6\'0" · 29.4L', soldOut: true, key: '6-0-29.4' }]);
       expect(detail.defaultSizeIndex).toBe(-1);
     });
 
