@@ -1,0 +1,35 @@
+import Link from 'next/link';
+import { formatPrice, type ProductCard as ProductCardData } from './product-card';
+import { ProductCardMedia } from './ProductCardMedia';
+import { texts } from './product-card-texts';
+
+interface ProductCardProps {
+  product: ProductCardData;
+  priority?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: (slug: string) => void;
+}
+
+export function ProductCard({ product, priority, isFavorite, onToggleFavorite }: ProductCardProps) {
+  return (
+    <article className="group/card relative flex h-full flex-col overflow-hidden rounded-[9px] border border-border bg-white transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(16,24,40,.08)] focus-within:shadow-[0_8px_24px_rgba(16,24,40,.08)] motion-reduce:transition-none">
+      <Link href={product.href} className="absolute inset-0 z-[1]">
+        <span className="sr-only">{texts.viewProduct(product.name)}</span>
+      </Link>
+
+      <ProductCardMedia
+        product={product}
+        priority={priority}
+        isFavorite={isFavorite}
+        onToggleFavorite={onToggleFavorite}
+      />
+
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="mb-1.5 text-base font-bold text-ink">{product.name}</h3>
+        <div className="mt-auto flex items-center justify-between gap-2.5">
+          <span className="text-base text-ink">{formatPrice(product.price)}</span>
+        </div>
+      </div>
+    </article>
+  );
+}

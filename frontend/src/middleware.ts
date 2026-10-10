@@ -10,7 +10,7 @@ export default function middleware(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  url.pathname = `/en${pathname}`;
+  url.pathname = pathname === '/' ? '/en' : `/en${pathname}`;
   return NextResponse.rewrite(url);
 }
 
