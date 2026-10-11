@@ -5,6 +5,5 @@ export const styles = {
   subtotal: 'text-ink',
   totalRow: 'mt-0.5 flex justify-between border-t border-border pt-3.5 text-base font-bold text-ink',
   blocking: 'text-xs text-danger',
-  checkoutNote: '-mt-2 text-center text-xs text-muted',
   note: 'text-xs text-muted',
 } as const;

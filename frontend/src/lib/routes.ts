@@ -15,10 +15,29 @@ export const PRODUCTS_HREF = '/products';
 export const LOGIN_HREF = '/auth/login';
 export const WISHLIST_HREF = '/account#wishlist';
 export const CART_HREF = '/cart';
+export const CHECKOUT_HREF = '/checkout';
+export const REGISTER_HREF = '/auth/register';
 
 /** The storefront's own cart API (route handlers in app/api/cart). */
 export const CART_API_HREF = '/api/cart';
 export const CART_LINES_API_HREF = '/api/cart/lines';
+/** The storefront's place-order route handler (app/api/checkout). */
+export const CHECKOUT_API_HREF = '/api/checkout';
+
+const withNext = (path: string, next?: string) => (next ? `${path}?next=${encodeURIComponent(next)}` : path);
+
+/** Sign-in, returning to `next` (a same-site path) afterwards. */
+export function loginHref(next?: string) {
+  return withNext(LOGIN_HREF, next);
+}
+
+export function registerHref(next?: string) {
+  return withNext(REGISTER_HREF, next);
+}
+
+export function orderConfirmationHref(orderNumber: string) {
+  return `/checkout/confirmation/${encodeURIComponent(orderNumber)}`;
+}
 
 export function productHref(productSlug: string) {
   return `/products/${productSlug}`;

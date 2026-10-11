@@ -21,12 +21,18 @@ describe('CartSummary (AC12, AC15)', () => {
     expect(container.querySelector('aside')).toHaveClass('sticky', 'top-[88px]');
   });
 
-  it('has a disabled Checkout with the coming-soon note and Continue Shopping', () => {
+  it('links Checkout to /checkout, with Continue Shopping (checkout AC18)', () => {
     renderWithCart(<CartSummary />, cartContext());
 
-    expect(screen.getByRole('button', { name: 'Checkout' })).toBeDisabled();
-    expect(screen.getByText('Checkout is coming soon.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Checkout' })).toHaveAttribute('href', '/checkout');
+    expect(screen.queryByText('Checkout is coming soon.')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Continue Shopping' })).toHaveAttribute('href', '/products');
+  });
+
+  it('disables Checkout while blocked lines remain (checkout AC18)', () => {
+    renderWithCart(<CartSummary />, cartContext({ cart: makeCart([makeLine({ soldOut: true, blocked: true })]) }));
+    expect(screen.getByRole('button', { name: 'Checkout' })).toBeDisabled();
+    expect(screen.queryByRole('link', { name: 'Checkout' })).not.toBeInTheDocument();
   });
 
   it('asks to remove blocked lines', () => {

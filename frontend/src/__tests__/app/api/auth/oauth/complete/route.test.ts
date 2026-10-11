@@ -73,3 +73,39 @@ describe('POST /api/auth/oauth/complete — guest cart merge (add-to-cart AC5)',
     expect(res.cookies.get('westline_cart')?.maxAge).toBe(0);
   });
 });
+
+describe('POST /api/auth/oauth/complete — next (checkout AC17)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('returns the remembered next path and clears its cookie', async () => {
+    const { POST } = await import('@/app/api/auth/oauth/complete/route');
+    const res = await POST(
+      new NextRequest('http://localhost/api/auth/oauth/complete', {
+        method: 'POST',
+        body: JSON.stringify({ jwt: 'a.jwt.token' }),
+        headers: { cookie: 'westline_next=%2Fcheckout' },
+      })
+    );
+
+    expect(await res.json()).toEqual({ ok: true, next: '/checkout' });
+    expect(res.cookies.get('westline_next')?.value).toBe('');
+  });
+
+  it('returns / when no next was remembered, or it is unsafe', async () => {
+    const { POST } = await import('@/app/api/auth/oauth/complete/route');
+    const plain = await POST(makeRequest({ jwt: 'a.jwt.token' }));
+    expect(await plain.json()).toEqual({ ok: true, next: '/' });
+
+    const unsafe = await POST(
+      new NextRequest('http://localhost/api/auth/oauth/complete', {
+        method: 'POST',
+        body: JSON.stringify({ jwt: 'a.jwt.token' }),
+        headers: { cookie: 'westline_next=%2F%2Fevil.com' },
+      })
+    );
+    expect(await unsafe.json()).toEqual({ ok: true, next: '/' });
+  });
+});

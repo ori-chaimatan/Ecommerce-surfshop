@@ -12,7 +12,6 @@ export const texts = {
   total: 'Total',
   viewCart: 'View Cart',
   checkout: 'Checkout',
-  checkoutSoon: 'Checkout is coming soon.',
   continueShopping: 'Continue Shopping',
   summaryNote: 'Taxes and shipping are calculated at checkout.',
   empty: 'Your cart is empty.',

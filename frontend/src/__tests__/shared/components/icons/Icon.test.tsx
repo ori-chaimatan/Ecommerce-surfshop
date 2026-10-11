@@ -17,4 +17,9 @@ describe('Icon', () => {
     expect(plus).toHaveAttribute('d', 'M12 5v14M5 12h14');
     expect(minus).toHaveAttribute('d', 'M5 12h14');
   });
+
+  it('has a check shape for the order confirmation (checkout AC15)', () => {
+    const check = render(<Icon name="check" />).container.querySelector('path');
+    expect(check).toHaveAttribute('d', 'M5 12.5l4.5 4.5L19 7.5');
+  });
 });

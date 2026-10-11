@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { CART_HREF, PRODUCTS_HREF } from '@/lib/routes';
+import { CART_HREF, CHECKOUT_HREF, PRODUCTS_HREF } from '@/lib/routes';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { Icon } from '@/shared/components/icons';
 import { useCart } from './cart-context';
@@ -123,10 +123,15 @@ export const CartDrawer = (): React.JSX.Element | null => {
               <div className={sharedStyles.fullWidthCta} onClick={closeDrawer}>
                 <ButtonCTA text={texts.viewCart} href={CART_HREF} />
               </div>
-              <div className={sharedStyles.fullWidthCta}>
-                <ButtonCTA text={texts.checkout} disabled />
-              </div>
-              <p className={styles.checkoutNote}>{texts.checkoutSoon}</p>
+              {cart.hasBlockingLines ? (
+                <div className={sharedStyles.fullWidthCta}>
+                  <ButtonCTA text={texts.checkout} disabled />
+                </div>
+              ) : (
+                <div className={sharedStyles.fullWidthCta} onClick={closeDrawer}>
+                  <ButtonCTA text={texts.checkout} href={CHECKOUT_HREF} />
+                </div>
+              )}
             </div>
           </>
         )}

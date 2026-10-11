@@ -19,7 +19,7 @@ export const PRODUCT_UID = 'api::product.product';
 
 /** Who the request is for: a signed-in user, a guest with a cart token, or neither. */
 export type CartIdentity =
-  | { kind: 'user'; userId: number; userDocumentId: string }
+  | { kind: 'user'; userId: number; userDocumentId: string; email?: string }
   | { kind: 'guest'; token: string }
   | { kind: 'none' };
 
@@ -45,6 +45,12 @@ interface StoredCart {
 
 const EMPTY: CartResponse = { lines: [], removedCount: 0 };
 
+/** Guest carts live as long as their `westline_cart` cookie (30 days); older ones are abandoned. */
+const ABANDONED_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
+const PURGE_BATCH = 100;
+
+export const abandonedCutoff = (now: Date) => new Date(now.getTime() - ABANDONED_AFTER_MS);
+
 const toPopulated = (cart: StoredCart | null): PopulatedLine[] =>
   (cart?.Lines ?? []).map((line) => ({ product: line.Product ?? null, sizeKey: line.SizeKey, quantity: line.Quantity }));
 
@@ -60,6 +66,7 @@ function cartFilters(identity: CartIdentity) {
 export function createCartStore(strapi: Core.Strapi, newToken: () => string = randomUUID) {
   const carts = () => strapi.documents(CART_UID as never) as unknown as {
     findFirst(params: object): Promise<StoredCart | null>;
+    findMany(params: object): Promise<{ documentId: string }[]>;
     create(params: object): Promise<StoredCart>;
     update(params: object): Promise<StoredCart>;
     delete(params: object): Promise<unknown>;
@@ -156,7 +163,33 @@ export function createCartStore(strapi: Core.Strapi, newToken: () => string = ra
     return read(user);
   }
 
-  return { read, add, setQuantity, remove, merge };
+  /** The cart's document id, for checkout to lock and clear it. */
+  async function findId(identity: CartIdentity): Promise<string | null> {
+    return (await find(identity))?.documentId ?? null;
+  }
+
+  /** Empties a cart after its order is placed (runs inside the place-order transaction). */
+  async function clearLines(documentId: string) {
+    await writeLines(documentId, []);
+  }
+
+  /**
+   * Deletes guest carts (no User) not updated since the cutoff, in batches, through the
+   * document service so their line components go too. User carts are never touched.
+   */
+  async function purgeAbandoned(now: Date, batchSize = PURGE_BATCH): Promise<number> {
+    const filters = { User: { id: { $null: true } }, updatedAt: { $lt: abandonedCutoff(now).toISOString() } };
+    let deleted = 0;
+
+    for (;;) {
+      const batch = await carts().findMany({ filters, fields: ['documentId'], limit: batchSize });
+      for (const { documentId } of batch) await carts().delete({ documentId });
+      deleted += batch.length;
+      if (batch.length < batchSize) return deleted;
+    }
+  }
+
+  return { read, add, setQuantity, remove, merge, findId, clearLines, purgeAbandoned };
 }
 
 export type CartStore = ReturnType<typeof createCartStore>;

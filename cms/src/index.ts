@@ -5,10 +5,13 @@ import { setupWelcomeEmail } from './bootstrap/welcome-email';
 import { setupHomepage } from './bootstrap/homepage';
 import { setupCatalog } from './bootstrap/catalog';
 import { registerClearStaleSizes } from './api/product/documents/clear-stale-sizes';
+import { registerOrderGuard } from './api/order/order-guard';
+import { setupOrderAdmin } from './bootstrap/order-admin';
 
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
     registerClearStaleSizes(strapi);
+    registerOrderGuard(strapi);
   },
 
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
@@ -18,5 +21,6 @@ export default {
     setupWelcomeEmail(strapi, clientUrl);
     await setupHomepage(strapi);
     await setupCatalog(strapi);
+    await setupOrderAdmin(strapi);
   },
 };

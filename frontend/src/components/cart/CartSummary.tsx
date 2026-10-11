@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { PRODUCTS_HREF } from '@/lib/routes';
+import { CHECKOUT_HREF, PRODUCTS_HREF } from '@/lib/routes';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { useCart } from './cart-context';
 import { sharedStyles } from './cart-shared.styles';
@@ -29,9 +29,8 @@ export const CartSummary = (): React.JSX.Element => {
       </div>
       {cart.hasBlockingLines && <p className={styles.blocking}>{texts.blocking}</p>}
       <div className={sharedStyles.fullWidthCta}>
-        <ButtonCTA text={texts.checkout} disabled />
+        {cart.hasBlockingLines ? <ButtonCTA text={texts.checkout} disabled /> : <ButtonCTA text={texts.checkout} href={CHECKOUT_HREF} />}
       </div>
-      <p className={styles.checkoutNote}>{texts.checkoutSoon}</p>
       <Link href={PRODUCTS_HREF} className={sharedStyles.secondaryButton}>
         {texts.continueShopping}
       </Link>

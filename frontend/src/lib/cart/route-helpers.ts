@@ -11,7 +11,7 @@ export { MAX_LINE_QUANTITY, SESSION_STATE_HEADER };
 const MAX_KEY_LENGTH = 32;
 const MAX_ID_LENGTH = 64;
 
-const NO_STORE = { 'Cache-Control': 'no-store' };
+export const NO_STORE = { 'Cache-Control': 'no-store' };
 
 const isId = (value: unknown, max: number): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= max;
@@ -32,6 +32,14 @@ export async function readLineInput(request: Request, withQuantity: boolean) {
     return null;
   }
   return { productDocumentId, sizeKey, quantity };
+}
+
+/** 429 with `Retry-After`, for the route handlers' rate limits. */
+export function tooManyRequests(retryAfter: number) {
+  return NextResponse.json(
+    { error: { code: 'rate-limited' } },
+    { status: 429, headers: { ...NO_STORE, 'Retry-After': String(retryAfter) } }
+  );
 }
 
 export function badRequest() {

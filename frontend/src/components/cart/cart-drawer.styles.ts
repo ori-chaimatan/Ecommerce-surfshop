@@ -16,5 +16,4 @@ export const styles = {
   subtotalRow: 'mb-1 flex justify-between text-[14.5px] font-bold text-ink',
   subtotal: 'font-mono',
   blocking: 'text-xs text-danger',
-  checkoutNote: 'text-center text-xs text-muted',
 } as const;

@@ -155,3 +155,40 @@ describe('/api/cart/lines with an expired or invalid session (add-to-cart AC6)',
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('/api/cart/lines guest cart creation limit (checkout AC20)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockReset();
+    mockFetch.mockImplementation(async () => strapiJson({ ...STRAPI_CART, token: 'new-token' }));
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  const guestPost = (ip: string, cookie?: string) =>
+    POST(
+      new NextRequest('http://localhost/api/cart/lines', {
+        method: 'POST',
+        body: JSON.stringify({ productDocumentId: 's1', sizeKey: 'M' }),
+        headers: { 'x-forwarded-for': ip, ...(cookie ? { cookie } : {}) },
+      })
+    );
+
+  it('allows 20 new guest carts per IP per 10 minutes, then answers 429', async () => {
+    for (let i = 0; i < 20; i += 1) expect((await guestPost('198.51.100.20')).status).toBe(200);
+
+    const limited = await guestPost('198.51.100.20');
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get('Retry-After'))).toBeGreaterThan(0);
+    expect(mockFetch).toHaveBeenCalledTimes(20);
+  });
+
+  it('never limits a shopper who already has a cart or a session', async () => {
+    for (let i = 0; i < 25; i += 1) expect((await guestPost('198.51.100.21')).status).toBeLessThan(500);
+    expect((await guestPost('198.51.100.21', 'westline_cart=t')).status).toBe(200);
+    expect((await guestPost('198.51.100.21', 'westline_session=jwt')).status).toBe(200);
+  });
+});

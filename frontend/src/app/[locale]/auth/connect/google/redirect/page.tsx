@@ -43,7 +43,8 @@ function GoogleRedirectHandler() {
           return;
         }
 
-        router.push('/');
+        const { next } = await completeRes.json().catch(() => ({ next: '/' }));
+        router.push(typeof next === 'string' ? next : '/');
         router.refresh();
       } catch {
         if (!cancelled) setError(texts.completeFailedError);

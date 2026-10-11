@@ -76,3 +76,25 @@ describe('routes', () => {
     });
   });
 });
+
+describe('checkout routes (checkout AC9, AC15, AC17, AC21)', () => {
+  it('exposes the checkout page and its API', async () => {
+    const routes = await import('@/lib/routes');
+    expect(routes.CHECKOUT_HREF).toBe('/checkout');
+    expect(routes.CHECKOUT_API_HREF).toBe('/api/checkout');
+  });
+
+  it('builds the confirmation URL from the order number', async () => {
+    const { orderConfirmationHref } = await import('@/lib/routes');
+    expect(orderConfirmationHref('WL-104233')).toBe('/checkout/confirmation/WL-104233');
+  });
+
+  it('builds the login URL with an encoded next path', async () => {
+    const { loginHref, registerHref } = await import('@/lib/routes');
+    expect(loginHref()).toBe('/auth/login');
+    expect(loginHref('/checkout')).toBe('/auth/login?next=%2Fcheckout');
+    expect(loginHref('/checkout/confirmation/WL-1?x=1')).toBe('/auth/login?next=%2Fcheckout%2Fconfirmation%2FWL-1%3Fx%3D1');
+    expect(registerHref('/checkout')).toBe('/auth/register?next=%2Fcheckout');
+    expect(registerHref()).toBe('/auth/register');
+  });
+});

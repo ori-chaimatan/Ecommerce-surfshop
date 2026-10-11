@@ -20,6 +20,8 @@ export interface CartLineView {
   href: string;
   sizeLabel: string;
   unitPrice: string;
+  /** Raw unit price (USD), for checkout's expected total. */
+  unitAmount: number;
   lineTotal: string;
   quantity: number;
   /** The size's live stock; the stepper stops here. */
@@ -38,6 +40,8 @@ export interface CartView {
   /** Units across every line, for the header badge. */
   count: number;
   subtotal: string;
+  /** Raw subtotal (USD) over lines that aren't blocked, for checkout totals. */
+  subtotalAmount: number;
   /** Formatted amount still needed for free shipping; null once it's unlocked. */
   remainingForFreeShipping: string | null;
   /** 0–1. */
@@ -72,6 +76,7 @@ function toLineView(line: StrapiCartLine): CartLineView {
     href: productHref(line.slug),
     sizeLabel: sizeLabel(line),
     unitPrice: formatPrice(line.price),
+    unitAmount: line.price,
     lineTotal: formatPrice(toCents(line.price * line.quantity)),
     quantity: line.quantity,
     // Never past what the cart routes accept, however much is in stock.
@@ -101,6 +106,7 @@ export function toCartView({ lines, removedCount }: StrapiCart): CartView {
     lines: views,
     count: lines.reduce((sum, line) => sum + line.quantity, 0),
     subtotal: formatPrice(subtotal),
+    subtotalAmount: subtotal,
     remainingForFreeShipping: remaining > 0 ? formatPrice(remaining) : null,
     freeShippingProgress: Math.min(1, subtotal / FREE_SHIPPING_THRESHOLD),
     hasBlockingLines: views.some((line) => line.blocked),

@@ -54,6 +54,7 @@ describe('toCartView lines (AC7)', () => {
       href: '/products/ci-pro',
       sizeLabel: `6'0" · 29.9L`,
       unitPrice: '$600',
+      unitAmount: 600,
       lineTotal: '$600',
       quantity: 1,
       maxQty: 4,
@@ -66,6 +67,7 @@ describe('toCartView lines (AC7)', () => {
     expect(view.lines[1]).toMatchObject({
       sizeLabel: 'One Size',
       unitPrice: '$24.50',
+      unitAmount: 24.5,
       lineTotal: '$49',
       image: { src: 'https://cdn.example.com/s.png', alt: 'Front', fit: 'cover' },
     });
@@ -136,5 +138,23 @@ describe('isCartPath (AC10)', () => {
     expect(isCartPath('/products/cart')).toBe(false);
     expect(isCartPath('/cart/x')).toBe(false);
     expect(isCartPath(null)).toBe(false);
+  });
+});
+
+describe('toCartView raw amounts (checkout AC18)', () => {
+  it('exposes the unit price and the subtotal as numbers for checkout totals', () => {
+    const view = toCartView(cart([board, shorts]));
+    expect(view.lines.map((line) => line.unitAmount)).toEqual([600, 24.5]);
+    expect(view.subtotalAmount).toBe(649);
+    expect(view.subtotal).toBe('$649');
+  });
+
+  it('leaves blocked lines out of the raw subtotal, like the formatted one', () => {
+    const view = toCartView(cart([board, { ...shorts, soldOut: true }]));
+    expect(view.subtotalAmount).toBe(600);
+  });
+
+  it('is 0 for an empty cart', () => {
+    expect(EMPTY_CART.subtotalAmount).toBe(0);
   });
 });

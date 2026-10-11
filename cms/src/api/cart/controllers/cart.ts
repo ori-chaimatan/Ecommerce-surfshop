@@ -1,10 +1,8 @@
 import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
 import { CartError, parseLineBody, type CartErrorCode } from '../cart-logic';
-import type { CartIdentity, CartStore } from '../cart-store';
-
-const USER_UID = 'plugin::users-permissions.user';
-const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import type { CartStore } from '../cart-store';
+import { TOKEN_PATTERN, createIdentify, unauthorized } from '../identity';
 
 const STATUS: Record<CartErrorCode, number> = {
   'bad-request': 400,
@@ -13,31 +11,10 @@ const STATUS: Record<CartErrorCode, number> = {
   'sold-out': 409,
 };
 
-const unauthorized = () => new CartError('unauthorized', 'Invalid or expired session.');
-
 export default ({ strapi }: { strapi: Core.Strapi }) => {
   const store = () => strapi.service('api::cart.cart') as unknown as CartStore;
 
-  /** A Bearer JWT wins (and must be valid); otherwise a well-formed guest token; otherwise nobody. */
-  async function identify(ctx: Context): Promise<CartIdentity> {
-    const authorization = ctx.request.header.authorization;
-    if (authorization) {
-      const [scheme, jwt] = authorization.split(' ');
-      if (scheme?.toLowerCase() !== 'bearer' || !jwt) throw unauthorized();
-
-      const payload = await strapi
-        .plugin('users-permissions')
-        .service('jwt')
-        .verify(jwt)
-        .catch(() => null);
-      const user = payload?.id ? await strapi.db.query(USER_UID).findOne({ where: { id: payload.id } }) : null;
-      if (!user || user.blocked) throw unauthorized();
-      return { kind: 'user', userId: user.id, userDocumentId: user.documentId };
-    }
-
-    const token = ctx.request.header['x-cart-token'];
-    return typeof token === 'string' && TOKEN_PATTERN.test(token) ? { kind: 'guest', token } : { kind: 'none' };
-  }
+  const identify = createIdentify(strapi);
 
   async function respond(ctx: Context, run: () => Promise<unknown>) {
     try {

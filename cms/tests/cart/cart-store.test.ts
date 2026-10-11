@@ -163,3 +163,28 @@ describe('cart store', () => {
     expect(env.carts.delete).not.toHaveBeenCalled();
   });
 });
+
+describe('cart store: checkout helpers (checkout AC5)', () => {
+  let env: ReturnType<typeof fakeStrapi>;
+  let store: ReturnType<typeof createCartStore>;
+
+  beforeEach(() => {
+    env = fakeStrapi();
+    store = createCartStore(env.strapi as never, () => 'new-token');
+  });
+
+  it("finds the user's cart document id, or null", async () => {
+    env.carts.findFirst.mockResolvedValueOnce({ documentId: 'cart-doc', Lines: [] });
+    await expect(store.findId(user)).resolves.toBe('cart-doc');
+    expect(env.carts.findFirst).toHaveBeenCalledWith(expect.objectContaining({ filters: { User: { id: 7 } } }));
+
+    env.carts.findFirst.mockResolvedValueOnce(null);
+    await expect(store.findId(user)).resolves.toBeNull();
+    await expect(store.findId({ kind: 'none' })).resolves.toBeNull();
+  });
+
+  it('empties a cart by document id', async () => {
+    await store.clearLines('cart-doc');
+    expect(env.carts.update).toHaveBeenCalledWith({ documentId: 'cart-doc', data: { Lines: [] }, status: 'published' });
+  });
+});

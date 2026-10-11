@@ -32,7 +32,7 @@ describe('CartDrawer (AC11, AC15, AC16)', () => {
     expect(dialog).toHaveClass('w-[420px]', 'max-[480px]:w-full');
   });
 
-  it('shows free shipping, lines, subtotal, View Cart and a disabled Checkout with its note', () => {
+  it('shows free shipping, lines, subtotal, View Cart and Checkout (checkout AC18)', () => {
     renderWithCart(<CartDrawer />, open({ cart: makeCart([makeLine()], { subtotal: '$79', remainingForFreeShipping: null }) }));
     const dialog = screen.getByRole('dialog');
 
@@ -40,13 +40,14 @@ describe('CartDrawer (AC11, AC15, AC16)', () => {
     expect(within(dialog).getByRole('listitem')).toBeInTheDocument();
     expect(within(dialog).getByText('Subtotal').nextSibling).toHaveTextContent('$79');
     expect(within(dialog).getByRole('link', { name: 'View Cart' })).toHaveAttribute('href', '/cart');
-    expect(within(dialog).getByRole('button', { name: 'Checkout' })).toBeDisabled();
-    expect(within(dialog).getByText('Checkout is coming soon.')).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: 'Checkout' })).toHaveAttribute('href', '/checkout');
+    expect(within(dialog).queryByText('Checkout is coming soon.')).not.toBeInTheDocument();
   });
 
-  it('asks to remove blocked lines', () => {
+  it('asks to remove blocked lines and disables Checkout', () => {
     renderWithCart(<CartDrawer />, open({ cart: makeCart([makeLine({ soldOut: true, blocked: true })]) }));
     expect(screen.getByText('Remove unavailable items to continue.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Checkout' })).toBeDisabled();
   });
 
   it('shows the empty state with Continue Shopping', () => {

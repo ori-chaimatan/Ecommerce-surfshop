@@ -27,6 +27,118 @@ export interface CartLine extends Struct.ComponentSchema {
   };
 }
 
+export interface OrderAddress extends Struct.ComponentSchema {
+  collectionName: 'components_order_addresses';
+  info: {
+    description: 'Shipping address as entered at checkout (US only in v1)';
+    displayName: 'Order Address';
+    icon: 'pinMap';
+  };
+  attributes: {
+    Address1: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    Address2: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    City: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    Country: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 2;
+      }> &
+      Schema.Attribute.DefaultTo<'US'>;
+    FirstName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 50;
+      }>;
+    LastName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 50;
+      }>;
+    Phone: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 10;
+      }>;
+    PostalCode: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 10;
+      }>;
+    State: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 2;
+        minLength: 2;
+      }>;
+  };
+}
+
+export interface OrderLine extends Struct.ComponentSchema {
+  collectionName: 'components_order_lines';
+  info: {
+    description: 'One product + size as bought: name, size, price and image are snapshots, never read live';
+    displayName: 'Order Line';
+    icon: 'shoppingCart';
+  };
+  attributes: {
+    ImageAlt: Schema.Attribute.String;
+    ImageUrl: Schema.Attribute.String;
+    LineTotal: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    Name: Schema.Attribute.String & Schema.Attribute.Required;
+    Product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
+    ProductDocumentId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 64;
+      }>;
+    Quantity: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 99;
+          min: 1;
+        },
+        number
+      >;
+    SizeKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 32;
+      }>;
+    SizeLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 32;
+      }>;
+    Slug: Schema.Attribute.String & Schema.Attribute.Required;
+    UnitPrice: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+  };
+}
+
 export interface ProductBoardSize extends Struct.ComponentSchema {
   collectionName: 'components_product_board_sizes';
   info: {
@@ -248,6 +360,8 @@ declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
       'cart.line': CartLine;
+      'order.address': OrderAddress;
+      'order.line': OrderLine;
       'product.board-size': ProductBoardSize;
       'product.standard-size': ProductStandardSize;
       'product.surfboard-specs': ProductSurfboardSpecs;
