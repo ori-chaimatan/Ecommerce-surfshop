@@ -67,7 +67,9 @@ describe('resolveCatalogParams', () => {
 
   it('parses ?page and 404s anything but an integer ≥ 1 (AC4)', () => {
     expect(ok(undefined, { page: '2' }).page).toBe(2);
-    ['0', '-1', 'abc', '1.5', ''].forEach((page) => expect(resolve(undefined, { page }).kind).toBe('not-found'));
+    ['0', '-1', 'abc', '1.5', '', '9007199254740993', '1'.repeat(30)].forEach((page) =>
+      expect(resolve(undefined, { page }).kind).toBe('not-found')
+    );
   });
 
   it('takes the first value of a repeated param (AC4)', () => {

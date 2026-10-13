@@ -3,8 +3,6 @@ export const texts = {
   allProducts: 'All Products',
   breadcrumbLabel: 'Breadcrumb',
   categories: 'Categories',
-  men: 'Men',
-  women: 'Women',
   results: (count: number) => `${count} ${count === 1 ? 'result' : 'results'}`,
   allCategory: (name: string) => `All ${name}`,
   shopAll: (name: string) => `Shop All ${name}`,

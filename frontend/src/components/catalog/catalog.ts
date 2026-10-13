@@ -1,4 +1,5 @@
 import type { NavItem } from '@/components/site-nav/nav-menu';
+import { texts as navTexts } from '@/components/site-nav/site-nav-texts';
 import {
   GENDERED_CATEGORY_SLUGS,
   GENDERS,
@@ -60,7 +61,9 @@ function first(value: string | string[] | undefined) {
 
 function parsePage(value: string | undefined) {
   if (value === undefined) return 1;
-  return /^\d+$/.test(value) && Number(value) >= 1 ? Number(value) : null;
+  const page = Number(value);
+  // Digits only, and small enough to be exact (a 30-digit ?page would round).
+  return /^\d+$/.test(value) && Number.isSafeInteger(page) && page >= 1 ? page : null;
 }
 
 function isGender(value: string | undefined): value is Gender {
@@ -111,7 +114,8 @@ export function buildBreadcrumb({ category, subcategory, gender }: CatalogLocati
     items.push({ label: texts.allProducts });
   } else {
     items.push({ label: category.Name, href: categoryHref(category.Slug) });
-    if (gender) items.push({ label: texts[gender], href: genderHref(category.Slug, gender) });
+    // Gender labels are shared with the nav (one source for "Men" / "Women").
+    if (gender) items.push({ label: navTexts[gender], href: genderHref(category.Slug, gender) });
     if (subcategory) items.push({ label: subcategory.Name });
   }
 
