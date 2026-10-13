@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_product_sizes",
+  "info": {
+    "displayName": "Size",
+    "icon": "layer",
+    "description": "One purchasable size of a product, with its own stock"
+  },
+  "options": {},
+  "attributes": {
+    "Label": {
+      "type": "string",
+      "required": true
+    },
+    "Stock": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "LengthIn": {
+      "type": "decimal"
+    },
+    "VolumeL": {
+      "type": "decimal"
+    }
+  },
+  "config": {}
+}
