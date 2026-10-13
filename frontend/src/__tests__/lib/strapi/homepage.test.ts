@@ -97,6 +97,30 @@ describe('getHomepageHero', () => {
     expect(heroes.map((h) => h.headline)).toEqual(['Kept']);
   });
 
+  it('drops heroes whose button link is not a same-site path, an anchor, or an http(s)/mailto URL', async () => {
+    mockFetch.mockResolvedValue(
+      strapiResponse({
+        data: {
+          Hero: [
+            hero({ Title: 'Script', Button: { Text: 'Go', LinkUrl: 'javascript:alert(document.cookie)' } }),
+            hero({ Title: 'Script mixed case', Button: { Text: 'Go', LinkUrl: 'JavaScript:alert(1)' } }),
+            hero({ Title: 'Protocol-relative', Button: { Text: 'Go', LinkUrl: '//evil.com/catalog' } }),
+            hero({ Title: 'Backslash host', Button: { Text: 'Go', LinkUrl: '/\\evil.com' } }),
+            hero({ Title: 'Data', Button: { Text: 'Go', LinkUrl: 'data:text/html,<script>alert(1)</script>' } }),
+            hero({ Title: 'Path', Button: { Text: 'Go', LinkUrl: '/catalog' } }),
+            hero({ Title: 'Anchor', Button: { Text: 'Go', LinkUrl: '#featured' } }),
+            hero({ Title: 'Https', Button: { Text: 'Go', LinkUrl: 'https://example.com/dawn-patrol' } }),
+            hero({ Title: 'Mailto', Button: { Text: 'Go', LinkUrl: 'mailto:hello@westline.com' } }),
+          ],
+        },
+      })
+    );
+
+    const heroes = await getHomepageHero();
+
+    expect(heroes.map((h) => h.headline)).toEqual(['Path', 'Anchor', 'Https', 'Mailto']);
+  });
+
   it('returns [] when the homepage document does not exist (404) (AC13)', async () => {
     mockFetch.mockResolvedValue(strapiResponse({ data: null, error: { status: 404 } }, 404));
 

@@ -157,6 +157,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
             slide={slide}
             clone={clone}
             active={!clone && index === active}
+            // During a wrap the clone at the track position is the one on screen, so it animates too.
+            visuallyActive={clone ? i === pos : index === active}
             headingAs={clone ? 'p' : index === 0 ? 'h1' : 'h2'}
             priority={!clone && index === 0}
           />

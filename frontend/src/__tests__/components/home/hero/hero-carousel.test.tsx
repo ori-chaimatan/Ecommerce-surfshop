@@ -12,7 +12,6 @@ const SLIDES: HeroSlide[] = [
   },
   {
     headline: 'Find your Surfboard',
-    subtext: 'Five questions, one board.',
     ctaLabel: 'Take the Finder',
     ctaHref: '/surfboard-finder',
     image: { src: 'http://localhost:1337/uploads/slide_2.jpg', width: 1920, height: 1080 },
@@ -64,7 +63,7 @@ describe('HeroCarousel', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders every slide in the markup, in order, with headline, subtext and CTA (AC1, AC2)', () => {
+  it('renders every slide in the markup, in order, with headline and CTA (AC1, AC2)', () => {
     const { container } = render(<HeroCarousel slides={SLIDES} />);
 
     const slides = realSlides(container);
@@ -74,7 +73,6 @@ describe('HeroCarousel', () => {
       'Find your Surfboard',
       'The Dawn Patrol Collection',
     ]);
-    expect(slides[1]).toHaveTextContent('Five questions, one board.');
     expect(slides[2].querySelector('a')).toHaveAttribute('href', 'https://example.com/dawn-patrol');
   });
 
@@ -127,6 +125,29 @@ describe('HeroCarousel', () => {
     act(() => vi.advanceTimersByTime(400));
     fireEvent.click(screen.getByRole('button', { name: 'Previous slide' }));
     expect(activeIndex(container)).toBe(2);
+  });
+
+  it('animates the clone on screen while wrapping last → first, then hands over to the real slide (AC6)', () => {
+    const { container } = render(<HeroCarousel slides={SLIDES} />);
+    const text = (slide: Element) => slide.querySelector('h1, h2, p')!.parentElement!;
+    const zoom = (slide: Element) => slide.firstElementChild!;
+    const firstClone = () => container.querySelectorAll('[data-clone]')[1];
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
+    act(() => vi.advanceTimersByTime(400));
+    fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
+    act(() => vi.advanceTimersByTime(400));
+    fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
+
+    // Mid-wrap: the clone of slide 1 is on screen, with its text and zoom running, but stays hidden from assistive tech.
+    expect(text(firstClone())).toHaveClass('opacity-100');
+    expect(zoom(firstClone())).toHaveClass('scale-[1.08]');
+    expect(firstClone()).toHaveAttribute('aria-hidden', 'true');
+    expect(activeIndex(container)).toBe(0);
+
+    act(() => vi.advanceTimersByTime(400));
+    expect(text(firstClone())).toHaveClass('opacity-0');
+    expect(text(realSlides(container)[0])).toHaveClass('opacity-100');
   });
 
   it('jumps to a slide from its dot and marks the active dot (AC7)', () => {
@@ -206,6 +227,22 @@ describe('HeroCarousel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
     expect(activeIndex(container)).toBe(1);
+  });
+
+  it('turns off the slide, zoom and text animations under reduced motion (AC10)', () => {
+    mockMatchMedia({ reducedMotion: true });
+    const { container } = render(<HeroCarousel slides={SLIDES} />);
+    const track = container.querySelector('[data-slide]')!.parentElement!;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
+
+    // The track jumps without a transition, and every slide's zoom and text opt out of motion.
+    expect(track.className).not.toContain('transition-transform');
+    for (const slide of realSlides(container)) {
+      const [zoom, , text] = Array.from(slide.children);
+      expect(zoom).toHaveClass('motion-reduce:transform-none');
+      expect(text).toHaveClass('motion-reduce:transform-none', 'motion-reduce:transition-none');
+    }
   });
 
   it('swipes to the next/previous slide past a 40px threshold (AC9)', () => {

@@ -5,6 +5,8 @@ import type { HeroSlide as HeroSlideData } from '@/lib/strapi/homepage';
 interface HeroSlideProps {
   slide: HeroSlideData;
   active: boolean;
+  /** Runs the zoom and text slide-in. Defaults to `active`; a clone gets it while it's on screen during a wrap. */
+  visuallyActive?: boolean;
   /** h1 for the first slide, h2 for the rest; clones use a plain p so the page keeps a single h1. */
   headingAs: 'h1' | 'h2' | 'p';
   priority?: boolean;
@@ -12,10 +14,17 @@ interface HeroSlideProps {
 }
 
 function isInternal(href: string) {
-  return href.startsWith('/') || href.startsWith('#');
+  return /^\/(?![\/\\])/.test(href) || href.startsWith('#');
 }
 
-export function HeroSlide({ slide, active, headingAs: Heading, priority = false, clone = false }: HeroSlideProps) {
+export function HeroSlide({
+  slide,
+  active,
+  visuallyActive = active,
+  headingAs: Heading,
+  priority = false,
+  clone = false,
+}: HeroSlideProps) {
   const hidden = clone || !active;
   // React 18 has no typed `inert` prop; an empty-string attribute is passed through as-is.
   const inertProps = hidden ? ({ inert: '' } as Record<string, string>) : {};
@@ -32,7 +41,7 @@ export function HeroSlide({ slide, active, headingAs: Heading, priority = false,
     >
       <div
         className={`absolute inset-0 z-0 origin-[20%_80%] motion-reduce:transform-none ${
-          active
+          visuallyActive
             ? 'translate-x-[-2.5%] translate-y-[-1%] scale-[1.08] transition-transform duration-[11s] ease-out'
             : 'transition-none'
         }`}
@@ -49,7 +58,7 @@ export function HeroSlide({ slide, active, headingAs: Heading, priority = false,
       <div className="absolute inset-0 z-[1] bg-[linear-gradient(100deg,rgba(10,20,24,.6)_0%,rgba(10,20,24,.28)_42%,rgba(10,20,24,.05)_68%)]" />
       <div
         className={`relative z-[2] max-w-[760px] px-6 pb-[70px] text-white max-[480px]:px-4 motion-reduce:transform-none motion-reduce:transition-none ${
-          active
+          visuallyActive
             ? 'translate-x-0 opacity-100 transition-[opacity,transform] duration-1000 ease-out'
             : 'translate-x-[56px] opacity-0 transition-none'
         }`}
@@ -57,7 +66,6 @@ export function HeroSlide({ slide, active, headingAs: Heading, priority = false,
         <Heading className="mb-6 font-display text-[clamp(28px,4.2vw,56px)] font-extrabold uppercase leading-[0.95] tracking-[0.01em] [text-wrap:balance]">
           {slide.headline}
         </Heading>
-        {slide.subtext && <p className="-mt-2 mb-6 max-w-[560px] text-base leading-relaxed text-white/90">{slide.subtext}</p>}
         <div className="flex flex-wrap gap-3.5">
           {isInternal(slide.ctaHref) ? (
             <Link href={slide.ctaHref} tabIndex={hidden ? -1 : undefined} className={ctaClassName}>

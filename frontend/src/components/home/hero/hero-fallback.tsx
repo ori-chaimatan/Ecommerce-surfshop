@@ -29,7 +29,7 @@ export function HeroFallback() {
         <h1 className="font-display text-5xl font-extrabold uppercase leading-none tracking-wide text-ink sm:text-6xl">
           WESTLINE
         </h1>
-        <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] text-horizon">Something Wrong!</p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] text-horizon">Coming Soon</p>
       </div>
 
       <Waves />

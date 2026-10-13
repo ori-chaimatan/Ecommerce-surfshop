@@ -10,10 +10,7 @@
       "multiple": false,
       "required": true,
       "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
+        "images"
       ]
     },
     "Title": {
@@ -23,7 +20,8 @@
     "Button": {
       "type": "component",
       "component": "shared.button-cta",
-      "repeatable": false
+      "repeatable": false,
+      "required": true
     }
   },
   "config": {}

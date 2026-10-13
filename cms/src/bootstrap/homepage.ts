@@ -13,6 +13,7 @@ async function grantPublicRead(strapi: Core.Strapi) {
     return;
   }
 
+  // Re-granted on every boot on purpose: the homepage must stay publicly readable (AC4), so a removed grant comes back on restart.
   for (const action of PUBLIC_ACTIONS) {
     const existing = await strapi.db
       .query('plugin::users-permissions.permission')

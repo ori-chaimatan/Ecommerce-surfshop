@@ -7,7 +7,6 @@ const HOMEPAGE_QUERY = new URLSearchParams({
 
 export interface HeroSlide {
   headline: string;
-  subtext?: string;
   image: { src: string; width: number; height: number };
   ctaLabel: string;
   ctaHref: string;
@@ -23,9 +22,22 @@ function absoluteUrl(url: string) {
   return url.startsWith('/') ? `${STRAPI_URL}${url}` : url;
 }
 
+/** A same-site path, an in-page anchor, or an absolute http(s): / mailto: URL. Anything else (javascript:, //host) is dropped. */
+function isSafeHref(href: string) {
+  if (/^\/(?![\/\\])/.test(href) || href.startsWith('#')) return true;
+  try {
+    return ['http:', 'https:', 'mailto:'].includes(new URL(href).protocol);
+  } catch {
+    return false;
+  }
+}
+
 function normalizeHero(hero: StrapiHero): HeroSlide | null {
   const { Title, BackgroundImg, Button } = hero ?? {};
   if (!Title || !Button?.Text || !Button?.LinkUrl || !BackgroundImg?.url || !BackgroundImg.width || !BackgroundImg.height) {
+    return null;
+  }
+  if (!isSafeHref(Button.LinkUrl)) {
     return null;
   }
 
