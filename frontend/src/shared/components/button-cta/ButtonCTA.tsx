@@ -1,24 +1,10 @@
 import Link from 'next/link';
-import { isInternalHref, type ButtonCtaTarget } from './button-cta';
+import { isInternalHref } from './button-cta';
+import type { IButtonCTAProps } from './button-cta.types';
+import { styles } from './button-cta.styles';
 
-type ButtonCtaSize = 'sm' | 'md' | 'lg';
-
-interface ButtonCTAProps {
-  text: string;
-  href: string;
-  target?: ButtonCtaTarget;
-  size?: ButtonCtaSize;
-  tabIndex?: number;
-}
-
-const SIZE_CLASSES: Record<ButtonCtaSize, string> = {
-  sm: 'px-[18px] py-[10px] text-xs',
-  md: 'px-[26px] py-[14px] text-sm',
-  lg: 'px-[32px] py-[18px] text-base',
-};
-
-export function ButtonCTA({ text, href, target = '_self', size = 'md', tabIndex }: ButtonCTAProps) {
-  const className = `inline-flex items-center gap-2 rounded-[9px] border-2 border-transparent bg-horizon ${SIZE_CLASSES[size]} font-bold uppercase tracking-[0.02em] text-horizon-ink no-underline hover:bg-horizon-deep`;
+export const ButtonCTA = ({ text, href, target = '_self', size = 'md', tabIndex }: IButtonCTAProps): React.JSX.Element => {
+  const className = `${styles.shape} ${styles.size[size]} ${styles.type}`;
   const targetProps = target === '_blank' ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
   return isInternalHref(href) ? (
@@ -30,4 +16,4 @@ export function ButtonCTA({ text, href, target = '_self', size = 'md', tabIndex 
       {text}
     </a>
   );
-}
+};

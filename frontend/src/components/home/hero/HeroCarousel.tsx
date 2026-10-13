@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TouchEvent, TransitionEvent } from 'react';
-import type { HeroSlide as HeroSlideData } from '@/lib/strapi/homepage';
 import { Icon } from '@/shared/components/icons';
+import type { IHeroCarouselProps } from './hero.types';
 import { HeroSlide } from './HeroSlide';
 import { texts } from './hero-texts';
 
@@ -13,7 +13,7 @@ const AUTOPLAY_MS = 5000;
 const SETTLE_FALLBACK_MS = 400;
 const SWIPE_THRESHOLD = 40;
 
-export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
+export const HeroCarousel = ({ slides }: IHeroCarouselProps): React.JSX.Element => {
   const count = slides.length;
   const loop = count > 1;
 
@@ -200,4 +200,4 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
       )}
     </section>
   );
-}
+};

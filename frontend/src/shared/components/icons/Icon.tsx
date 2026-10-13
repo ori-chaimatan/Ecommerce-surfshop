@@ -1,9 +1,7 @@
-import type { SVGProps } from 'react';
-
-export type IconName = 'heart' | 'account' | 'cart' | 'arrow-left' | 'arrow-right';
+import type { IconName, IIconProps } from './icon.types';
 
 // 24×24 shapes from the WESTLINE design. Size, stroke and fill come from the caller.
-const SHAPES: Record<IconName, JSX.Element> = {
+const SHAPES: Record<IconName, React.JSX.Element> = {
   heart: (
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   ),
@@ -23,15 +21,11 @@ const SHAPES: Record<IconName, JSX.Element> = {
   'arrow-right': <path d="M9 6l6 6-6 6" />,
 };
 
-interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children' | 'viewBox'> {
-  name: IconName;
-}
-
 /** Decorative icon — the control around it carries the accessible name. */
-export function Icon({ name, ...props }: IconProps) {
+export const Icon = ({ name, ...props }: IIconProps): React.JSX.Element => {
   return (
     <svg viewBox="0 0 24 24" aria-hidden {...props}>
       {SHAPES[name]}
     </svg>
   );
-}
+};

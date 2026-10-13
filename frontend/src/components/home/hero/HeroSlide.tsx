@@ -1,26 +1,15 @@
 import Image from 'next/image';
-import type { HeroSlide as HeroSlideData } from '@/lib/strapi/homepage';
 import { ButtonCTA } from '@/shared/components/button-cta';
+import type { IHeroSlideProps } from './hero.types';
 
-interface HeroSlideProps {
-  slide: HeroSlideData;
-  active: boolean;
-  /** Runs the zoom and text slide-in. Defaults to `active`; a clone gets it while it's on screen during a wrap. */
-  visuallyActive?: boolean;
-  /** h1 for the first slide, h2 for the rest; clones use a plain p so the page keeps a single h1. */
-  headingAs: 'h1' | 'h2' | 'p';
-  priority?: boolean;
-  clone?: boolean;
-}
-
-export function HeroSlide({
+export const HeroSlide = ({
   slide,
   active,
   visuallyActive = active,
   headingAs: Heading,
   priority = false,
   clone = false,
-}: HeroSlideProps) {
+}: IHeroSlideProps): React.JSX.Element => {
   const hidden = clone || !active;
   // React 18 has no typed `inert` prop; an empty-string attribute is passed through as-is.
   const inertProps = hidden ? ({ inert: '' } as Record<string, string>) : {};
@@ -66,4 +55,4 @@ export function HeroSlide({
       </div>
     </div>
   );
-}
+};

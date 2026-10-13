@@ -21,7 +21,7 @@ const WAVES = (
   </div>
 );
 
-export function HeroFallback() {
+export const HeroFallback = (): React.JSX.Element => {
   return (
     <div className="relative flex min-h-[calc(100vh-64px)] flex-col items-center justify-center overflow-hidden bg-[#F9F9F9] px-4">
       <div className="relative z-10 flex flex-col items-center text-center">
@@ -34,4 +34,4 @@ export function HeroFallback() {
       {WAVES}
     </div>
   );
-}
+};

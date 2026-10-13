@@ -7,41 +7,40 @@ import { getNavigation } from '@/lib/strapi/navigation';
 import { DesktopMenu } from './DesktopMenu';
 import { MobileMenu } from './MobileMenu';
 import { buildNavMenu } from './nav-menu';
+import { styles } from './site-nav.styles';
 import { texts } from './site-nav-texts';
 
-const ICON_LINK = 'flex p-1.5 text-ink hover:text-horizon';
-
-export async function SiteNav() {
+export const SiteNav = async (): Promise<React.JSX.Element> => {
   const session = getSession();
   const { categories, subcategoryGenders } = await getNavigation();
   const items = buildNavMenu(categories, subcategoryGenders);
 
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-border bg-white">
-      <div className="mx-auto flex h-full max-w-[1240px] items-center justify-between gap-5 px-6">
-        <Link href={HOME_HREF} className="font-display text-[22px] font-extrabold uppercase tracking-[0.02em] text-ink">
+    <header className={styles.header}>
+      <div className={styles.container}>
+        <Link href={HOME_HREF} className={styles.wordmark}>
           {texts.wordmark}
         </Link>
 
         <DesktopMenu items={items} />
 
-        <div className="flex items-center gap-4">
+        <div className={styles.actions}>
           {session ? (
             <LogoutButton />
           ) : (
             <Link
               href={LOGIN_HREF}
               aria-label={texts.accountLabel}
-              className="flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-horizon"
+              className={styles.signIn}
             >
               <Icon name="account" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
-              <span className="hidden sm:inline">{texts.signIn}</span>
+              <span className={styles.signInLabel}>{texts.signIn}</span>
             </Link>
           )}
-          <Link href={WISHLIST_HREF} aria-label={texts.wishlistLabel} className={ICON_LINK}>
+          <Link href={WISHLIST_HREF} aria-label={texts.wishlistLabel} className={styles.iconLink}>
             <Icon name="heart" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
           </Link>
-          <Link href={CART_HREF} aria-label={texts.cartLabel} className={ICON_LINK}>
+          <Link href={CART_HREF} aria-label={texts.cartLabel} className={styles.iconLink}>
             <Icon name="cart" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
           </Link>
           <MobileMenu items={items} />
@@ -49,4 +48,4 @@ export async function SiteNav() {
       </div>
     </header>
   );
-}
+};

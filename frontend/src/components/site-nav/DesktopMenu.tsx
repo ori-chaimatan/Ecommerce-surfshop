@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react';
-import type { NavItem } from './nav-menu';
+import { styles } from './desktop-menu.styles';
+import type { IDesktopMenuProps } from './site-nav.types';
 import { texts } from './site-nav-texts';
 
 const CLOSE_DELAY_MS = 250;
 
-export function DesktopMenu({ items }: { items: NavItem[] }) {
+export const DesktopMenu = ({ items }: IDesktopMenuProps): React.JSX.Element => {
   const [hoveredHref, setHoveredHref] = useState<string | null>(null);
   const [focusedHref, setFocusedHref] = useState<string | null>(null);
   const [dismissedHref, setDismissedHref] = useState<string | null>(null);
@@ -55,8 +56,8 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
   }
 
   return (
-    <nav aria-label={texts.mainNavLabel} className="hidden min-[861px]:block">
-      <ul className="m-0 flex list-none gap-7 p-0">
+    <nav aria-label={texts.mainNavLabel} className={styles.nav}>
+      <ul className={styles.list}>
         {items.map((item) => (
           <li
             key={item.href}
@@ -74,38 +75,30 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
               }}
               href={item.href}
               data-nav-top=""
-              className="text-[13.5px] font-semibold uppercase tracking-[0.04em] text-ink opacity-[.92] hover:text-horizon"
+              className={styles.topLink}
             >
               {item.label}
             </Link>
             <div
               data-mega-panel=""
               data-open={openItem === item.href ? 'true' : 'false'}
-              className={`absolute inset-x-0 top-full z-[60] border-t border-border bg-white shadow-[0_20px_40px_rgba(18,33,42,.14)] ${
-                openItem === item.href ? 'block' : 'hidden'
-              }`}
+              className={`${styles.panel.base} ${styles.panel.state[openItem === item.href ? 'open' : 'closed']}`}
             >
-              <div className="mx-auto flex max-w-[1240px] gap-14 px-6 pb-10 pt-9">
+              <div className={styles.panelInner}>
                 {item.columns.map((column, index) => (
-                  <div key={column.head?.href ?? column.allLink?.href ?? index} className="flex min-w-[180px] flex-col gap-0.5">
+                  <div key={column.head?.href ?? column.allLink?.href ?? index} className={styles.column}>
                     {column.head && (
-                      <Link
-                        href={column.head.href}
-                        className="mb-1 font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-horizon"
-                      >
+                      <Link href={column.head.href} className={styles.columnHead}>
                         {column.head.label}
                       </Link>
                     )}
                     {column.allLink && (
-                      <Link
-                        href={column.allLink.href}
-                        className="mb-1.5 border-b border-border pb-3 pt-[7px] text-[14.5px] font-bold text-ink hover:text-horizon"
-                      >
+                      <Link href={column.allLink.href} className={styles.allLink}>
                         {column.allLink.label}
                       </Link>
                     )}
                     {column.links.map((link) => (
-                      <Link key={link.href} href={link.href} className="py-[7px] text-[14.5px] font-medium text-ink hover:text-horizon">
+                      <Link key={link.href} href={link.href} className={styles.link}>
                         {link.label}
                       </Link>
                     ))}
@@ -118,4 +111,4 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
       </ul>
     </nav>
   );
-}
+};
