@@ -14,6 +14,16 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337';
+
+// It creates and deletes throwaway products in-process, so it only ever runs against a local dev DB.
+if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_SEED) {
+  console.error('verify:catalog refuses to run with NODE_ENV=production. Set ALLOW_SEED=1 to override.');
+  process.exit(1);
+}
+if (!['localhost', '127.0.0.1'].includes(new URL(STRAPI_URL).hostname)) {
+  console.error(`verify:catalog only runs against a local Strapi (localhost / 127.0.0.1), not ${STRAPI_URL}.`);
+  process.exit(1);
+}
 const catalog = JSON.parse(readFileSync(new URL('../seed/catalog/catalog.json', import.meta.url), 'utf8'));
 
 const seededProducts = new Set(catalog.products.map((p) => p.Slug));
@@ -56,13 +66,13 @@ async function verifyConsistencyHook() {
   const imageId = (await strapi.db.query(P).findOne({ where: { Slug: 'tideline-6-0-performance-shortboard' }, populate: { Images: { select: ['id'] } } }))?.Images?.[0]?.id;
   const base = { Price: 1, Images: imageId ? [imageId] : [], Description: 'verify:catalog throwaway', Sizes: [{ Label: 'x', Stock: 0 }] };
 
-  const rejected = async (name, save) => {
+  const rejected = async (name, save, message = /Subcategories must belong/) => {
     try {
       await save();
       check(name, false, 'save was accepted');
     } catch (error) {
       // Only the hook's own error counts — a required-field ValidationError would be a false pass.
-      check(name, error.name === 'ValidationError' && /Subcategories must belong/.test(error.message), `${error.name}: ${error.message}`);
+      check(name, error.name === 'ValidationError' && message.test(error.message), `${error.name}: ${error.message}`);
     }
   };
 
@@ -91,8 +101,32 @@ async function verifyConsistencyHook() {
       data: { Category: mensClothing, Subcategories: { set: [boardshorts] } },
     });
     check('AC6 update changing Category and Subcategories together is accepted', Boolean(moved?.documentId));
+
+    // Strapi's required-field check usually answers first ("Category must be defined"); the hook is the backstop.
+    await rejected('AC6 update clearing Category while Subcategories are set is rejected', () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { Category: null } }), /Category (is required when Subcategories are set|must be defined)/);
+    await rejected('AC6 update moving Category back without disconnecting the old Subcategory is rejected', () =>
+      strapi.documents(P).update({ documentId: valid.documentId, data: { Category: surfboards } }));
+    const disconnected = await strapi.documents(P).update({
+      documentId: valid.documentId,
+      data: { Category: surfboards, Subcategories: { disconnect: [boardshorts] } },
+    });
+    check('AC6 update moving Category while disconnecting the old Subcategory is accepted', Boolean(disconnected?.documentId));
+
+    // The inverse sides are read-only, so AC6 can't be bypassed from Category or Subcategory.
+    await rejected('AC6 Category.Products is read-only', () =>
+      strapi.documents('api::category.category').update({ documentId: mensClothing, data: { Products: { connect: [valid.documentId] } } }),
+      /can't be edited here/);
+    await rejected('AC6 Subcategory.Products is read-only', () =>
+      strapi.documents('api::subcategory.subcategory').update({ documentId: boardshorts, data: { Products: { connect: [valid.documentId] } } }),
+      /can't be edited here/);
+    await rejected('AC6 a Subcategory with products in its Category cannot move to another Category', () =>
+      strapi.documents('api::subcategory.subcategory').update({ documentId: funBoard, data: { Category: mensClothing } }),
+      /can't change Category/);
   } finally {
-    for (const documentId of throwaway) await strapi.documents(P).delete({ documentId }).catch(() => {});
+    for (const documentId of throwaway) {
+      await strapi.documents(P).delete({ documentId }).catch((error) => console.error(`cleanup: could not delete throwaway product ${documentId}: ${error.message}`));
+    }
     await strapi.destroy();
   }
 }
@@ -116,20 +150,35 @@ async function main() {
   const oneSub = await api(`subcategories/${anySubcategory}`);
   check('AC7 GET /api/subcategories/:id is public', oneSub.status === 200, `status ${oneSub.status}`);
 
+  // Writes go to a documentId that doesn't exist: the permission check (403) still comes first,
+  // and a misconfigured public role can't rename or delete real records.
   const json = { 'Content-Type': 'application/json' };
+  const nonexistent = 'verify-catalog-nonexistent';
   for (const [method, path] of [
     ['POST', 'products'],
-    ['PUT', `products/${anyProduct}`],
-    ['DELETE', `products/${anyProduct}`],
+    ['PUT', `products/${nonexistent}`],
+    ['DELETE', `products/${nonexistent}`],
     ['POST', 'categories'],
-    ['PUT', `categories/${anyCategory}`],
-    ['DELETE', `categories/${anyCategory}`],
+    ['PUT', `categories/${nonexistent}`],
+    ['DELETE', `categories/${nonexistent}`],
     ['POST', 'subcategories'],
-    ['PUT', `subcategories/${anySubcategory}`],
-    ['DELETE', `subcategories/${anySubcategory}`],
+    ['PUT', `subcategories/${nonexistent}`],
+    ['DELETE', `subcategories/${nonexistent}`],
   ]) {
     const res = await api(path, { method, headers: json, body: method === 'DELETE' ? undefined : JSON.stringify({ data: { Name: 'x' } }) });
     check(`AC7 public ${method} /api/${path.split('/')[0]} is forbidden`, res.status === 403, `status ${res.status}`);
+  }
+
+  // AC7 — the inverse Products relations can't be populated publicly (the whole catalog in one request)
+  for (const path of [
+    'categories?populate[Products]=true',
+    'categories?populate=*',
+    `categories/${anyCategory}?populate=Products`,
+    'subcategories?populate[Products][populate][Sizes]=true',
+    'products?populate[Category][populate][Products]=true',
+  ]) {
+    const res = await api(path);
+    check(`AC7 GET /api/${path} is rejected`, res.status === 400, `status ${res.status}`);
   }
 
   // AC9 — seeded categories, subcategories and products present and complete

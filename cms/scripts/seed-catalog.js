@@ -19,13 +19,34 @@ const SUBCATEGORY_UID = 'api::subcategory.subcategory';
 const PRODUCT_UID = 'api::product.product';
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' };
 
+// Seeding writes to whatever DB the env points at; refuse production unless explicitly allowed.
+function assertNotProduction() {
+  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_SEED) {
+    throw new Error('seed:catalog refuses to run with NODE_ENV=production. Set ALLOW_SEED=1 to override.');
+  }
+}
+
+// catalog.json paths and slugs must stay inside seed/catalog/ and the temp dir: no `..`, no separators in slugs.
+function assertSafeSlug(slug, owner) {
+  if (typeof slug !== 'string' || !/^[a-z0-9-]+$/.test(slug)) throw new Error(`${owner}: unsafe slug ${JSON.stringify(slug)}`);
+  return slug;
+}
+
+function seedPath(relative, owner) {
+  const resolved = path.resolve(SEED_DIR, relative);
+  if (relative.split(/[\\/]/).includes('..') || !resolved.startsWith(SEED_DIR + path.sep)) {
+    throw new Error(`${owner}: images path ${JSON.stringify(relative)} must stay inside seed/catalog/`);
+  }
+  return resolved;
+}
+
 function escapeXml(text) {
   return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
 }
 
 // Visibly-fake product image: the product name on WESTLINE ink/horizon, so it's
 // obvious in the admin which images still need a real photo.
-async function renderPlaceholder(name, slug) {
+async function renderPlaceholder(name, slug, dir) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200">
     <rect width="100%" height="100%" fill="#101828"/>
     <rect y="1000" width="100%" height="200" fill="#155EEF"/>
@@ -33,7 +54,7 @@ async function renderPlaceholder(name, slug) {
     <text x="600" y="640" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="32" fill="#94A3B8">PLACEHOLDER IMAGE</text>
     <text x="600" y="1115" text-anchor="middle" font-family="Poppins, Helvetica, Arial, sans-serif" font-size="48" font-weight="800" fill="#F5F9FA">WESTLINE</text>
   </svg>`;
-  const filepath = path.join(os.tmpdir(), `${slug}-placeholder.jpg`);
+  const filepath = path.join(dir, `${slug}-placeholder.jpg`);
   await sharp(Buffer.from(svg)).jpeg({ quality: 82 }).toFile(filepath);
   return filepath;
 }
@@ -53,7 +74,7 @@ async function uploadImage(strapi, filepath, name) {
 
 async function productImageIds(strapi, product) {
   if (product.images) {
-    const dir = path.join(SEED_DIR, product.images);
+    const dir = seedPath(product.images, `Product ${product.Slug}`);
     const files = fs.readdirSync(dir).filter((f) => MIME[path.extname(f).toLowerCase()]).sort();
     const ids = [];
     for (const [i, file] of files.entries()) {
@@ -61,17 +82,28 @@ async function productImageIds(strapi, product) {
     }
     return ids;
   }
-  const placeholder = await renderPlaceholder(product.Name, product.Slug);
+  // A private temp dir (mkdtemp), not a predictable path in the shared tmpdir.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'seed-catalog-'));
   try {
+    const placeholder = await renderPlaceholder(product.Name, product.Slug, dir);
     return [await uploadImage(strapi, placeholder, `${product.Slug}-placeholder.jpg`)];
   } finally {
-    fs.rmSync(placeholder, { force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+async function removeUploads(strapi, ids) {
+  const upload = strapi.plugin('upload').service('upload');
+  for (const id of ids) {
+    const file = await strapi.db.query('plugin::upload.file').findOne({ where: { id } });
+    if (file) await upload.remove(file).catch((error) => console.error(`could not remove upload ${id}:`, error.message));
   }
 }
 
 async function seedBySlug(strapi, uid, label, entries, toData, summary) {
   const idsBySlug = {};
   for (const entry of entries) {
+    assertSafeSlug(entry.Slug, `${label} ${entry.Slug}`);
     const existing = await strapi.documents(uid).findFirst({ filters: { Slug: entry.Slug } });
     if (existing) {
       idsBySlug[entry.Slug] = existing.documentId;
@@ -100,29 +132,38 @@ async function seedProducts(strapi, products, categoryIds, subcategoryIds, summa
     }
 
     const owner = `Product ${product.Slug}`;
+    assertSafeSlug(product.Slug, owner);
     const categoryId = lookup(categoryIds, product.CategorySlug, owner);
     const subcategories = (product.SubcategorySlugs ?? []).map((slug) => lookup(subcategoryIds, slug, owner));
 
-    await strapi.documents(PRODUCT_UID).create({
-      data: {
-        Name: product.Name,
-        Slug: product.Slug,
-        Category: categoryId,
-        Subcategories: subcategories,
-        Price: product.Price,
-        Images: await productImageIds(strapi, product),
-        Subtitle: product.Subtitle ?? null,
-        Description: product.Description,
-        Featured: product.Featured ?? false,
-        Sizes: product.Sizes,
-        SurfboardSpecs: product.SurfboardSpecs ?? null,
-      },
-    });
+    const imageIds = await productImageIds(strapi, product);
+    try {
+      await strapi.documents(PRODUCT_UID).create({
+        data: {
+          Name: product.Name,
+          Slug: product.Slug,
+          Category: categoryId,
+          Subcategories: subcategories,
+          Price: product.Price,
+          Images: imageIds,
+          Subtitle: product.Subtitle ?? null,
+          Description: product.Description,
+          Featured: product.Featured ?? false,
+          Sizes: product.Sizes,
+          SurfboardSpecs: product.SurfboardSpecs ?? null,
+        },
+      });
+    } catch (error) {
+      // Don't leave orphaned uploads behind: a rerun would upload them again.
+      await removeUploads(strapi, imageIds);
+      throw error;
+    }
     summary.created.push(`product ${product.Slug}`);
   }
 }
 
 async function main() {
+  assertNotProduction();
   const { categories, subcategories, products } = JSON.parse(fs.readFileSync(path.join(SEED_DIR, 'catalog.json'), 'utf8'));
   const strapi = await createStrapi(await compileStrapi()).load();
   strapi.log.level = 'error';

@@ -3,6 +3,8 @@ import type { Core } from '@strapi/strapi';
 /**
  * Idempotently grants the users-permissions `public` role the given actions
  * (e.g. `api::product.product.find`). Existing permissions are left untouched.
+ * Add-only: removing an action from a caller's list later does NOT revoke it in existing DBs;
+ * revoke it in the admin (Settings → Roles → Public) or with a migration.
  */
 export async function grantPublicActions(strapi: Core.Strapi, actions: string[], label: string) {
   const publicRole = await strapi.db

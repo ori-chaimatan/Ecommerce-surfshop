@@ -108,18 +108,19 @@ async function assertSubcategoriesMatchCategory(event: LifecycleEvent, existingI
   // its queries in parallel on the transaction's single connection, which pg
   // deprecates. Every query here is awaited one at a time.
   const categoryId = categoryIds[categoryIds.length - 1];
+  if (!categoryId) {
+    throw new errors.ValidationError('Category is required when Subcategories are set.');
+  }
   const mismatched: { id: number; Name: string }[] = await strapi.db.query(SUBCATEGORY_UID as never).findMany({
     where: {
       id: { $in: subcategoryIds },
-      ...(categoryId ? { $or: [{ Category: { id: { $ne: categoryId } } }, { Category: { id: { $null: true } } }] } : {}),
+      $or: [{ Category: { id: { $ne: categoryId } } }, { Category: { id: { $null: true } } }],
     },
     select: ['id', 'Name'],
   });
 
   if (mismatched.length > 0) {
-    const category = categoryId
-      ? await strapi.db.query(CATEGORY_UID as never).findOne({ where: { id: categoryId }, select: ['Name'] })
-      : null;
+    const category = await strapi.db.query(CATEGORY_UID as never).findOne({ where: { id: categoryId }, select: ['Name'] });
     const parts: string[] = [];
     for (const subcategory of mismatched) {
       const owner = await strapi.db
