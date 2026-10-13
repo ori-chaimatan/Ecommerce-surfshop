@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { CartProvider } from "@/components/cart";
+import { getSession } from "@/lib/auth/session";
 import { SiteNav } from "@/components/site-nav";
 import "../globals.css";
 
@@ -29,12 +31,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         />
       </head>
       <body className="font-[Inter,sans-serif] antialiased">
-        <SiteNav />
-        {children}
+        <CartProvider signedIn={getSession() !== null}>
+          <SiteNav />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
