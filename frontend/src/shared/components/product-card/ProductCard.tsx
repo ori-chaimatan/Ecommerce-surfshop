@@ -12,7 +12,10 @@ interface ProductCardProps {
 export function ProductCard({ product, priority, isFavorite, onToggleFavorite }: ProductCardProps) {
   return (
     <article className="relative overflow-hidden rounded-[9px] border border-border bg-white">
-      <Link href={product.href} className="absolute inset-0 z-[1]">
+      <Link
+        href={product.href}
+        className="absolute inset-0 z-[1] focus-visible:outline focus-visible:-outline-offset-2 focus-visible:outline-horizon"
+      >
         <span className="sr-only">View {product.name}</span>
       </Link>
 

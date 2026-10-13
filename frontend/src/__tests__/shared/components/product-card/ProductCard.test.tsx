@@ -96,6 +96,47 @@ describe('ProductCard', () => {
     expect(dots().map((d) => d.getAttribute('aria-current'))).toEqual(['false', 'false', 'true']);
   });
 
+  it('falls back to the first photo when re-rendered with fewer photos than the selected one (AC5)', () => {
+    const { container, rerender } = render(<ProductCard product={card({}, 3)} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Show photo 3' }));
+
+    rerender(<ProductCard product={card({}, 1)} />);
+
+    expect(photos(container)).toHaveLength(1);
+    expect(activePhotoIndex(container)).toBe(0);
+    expect(photos(container)[0]).toHaveClass('opacity-100');
+  });
+
+  it('keeps a photo per entry when two photos share a URL (AC5)', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const product = card({}, 2);
+    product.images[1] = { ...product.images[0] };
+    const { container } = render(<ProductCard product={product} />);
+
+    expect(photos(container)).toHaveLength(2);
+    expect(dots()).toHaveLength(2);
+    expect(consoleError.mock.calls.flat().join(' ')).not.toMatch(/same key/);
+    consoleError.mockRestore();
+  });
+
+  it('cross-fades photos without motion under reduced motion (AC5)', () => {
+    const { container } = render(<ProductCard product={card({}, 2)} />);
+
+    photos(container).forEach((img) => expect(img).toHaveClass('transition-opacity', 'motion-reduce:transition-none'));
+  });
+
+  it('frames the photos at 4:5 (AC4)', () => {
+    const { container } = render(<ProductCard product={card()} />);
+
+    expect(photos(container)[0].parentElement).toHaveClass('aspect-[4/5]');
+  });
+
+  it('draws a visible focus ring inside the card for the overlay link (AC7)', () => {
+    render(<ProductCard product={card()} />);
+
+    expect(screen.getByRole('link')).toHaveClass('focus-visible:outline', 'focus-visible:-outline-offset-2', 'focus-visible:outline-horizon');
+  });
+
   it('fits photos with contain or cover per imageFit (AC4)', () => {
     const { container, rerender } = render(<ProductCard product={card({ imageFit: 'contain' })} />);
     expect(photos(container)[0]).toHaveClass('object-contain');
@@ -121,6 +162,13 @@ describe('ProductCard', () => {
 
     rerender(<ProductCard product={card()} isFavorite onToggleFavorite={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Remove from wishlist' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('fills the heart while pressed (AC8)', () => {
+    render(<ProductCard product={card()} isFavorite onToggleFavorite={vi.fn()} />);
+
+    const heart = screen.getByRole('button', { name: 'Remove from wishlist' }).querySelector('svg');
+    expect(heart).toHaveClass('group-aria-pressed:fill-current');
   });
 
   it('calls onToggleFavorite with the slug and keeps no favorite state of its own (AC8)', () => {
