@@ -1,0 +1,59 @@
+// @vitest-environment node
+import { describe, expect, it } from 'vitest';
+import { toButtonCta } from '@/shared/components/button-cta';
+import { isInternalHref } from '@/shared/components/button-cta/button-cta';
+
+describe('toButtonCta', () => {
+  it('maps Text and LinkUrl to text and href, defaulting target to _self (AC6)', () => {
+    expect(toButtonCta({ Text: 'Shop Now', LinkUrl: '/catalog' })).toEqual({
+      text: 'Shop Now',
+      href: '/catalog',
+      target: '_self',
+    });
+  });
+
+  it('maps targetLink _blank to _blank (AC6)', () => {
+    expect(toButtonCta({ Text: 'Shop Now', LinkUrl: 'https://example.com', targetLink: { targetLink: '_blank' } })?.target).toBe('_blank');
+  });
+
+  it('treats a missing, null or _self targetLink as _self (AC6)', () => {
+    expect(toButtonCta({ Text: 'a', LinkUrl: '/', targetLink: null })?.target).toBe('_self');
+    expect(toButtonCta({ Text: 'a', LinkUrl: '/', targetLink: { targetLink: null } })?.target).toBe('_self');
+    expect(toButtonCta({ Text: 'a', LinkUrl: '/', targetLink: { targetLink: '_self' } })?.target).toBe('_self');
+    expect(toButtonCta({ Text: 'a', LinkUrl: '/', targetLink: {} })?.target).toBe('_self');
+  });
+
+  it('returns null when Text or LinkUrl is missing or empty (AC6)', () => {
+    expect(toButtonCta({ Text: 'Shop Now' })).toBeNull();
+    expect(toButtonCta({ Text: 'Shop Now', LinkUrl: '' })).toBeNull();
+    expect(toButtonCta({ LinkUrl: '/catalog' })).toBeNull();
+    expect(toButtonCta({ Text: null, LinkUrl: '/catalog' })).toBeNull();
+  });
+
+  it('returns null when the button itself is missing (AC6)', () => {
+    expect(toButtonCta(null)).toBeNull();
+    expect(toButtonCta(undefined)).toBeNull();
+  });
+
+  it('returns null for unsafe links: javascript:, data:, //host and /\\host', () => {
+    for (const LinkUrl of ['javascript:alert(1)', 'JavaScript:alert(1)', 'data:text/html,x', '//evil.com', '/\\evil.com']) {
+      expect(toButtonCta({ Text: 'Go', LinkUrl })).toBeNull();
+    }
+  });
+
+  it('keeps same-site paths, anchors and http(s) / mailto URLs', () => {
+    for (const LinkUrl of ['/catalog', '#featured', 'https://example.com', 'http://example.com', 'mailto:hi@westline.com']) {
+      expect(toButtonCta({ Text: 'Go', LinkUrl })?.href).toBe(LinkUrl);
+    }
+  });
+});
+
+describe('isInternalHref', () => {
+  it('is true for a same-site path or an anchor, and false for //host, /\\host and absolute URLs', () => {
+    expect(isInternalHref('/catalog')).toBe(true);
+    expect(isInternalHref('#featured')).toBe(true);
+    expect(isInternalHref('//evil.com')).toBe(false);
+    expect(isInternalHref('/\\evil.com')).toBe(false);
+    expect(isInternalHref('https://example.com')).toBe(false);
+  });
+});

@@ -5,6 +5,7 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/shared/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -17,9 +18,11 @@ const config: Config = {
         horizon: "#155EEF",
         "horizon-deep": "#0E40A3",
         "horizon-ink": "#F5F9FA",
+        danger: "#C0392B",
       },
       fontFamily: {
         display: ["Poppins", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       keyframes: {
         wave: {
