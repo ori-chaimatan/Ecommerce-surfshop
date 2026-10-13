@@ -8,6 +8,8 @@ import { HeroSlide } from './HeroSlide';
 import { texts } from './hero-texts';
 
 const AUTOPLAY_MS = 5000;
+// The track transition is 300ms; the settle fallback runs shortly after in case
+// transitionend is missed (backgrounded tab, interrupted transition).
 const SETTLE_FALLBACK_MS = 400;
 const SWIPE_THRESHOLD = 40;
 
@@ -15,6 +17,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
   const count = slides.length;
   const loop = count > 1;
 
+  // Track position: with looping, the first and last slides are cloned at either
+  // end, so positions 1..count are the real slides and 0 / count + 1 are clones.
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -35,6 +39,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlideData[] }) {
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    // Touch devices can fire a synthetic mouseenter with no matching mouseleave,
+    // which would pause autoplay forever — only honour hover on real pointers.
     setSupportsHover(window.matchMedia('(hover: hover) and (pointer: fine)').matches);
   }, []);
 

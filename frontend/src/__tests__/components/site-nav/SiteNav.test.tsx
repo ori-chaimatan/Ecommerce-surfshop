@@ -106,6 +106,20 @@ describe('SiteNav', () => {
     expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'false');
   });
 
+  it('closes the mega-menu when one of its links is followed, even while hovered and focused (AC6)', async () => {
+    await renderNav();
+    const item = desktopItem('Surfboards');
+    fireEvent.mouseEnter(item);
+    const link = within(panelOf('Surfboards')).getByRole('link', { name: 'Longboard' });
+    link.focus();
+    expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(link);
+
+    expect(panelOf('Surfboards')).toHaveAttribute('data-open', 'false');
+    expect(link).not.toHaveFocus();
+  });
+
   it('keeps the menu open when the pointer comes back within 250ms (AC6)', async () => {
     await renderNav();
     const item = desktopItem('Surfboards');
@@ -174,9 +188,13 @@ describe('SiteNav', () => {
     expect(burger).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('navigation', { name: 'Mobile' })).not.toBeInTheDocument();
 
+    expect(burger).not.toHaveAttribute('aria-controls');
+
     fireEvent.click(burger);
     expect(burger).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('navigation', { name: 'Mobile' })).toBeInTheDocument();
+    expect(burger).toHaveAttribute('aria-controls', 'mobile-menu');
+    expect(document.getElementById('mobile-menu')).toBeInTheDocument();
 
     fireEvent.click(burger);
     expect(screen.queryByRole('navigation', { name: 'Mobile' })).not.toBeInTheDocument();

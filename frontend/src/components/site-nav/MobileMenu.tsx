@@ -39,7 +39,8 @@ export function MobileMenu({ items }: { items: NavItem[] }) {
         type="button"
         aria-label={texts.menuButtonLabel}
         aria-expanded={open}
-        aria-controls="mobile-menu"
+        // Points at the panel only while it's rendered.
+        aria-controls={open ? 'mobile-menu' : undefined}
         onClick={() => (open ? close() : setOpen(true))}
         className="flex p-1.5 text-ink min-[861px]:hidden"
       >

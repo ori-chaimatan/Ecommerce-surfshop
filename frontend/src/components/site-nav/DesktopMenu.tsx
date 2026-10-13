@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import type { FocusEvent, KeyboardEvent } from 'react';
+import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react';
 import type { NavItem } from './nav-menu';
 import { texts } from './site-nav-texts';
-
 
 const CLOSE_DELAY_MS = 250;
 
@@ -38,6 +37,16 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
     }
   }
 
+  // The header outlives client navigation, and a clicked link keeps focus, so a followed link
+  // would leave its mega-menu open over the new page. Any link click closes the menu.
+  function handleClick(e: MouseEvent<HTMLLIElement>) {
+    if (!(e.target as Element).closest('a')) return;
+    clearTimeout(closeTimer.current);
+    setHoveredHref(null);
+    setFocusedHref(null);
+    (document.activeElement as HTMLElement | null)?.blur();
+  }
+
   function handleKeyDown(href: string, e: KeyboardEvent<HTMLLIElement>) {
     if (e.key === 'Escape' && openItem === href) {
       setDismissedHref(href);
@@ -56,6 +65,7 @@ export function DesktopMenu({ items }: { items: NavItem[] }) {
             onFocus={() => setFocusedHref(item.href)}
             onBlur={(e) => handleBlur(item.href, e)}
             onKeyDown={(e) => handleKeyDown(item.href, e)}
+            onClick={handleClick}
           >
             <Link
               ref={(el) => {

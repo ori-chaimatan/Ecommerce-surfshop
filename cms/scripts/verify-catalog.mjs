@@ -50,7 +50,6 @@ async function productSlugs(query) {
 const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 const expectSlugs = (filter) => catalog.products.filter(filter).map((p) => p.Slug);
 
-// AC6 — the lifecycle hook rejects Subcategories outside the product's Category.
 // AC6 + AC11 — the lifecycle hook rejects Subcategories outside the product's Category,
 // a Clothing product without Gender, and a non-Clothing product with one.
 async function verifyConsistencyHook() {

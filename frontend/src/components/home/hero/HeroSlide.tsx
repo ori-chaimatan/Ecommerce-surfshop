@@ -22,6 +22,7 @@ export function HeroSlide({
   clone = false,
 }: HeroSlideProps) {
   const hidden = clone || !active;
+  // React 18 has no typed `inert` prop; an empty-string attribute is passed through as-is.
   const inertProps = hidden ? ({ inert: '' } as Record<string, string>) : {};
 
   return (
