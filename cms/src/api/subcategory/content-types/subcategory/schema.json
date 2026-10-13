@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "subcategories",
+  "info": {
+    "singularName": "subcategory",
+    "pluralName": "subcategories",
+    "displayName": "Subcategory",
+    "description": "A subcategory within exactly one main Category (e.g. Surfboards → Fun Board)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name",
+      "required": true
+    },
+    "Category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "Subcategories",
+      "required": true
+    },
+    "Products": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::product.product",
+      "mappedBy": "Subcategories"
+    }
+  }
+}
