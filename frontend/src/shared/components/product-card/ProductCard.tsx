@@ -1,21 +1,13 @@
 import Link from 'next/link';
-import { formatPrice, type ProductCard as ProductCardData } from './product-card';
+import { formatPrice } from './product-card';
+import type { IProductCardProps } from './product-card.types';
+import { styles } from './product-card.styles';
 import { ProductCardMedia } from './ProductCardMedia';
 
-interface ProductCardProps {
-  product: ProductCardData;
-  priority?: boolean;
-  isFavorite?: boolean;
-  onToggleFavorite?: (slug: string) => void;
-}
-
-export function ProductCard({ product, priority, isFavorite, onToggleFavorite }: ProductCardProps) {
+export const ProductCard = ({ product, priority, isFavorite, onToggleFavorite }: IProductCardProps): React.JSX.Element => {
   return (
-    <article className="relative overflow-hidden rounded-[9px] border border-border bg-white">
-      <Link
-        href={product.href}
-        className="absolute inset-0 z-[1] focus-visible:outline focus-visible:-outline-offset-2 focus-visible:outline-horizon"
-      >
+    <article className={styles.card}>
+      <Link href={product.href} className={styles.link}>
         <span className="sr-only">View {product.name}</span>
       </Link>
 
@@ -26,12 +18,12 @@ export function ProductCard({ product, priority, isFavorite, onToggleFavorite }:
         onToggleFavorite={onToggleFavorite}
       />
 
-      <div className="p-4">
-        <h3 className="mb-1.5 text-base font-bold text-ink">{product.name}</h3>
-        <div className="flex items-center justify-between gap-2.5">
-          <span className="text-base text-ink">{formatPrice(product.price)}</span>
+      <div className={styles.body}>
+        <h3 className={styles.name}>{product.name}</h3>
+        <div className={styles.priceRow}>
+          <span className={styles.price}>{formatPrice(product.price)}</span>
         </div>
       </div>
     </article>
   );
-}
+};

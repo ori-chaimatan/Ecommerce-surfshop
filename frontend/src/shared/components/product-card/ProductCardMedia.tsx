@@ -2,26 +2,23 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import type { ProductCard } from './product-card';
+import type { IProductCardMediaProps } from './product-card.types';
+import { styles } from './product-card-media.styles';
 
 const MAX_PHOTOS = 4;
 
-interface ProductCardMediaProps {
-  product: ProductCard;
-  priority?: boolean;
-  isFavorite?: boolean;
-  onToggleFavorite?: (slug: string) => void;
-}
+const HEART_ICON = (
+  <svg viewBox="0 0 24 24" aria-hidden className={styles.heart}>
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
 
-function HeartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className="h-[17px] w-[17px] fill-none stroke-current stroke-2 group-aria-pressed:fill-current">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
-}
-
-export function ProductCardMedia({ product, priority = false, isFavorite, onToggleFavorite }: ProductCardMediaProps) {
+export const ProductCardMedia = ({
+  product,
+  priority = false,
+  isFavorite,
+  onToggleFavorite,
+}: IProductCardMediaProps): React.JSX.Element => {
   const [active, setActive] = useState(0);
   const photos = product.images.slice(0, MAX_PHOTOS);
   // The same card can be re-rendered with fewer photos (revalidation, index-keyed lists).
@@ -29,7 +26,7 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
   const showFavorite = isFavorite !== undefined && onToggleFavorite !== undefined;
 
   return (
-    <div className="relative aspect-[4/5] bg-[#F9F9F9]">
+    <div className={styles.frame}>
       {photos.map((photo, index) => (
         <Image
           key={index}
@@ -39,9 +36,7 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
           sizes="(max-width: 520px) 100vw, (max-width: 1024px) 50vw, 25vw"
           priority={priority && index === 0}
           data-active={index === current ? 'true' : 'false'}
-          className={`${product.imageFit === 'contain' ? 'object-contain' : 'object-cover'} transition-opacity duration-[250ms] motion-reduce:transition-none ${
-            index === current ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`${styles.photo.fit[product.imageFit]} ${styles.photo.base} ${styles.photo.state[index === current ? 'active' : 'idle']}`}
         />
       ))}
 
@@ -51,18 +46,14 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
           aria-pressed={isFavorite}
           aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
           onClick={() => onToggleFavorite(product.slug)}
-          className="group absolute right-2.5 top-2.5 z-[2] flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-horizon shadow-[0_1px_4px_rgba(16,24,40,.10)] transition-colors duration-150 hover:border-horizon"
+          className={styles.favorite}
         >
-          <HeartIcon />
+          {HEART_ICON}
         </button>
       )}
 
       {photos.length > 1 && (
-        <div
-          role="group"
-          aria-label="Photos"
-          className="absolute bottom-3 left-1/2 z-[2] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/85 px-2 py-1.5 shadow-[0_1px_4px_rgba(16,24,40,.12)]"
-        >
+        <div role="group" aria-label="Photos" className={styles.dots}>
           {photos.map((_photo, index) => (
             <button
               key={index}
@@ -70,13 +61,11 @@ export function ProductCardMedia({ product, priority = false, isFavorite, onTogg
               aria-label={`Show photo ${index + 1}`}
               aria-current={index === current ? 'true' : 'false'}
               onClick={() => setActive(index)}
-              className={`relative h-2 rounded-full transition-[width,background-color] duration-200 before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] ${
-                index === current ? 'w-[22px] bg-ink' : 'w-2 bg-ink/25'
-              }`}
+              className={`${styles.dot.base} ${styles.dot.state[index === current ? 'active' : 'idle']}`}
             />
           ))}
         </div>
       )}
     </div>
   );
-}
+};
