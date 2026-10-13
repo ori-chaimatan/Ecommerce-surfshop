@@ -61,7 +61,7 @@ export function SurfboardDetail({ detail }: SurfboardDetailProps) {
                   </h3>
                   <div className="flex flex-col gap-9">
                     {section.items.map((item) => (
-                      <div key={item.label} data-testid={`scale-${item.label}`}>
+                      <div key={item.label}>
                         <span className="font-mono text-[11.5px] font-bold uppercase tracking-[0.07em] text-ink">{item.label}</span>
                         <div
                           role="meter"
@@ -78,7 +78,7 @@ export function SurfboardDetail({ detail }: SurfboardDetailProps) {
                           />
                           <div
                             data-part="marker"
-                            className="absolute top-1/2 h-[19px] w-[19px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-horizon shadow-[0_0_0_1.5px_#155EEF,0_2px_5px_rgba(18,33,42,.22)]"
+                            className="absolute top-1/2 h-[19px] w-[19px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-horizon shadow-[0_0_0_1.5px_theme(colors.horizon),0_2px_5px_rgba(18,33,42,.22)]"
                             style={{ left: `${item.value}%` }}
                           />
                         </div>

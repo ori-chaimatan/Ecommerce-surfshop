@@ -128,7 +128,7 @@ describe('ProductDetailPage', () => {
     it('places scale labels at their true start, middle and end points', async () => {
       await renderPage();
 
-      const threeLabels = within(screen.getByTestId('scale-Break'));
+      const threeLabels = within(meter('Break').parentElement!);
       expect(threeLabels.getByText('Point')).toHaveAttribute('data-position', 'start');
       expect(threeLabels.getByText('Reef')).toHaveAttribute('data-position', 'middle');
       expect(threeLabels.getByText('Beachbreak')).toHaveAttribute('data-position', 'end');
@@ -136,7 +136,7 @@ describe('ProductDetailPage', () => {
       expect(threeLabels.getByText('Reef')).toHaveClass('left-1/2', '-translate-x-1/2');
       expect(threeLabels.getByText('Beachbreak')).toHaveClass('right-0');
 
-      const twoLabels = within(screen.getByTestId('scale-Size'));
+      const twoLabels = within(meter('Size').parentElement!);
       expect(twoLabels.getByText('Knee')).toHaveAttribute('data-position', 'start');
       expect(twoLabels.getByText('Double+')).toHaveAttribute('data-position', 'end');
     });

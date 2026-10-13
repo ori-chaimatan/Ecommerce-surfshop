@@ -19,6 +19,7 @@ interface PhotoLightboxProps {
 
 export function PhotoLightbox({ images, name, index, onIndexChange, onClose }: PhotoLightboxProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const count = images.length;
   const hasMany = count > 1;
   const image = images[index];
@@ -34,8 +35,26 @@ export function PhotoLightbox({ images, name, index, onIndexChange, onClose }: P
   }, []);
 
   useEffect(() => {
+    // aria-modal alone doesn't stop Tab: keep focus cycling through the dialog's own buttons.
+    const trapFocus = (event: KeyboardEvent) => {
+      const buttons = Array.from(dialogRef.current?.querySelectorAll<HTMLButtonElement>('button') ?? []);
+      if (buttons.length === 0) return;
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      const active = document.activeElement;
+      const inside = dialogRef.current?.contains(active) ?? false;
+      if (event.shiftKey && (active === first || !inside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !inside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Tab') trapFocus(event);
+      else if (event.key === 'Escape') onClose();
       else if (event.key === 'ArrowLeft') onIndexChange((index - 1 + count) % count);
       else if (event.key === 'ArrowRight') onIndexChange((index + 1) % count);
     };
@@ -50,6 +69,7 @@ export function PhotoLightbox({ images, name, index, onIndexChange, onClose }: P
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={texts.photoViewer}

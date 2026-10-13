@@ -74,14 +74,16 @@ function specValue(specs: StrapiSurfboardSpecs, field: NumericSpec | 'SkillLevel
   return typeof value === 'number' && Number.isFinite(value) ? clampScale(value) : undefined;
 }
 
+/** Sections with no values are left out (no empty heading), and no sections at all means no attributes. */
 function toAttributes(specs: StrapiSurfboardSpecs) {
-  return ATTRIBUTE_SECTIONS.map(({ title, items }) => ({
+  const sections = ATTRIBUTE_SECTIONS.map(({ title, items }) => ({
     title,
     items: items.flatMap(({ field, label, scale }) => {
       const value = specValue(specs, field);
       return value === undefined ? [] : [{ label, value, scale }];
     }),
-  }));
+  })).filter((section) => section.items.length > 0);
+  return sections.length > 0 ? sections : undefined;
 }
 
 export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail | null {
@@ -94,6 +96,7 @@ export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail
 
   const boardSizes = [...(product.BoardSizes ?? [])].sort((a, b) => boardLengthInches(a) - boardLengthInches(b));
   const video = SurfboardSpecs?.Video?.url;
+  const attributes = SurfboardSpecs ? toAttributes(SurfboardSpecs) : undefined;
 
   return {
     name: Name,
@@ -104,6 +107,6 @@ export function toSurfboardDetail(product: StrapiProductDetail): SurfboardDetail
     images: Images.map((image) => ({ src: strapiMediaUrl(image.url), width: image.width, height: image.height })),
     sizes: boardSizes.map((size) => ({ label: formatBoardSize(size), soldOut: !(Number(size.Stock) > 0) })),
     defaultSizeIndex: boardSizes.findIndex((size) => Number(size.Stock) > 0),
-    ...(SurfboardSpecs ? { attributes: toAttributes(SurfboardSpecs) } : {}),
+    ...(attributes ? { attributes } : {}),
   };
 }

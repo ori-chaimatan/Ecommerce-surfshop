@@ -180,6 +180,16 @@ describe('toSurfboardDetail', () => {
       expect(labels).toHaveLength(11);
     });
 
+    it('leaves out sections with no values, so no empty heading renders', () => {
+      const waveOnly = { ...specs, Approach: null, SkillLevel: null, FootOrientation: null, Foil: null, NoseShape: null, TailWidth: null, EntryRocker: null, ExitRocker: null, RockerStyle: null };
+      expect(toSurfboardDetail(surfboard({ SurfboardSpecs: waveOnly }))!.attributes!.map((section) => section.title)).toEqual(['Wave']);
+    });
+
+    it('has no attributes when every spec value is missing', () => {
+      const empty = { ...specs, WaveSize: null, Break: null, Power: null, Approach: null, SkillLevel: null, FootOrientation: null, Foil: null, NoseShape: null, TailWidth: null, EntryRocker: null, ExitRocker: null, RockerStyle: null };
+      expect(toSurfboardDetail(surfboard({ SurfboardSpecs: empty }))!.attributes).toBeUndefined();
+    });
+
     it('has no attributes when SurfboardSpecs is missing', () => {
       expect(toSurfboardDetail(surfboard({ SurfboardSpecs: null }))!.attributes).toBeUndefined();
     });

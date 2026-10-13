@@ -44,7 +44,7 @@ export function SurfboardBuyPanel({ price, sizes, defaultSizeIndex }: SurfboardB
               </select>
               <Icon
                 name="chevron-down"
-                className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 fill-none stroke-[#5B6B72] stroke-2"
+                className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 fill-none stroke-muted stroke-2"
               />
             </div>
           </div>

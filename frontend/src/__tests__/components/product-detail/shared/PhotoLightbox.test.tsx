@@ -46,6 +46,34 @@ describe('PhotoLightbox (AC9)', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
+  it('traps Tab inside the dialog: past the last button back to the first, and Shift+Tab the other way', () => {
+    renderLightbox(0);
+    const close = within(dialog()).getByRole('button', { name: 'Close photo viewer' });
+    const next = within(dialog()).getByRole('button', { name: 'Next photo' });
+
+    next.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(close).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(next).toHaveFocus();
+
+    // Focus that somehow left the dialog is pulled back in.
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(close).toHaveFocus();
+  });
+
+  it('lets Tab move normally between buttons inside the dialog', () => {
+    renderLightbox(0);
+    const close = within(dialog()).getByRole('button', { name: 'Close photo viewer' });
+
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    close.focus();
+    document.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('steps with its arrows and the arrow keys, wrapping around', () => {
     const { onIndexChange } = renderLightbox(0);
 
