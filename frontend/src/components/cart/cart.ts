@@ -115,10 +115,3 @@ export const EMPTY_CART: CartView = toCartView({ lines: [], removedCount: 0 });
 export function isCartPath(pathname: string | null) {
   return (pathname ?? '').replace(/^\/en(?=\/|$)/, '') === CART_HREF;
 }
-
-/** Stretches a ButtonCTA (natural width by default) to fill the cart's narrow columns, as in the design. */
-export const FULL_WIDTH_CTA = '[&>*]:w-full [&>*]:justify-center';
-
-/** The design's outlined `.btn-cart-secondary` (Continue Shopping). */
-export const SECONDARY_BUTTON =
-  'block w-full rounded-[9px] border-2 border-ink px-5 py-[13px] text-center text-sm font-bold uppercase tracking-[0.03em] text-ink hover:bg-ink hover:text-white';

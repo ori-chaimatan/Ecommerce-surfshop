@@ -6,8 +6,9 @@ import { useEffect, useRef } from 'react';
 import { CART_HREF, PRODUCTS_HREF } from '@/lib/routes';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { Icon } from '@/shared/components/icons';
-import { FULL_WIDTH_CTA, SECONDARY_BUTTON } from './cart';
 import { useCart } from './cart-context';
+import { styles } from './cart-drawer.styles';
+import { sharedStyles } from './cart-shared.styles';
 import { texts } from './cart-texts';
 import { CartLines } from './CartLines';
 import { ShippingProgress } from './ShippingProgress';
@@ -19,7 +20,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [ta
  * bag; closes on X, the overlay, Escape and navigation. The provider returns focus to
  * whatever opened it.
  */
-export function CartDrawer() {
+export const CartDrawer = (): React.JSX.Element | null => {
   const { cart, status, drawerOpen, closeDrawer, reload } = useCart();
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -73,63 +74,63 @@ export function CartDrawer() {
         data-testid="cart-overlay"
         aria-hidden
         onClick={closeDrawer}
-        className="fixed inset-0 z-[60] animate-fade-in bg-[rgba(18,33,42,.5)] motion-reduce:animate-none"
+        className={styles.overlay}
       />
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={texts.cart}
-        className="fixed inset-y-0 right-0 z-[61] flex w-[420px] max-w-full animate-drawer-in flex-col bg-white shadow-[-8px_0_24px_rgba(18,33,42,.12)] motion-reduce:animate-none max-[480px]:w-full"
+        className={styles.drawer}
       >
-        <div className="flex items-center justify-between border-b border-border px-6 py-5">
-          <h2 className="text-base font-bold text-ink">{texts.drawerTitle(cart.count)}</h2>
-          <button ref={closeRef} type="button" aria-label={texts.closeCart} onClick={closeDrawer} className="p-1 text-ink">
-            <Icon name="close" className="h-[18px] w-[18px] fill-none stroke-current stroke-2" />
+        <div className={styles.header}>
+          <h2 className={styles.title}>{texts.drawerTitle(cart.count)}</h2>
+          <button ref={closeRef} type="button" aria-label={texts.closeCart} onClick={closeDrawer} className={styles.close}>
+            <Icon name="close" className={styles.closeIcon} />
           </button>
         </div>
 
         {status === 'loading' ? (
-          <p className="px-6 py-10 text-center text-sm text-muted">{texts.loading}</p>
+          <p className={styles.loading}>{texts.loading}</p>
         ) : status === 'error' ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-10 text-center text-sm text-muted">
+          <div className={styles.error}>
             <p>{texts.loadFailed}</p>
-            <button type="button" onClick={() => void reload()} className="font-bold text-ink underline">
+            <button type="button" onClick={() => void reload()} className={styles.retry}>
               {texts.retry}
             </button>
           </div>
         ) : cart.isEmpty ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center text-muted">
+          <div className={styles.empty}>
             <CartLines variant="drawer" onNavigate={closeDrawer} />
             <p>{texts.empty}</p>
-            <Link href={PRODUCTS_HREF} onClick={closeDrawer} className={`${SECONDARY_BUTTON} max-w-[230px]`}>
+            <Link href={PRODUCTS_HREF} onClick={closeDrawer} className={`${sharedStyles.secondaryButton} ${styles.continueShopping}`}>
               {texts.continueShopping}
             </Link>
           </div>
         ) : (
           <>
             <ShippingProgress remaining={cart.remainingForFreeShipping} progress={cart.freeShippingProgress} variant="drawer" />
-            <div className="flex-1 overflow-y-auto px-6 py-1">
+            <div className={styles.lines}>
               <CartLines variant="drawer" onNavigate={closeDrawer} />
             </div>
-            <div className="flex flex-col gap-2.5 border-t border-border px-6 py-5">
-              <div className="mb-1 flex justify-between text-[14.5px] font-bold text-ink">
+            <div className={styles.footer}>
+              <div className={styles.subtotalRow}>
                 <span>{texts.subtotal}</span>
-                <span className="font-mono">{cart.subtotal}</span>
+                <span className={styles.subtotal}>{cart.subtotal}</span>
               </div>
-              {cart.hasBlockingLines && <p className="text-xs text-danger">{texts.blocking}</p>}
+              {cart.hasBlockingLines && <p className={styles.blocking}>{texts.blocking}</p>}
               {/* Following a link closes the drawer even when it points at the current page. */}
-              <div className={FULL_WIDTH_CTA} onClick={closeDrawer}>
+              <div className={sharedStyles.fullWidthCta} onClick={closeDrawer}>
                 <ButtonCTA text={texts.viewCart} href={CART_HREF} />
               </div>
-              <div className={FULL_WIDTH_CTA}>
+              <div className={sharedStyles.fullWidthCta}>
                 <ButtonCTA text={texts.checkout} disabled />
               </div>
-              <p className="text-center text-xs text-muted">{texts.checkoutSoon}</p>
+              <p className={styles.checkoutNote}>{texts.checkoutSoon}</p>
             </div>
           </>
         )}
       </div>
     </>
   ) : null;
-}
+};

@@ -1,10 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SESSION_STATE_HEADER } from '@/lib/cart/constants';
 import { CART_API_HREF, CART_LINES_API_HREF } from '@/lib/routes';
 import { EMPTY_CART, type CartView } from './cart';
+import type { ICartProviderProps } from './cart.types';
 import { CartDrawer } from './CartDrawer';
 import {
   CartContext,
@@ -24,13 +25,7 @@ type LineMethod = 'POST' | 'PATCH' | 'DELETE';
  * time: each one reads and rewrites the whole cart on the server, so two at once (on different
  * lines) could silently drop one.
  */
-interface CartProviderProps {
-  children: ReactNode;
-  /** From the session cookie; a change (login merge, logout) reloads the cart. */
-  signedIn?: boolean;
-}
-
-export function CartProvider({ children, signedIn = false }: CartProviderProps) {
+export const CartProvider = ({ children, signedIn = false }: ICartProviderProps): React.JSX.Element => {
   const [cart, setCart] = useState<CartView>(EMPTY_CART);
   const [status, setStatus] = useState<CartStatus>('loading');
   const [mutationError, setMutationError] = useState(false);
@@ -172,4 +167,4 @@ export function CartProvider({ children, signedIn = false }: CartProviderProps) 
       <CartDrawer />
     </CartContext.Provider>
   );
-}
+};

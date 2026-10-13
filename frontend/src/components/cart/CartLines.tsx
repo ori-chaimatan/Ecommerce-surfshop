@@ -5,107 +5,81 @@ import Link from 'next/link';
 import { Icon } from '@/shared/components/icons';
 import type { CartLineView } from './cart';
 import { useCart } from './cart-context';
+import { styles } from './cart-lines.styles';
 import { texts } from './cart-texts';
+import type { ICartLinesProps } from './cart.types';
 
-interface CartLinesProps {
-  /** `drawer`: compact rows (76×95 photo). `page`: the cart page rows (110×138 photo). */
-  variant: 'drawer' | 'page';
-  /** Called when a product link is followed; the drawer closes itself, even on a same-URL link (AC11). */
-  onNavigate?: () => void;
-}
-
-const NOTE = 'font-mono text-[11.5px] font-semibold uppercase tracking-[0.04em] text-danger';
 const lineRef = ({ productDocumentId, sizeKey }: CartLineView) => ({ productDocumentId, sizeKey });
 
-const STEP_ICON = 'h-3.5 w-3.5 fill-none stroke-current stroke-2';
-
 /** The cart's lines with quantity steppers and Remove, plus the cart-level notices above them. */
-export function CartLines({ variant, onNavigate }: CartLinesProps) {
+export const CartLines = ({ variant, onNavigate }: ICartLinesProps): React.JSX.Element | null => {
   const { cart, pendingKeys, mutationError, setQty, remove } = useCart();
   const page = variant === 'page';
-  const step = page ? 'h-8 w-8' : 'h-[26px] w-[26px]';
+  const stepClass = `${styles.step.base} ${styles.step.variant[variant]}`;
 
   if (cart.isEmpty && cart.removedCount === 0 && !mutationError) return null;
 
   return (
-    <div className="flex flex-col">
-      {cart.removedCount > 0 && <p className="py-3 text-[13px] text-muted">{texts.removed}</p>}
+    <div className={styles.lines}>
+      {cart.removedCount > 0 && <p className={styles.removedNote}>{texts.removed}</p>}
       {mutationError && (
-        <p role="alert" className="py-3 text-[13px] text-danger">
+        <p role="alert" className={styles.error}>
           {texts.updateFailed}
         </p>
       )}
       {!cart.isEmpty && (
-        <ul className="flex flex-col">
+        <ul className={styles.list}>
           {cart.lines.map((line) => (
-            <li
-              key={line.key}
-              className={`flex border-b border-border ${page ? 'gap-5 py-6' : 'gap-3.5 py-4'}`}
-            >
-              <div
-                data-photo
-                className={`relative shrink-0 overflow-hidden rounded-[9px] bg-surface ${
-                  page ? 'h-[138px] w-[110px]' : 'h-[95px] w-[76px]'
-                }`}
-              >
+            <li key={line.key} className={`${styles.row.base} ${styles.row.variant[variant]}`}>
+              <div data-photo className={`${styles.photo.base} ${styles.photo.variant[variant]}`}>
                 {line.image && (
                   <Image
                     src={line.image.src}
                     alt={line.image.alt}
                     fill
                     sizes={page ? '110px' : '76px'}
-                    className={line.image.fit === 'contain' ? 'object-contain' : 'object-cover'}
+                    className={styles.image[line.image.fit]}
                   />
                 )}
               </div>
 
-              <div className={`flex flex-1 flex-col ${page ? 'gap-1.5' : 'gap-1'}`}>
-                <div className="flex justify-between gap-3">
-                  <Link href={line.href} onClick={onNavigate} className={`font-bold text-ink hover:text-horizon ${page ? 'text-base' : 'text-sm'}`}>
+              <div className={`${styles.details.base} ${styles.details.variant[variant]}`}>
+                <div className={styles.nameRow}>
+                  <Link href={line.href} onClick={onNavigate} className={`${styles.name.base} ${styles.name.variant[variant]}`}>
                     {line.name}
                   </Link>
                   {page && (
-                    <span
-                      className={`whitespace-nowrap font-mono text-[15px] font-semibold ${
-                        line.blocked ? 'text-muted line-through' : 'text-ink'
-                      }`}
-                    >
+                    <span className={`${styles.pageTotal.base} ${styles.pageTotal.price[line.blocked ? 'blocked' : 'normal']}`}>
                       {line.lineTotal}
                     </span>
                   )}
                 </div>
-                <p className={`text-muted ${page ? 'text-[13px]' : 'text-[12.5px]'}`}>{line.sizeLabel}</p>
-                {line.adjusted && <p className={NOTE}>{texts.adjusted(line.maxQty)}</p>}
-                {line.soldOut && <p className={NOTE}>{texts.soldOut}</p>}
-                {line.unavailable && <p className={NOTE}>{texts.unavailable}</p>}
+                <p className={`${styles.sizeLabel.base} ${styles.sizeLabel.variant[variant]}`}>{line.sizeLabel}</p>
+                {line.adjusted && <p className={styles.note}>{texts.adjusted(line.maxQty)}</p>}
+                {line.soldOut && <p className={styles.note}>{texts.soldOut}</p>}
+                {line.unavailable && <p className={styles.note}>{texts.unavailable}</p>}
 
-                <div className={`flex items-center justify-between gap-3 ${page ? 'mt-auto pt-2' : 'mt-2'}`}>
+                <div className={`${styles.actions.base} ${styles.actions.variant[variant]}`}>
                   {!line.blocked && (
-                    <div
-                      role="group"
-                      aria-label={texts.quantity(line.name)}
-                      className="flex items-center rounded-[9px] border border-border"
-                    >
+                    <div role="group" aria-label={texts.quantity(line.name)} className={styles.stepper}>
                       <button
                         type="button"
                         aria-label={texts.decrease}
                         disabled={pendingKeys.has(line.key) || line.quantity <= 1}
                         onClick={() => setQty(lineRef(line), line.quantity - 1)}
-                        className={`flex items-center justify-center text-ink hover:text-horizon disabled:cursor-not-allowed disabled:opacity-40 ${step}`}
+                        className={stepClass}
                       >
-                        <Icon name="minus" className={STEP_ICON} />
+                        <Icon name="minus" className={styles.stepIcon} />
                       </button>
-                      <span className={`text-center font-mono ${page ? 'min-w-[26px] text-sm' : 'min-w-5 text-[13px]'}`}>
-                        {line.quantity}
-                      </span>
+                      <span className={`${styles.quantity.base} ${styles.quantity.variant[variant]}`}>{line.quantity}</span>
                       <button
                         type="button"
                         aria-label={texts.increase}
                         disabled={pendingKeys.has(line.key) || line.quantity >= line.maxQty}
                         onClick={() => setQty(lineRef(line), line.quantity + 1)}
-                        className={`flex items-center justify-center text-ink hover:text-horizon disabled:cursor-not-allowed disabled:opacity-40 ${step}`}
+                        className={stepClass}
                       >
-                        <Icon name="plus" className={STEP_ICON} />
+                        <Icon name="plus" className={styles.stepIcon} />
                       </button>
                     </div>
                   )}
@@ -115,16 +89,12 @@ export function CartLines({ variant, onNavigate }: CartLinesProps) {
                       aria-label={texts.removeItem(line.name)}
                       disabled={pendingKeys.has(line.key)}
                       onClick={() => remove(lineRef(line))}
-                      className="ml-auto text-[12.5px] text-muted underline underline-offset-[3px] hover:text-ink disabled:opacity-40"
+                      className={styles.pageRemove}
                     >
                       {texts.remove}
                     </button>
                   ) : (
-                    <span
-                      className={`ml-auto font-mono text-[13.5px] font-semibold ${
-                        line.blocked ? 'text-muted line-through' : 'text-ink'
-                      }`}
-                    >
+                    <span className={`${styles.drawerTotal.base} ${styles.drawerTotal.price[line.blocked ? 'blocked' : 'normal']}`}>
                       {line.lineTotal}
                     </span>
                   )}
@@ -135,7 +105,7 @@ export function CartLines({ variant, onNavigate }: CartLinesProps) {
                     aria-label={texts.removeItem(line.name)}
                     disabled={pendingKeys.has(line.key)}
                     onClick={() => remove(lineRef(line))}
-                    className="mt-1.5 self-start text-xs text-muted underline hover:text-ink disabled:opacity-40"
+                    className={styles.drawerRemove}
                   >
                     {texts.remove}
                   </button>
@@ -147,4 +117,4 @@ export function CartLines({ variant, onNavigate }: CartLinesProps) {
       )}
     </div>
   );
-}
+};
