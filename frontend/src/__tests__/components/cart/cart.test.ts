@@ -38,6 +38,11 @@ const shorts: StrapiCartLine = {
 const cart = (lines: StrapiCartLine[], removedCount = 0): StrapiCart => ({ lines, removedCount });
 
 describe('toCartView lines (AC7)', () => {
+  it('caps maxQty at the 99 the cart routes accept, however much is in stock', () => {
+    expect(toCartView(cart([{ ...shorts, stock: 150 }])).lines[0].maxQty).toBe(99);
+    expect(toCartView(cart([{ ...shorts, stock: 3 }])).lines[0].maxQty).toBe(3);
+  });
+
   it('maps each line to labels, live prices and links', () => {
     const view = toCartView(cart([board, shorts]));
 

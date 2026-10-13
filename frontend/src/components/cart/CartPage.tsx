@@ -12,7 +12,7 @@ import { CartSummary } from './CartSummary';
 import { ShippingProgress } from './ShippingProgress';
 
 const BREADCRUMB = [{ label: texts.home, href: HOME_HREF }, { label: texts.cart }];
-const SKELETON_BLOCK = 'animate-pulse rounded-[9px] bg-background motion-reduce:animate-none';
+const SKELETON_BLOCK = 'animate-pulse rounded-[9px] bg-surface motion-reduce:animate-none';
 
 /** `/cart` (design `cart.html`): lines on the left, the sticky order summary on the right. */
 export function CartPage() {

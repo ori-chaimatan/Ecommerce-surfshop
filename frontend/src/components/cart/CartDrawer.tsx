@@ -100,7 +100,7 @@ export function CartDrawer() {
           </div>
         ) : cart.isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center text-muted">
-            <CartLines variant="drawer" />
+            <CartLines variant="drawer" onNavigate={closeDrawer} />
             <p>{texts.empty}</p>
             <Link href={PRODUCTS_HREF} onClick={closeDrawer} className={`${SECONDARY_BUTTON} max-w-[230px]`}>
               {texts.continueShopping}
@@ -110,7 +110,7 @@ export function CartDrawer() {
           <>
             <ShippingProgress remaining={cart.remainingForFreeShipping} progress={cart.freeShippingProgress} variant="drawer" />
             <div className="flex-1 overflow-y-auto px-6 py-1">
-              <CartLines variant="drawer" />
+              <CartLines variant="drawer" onNavigate={closeDrawer} />
             </div>
             <div className="flex flex-col gap-2.5 border-t border-border px-6 py-5">
               <div className="mb-1 flex justify-between text-[14.5px] font-bold text-ink">

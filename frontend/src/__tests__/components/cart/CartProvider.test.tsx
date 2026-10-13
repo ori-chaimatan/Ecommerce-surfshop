@@ -138,6 +138,35 @@ describe('CartProvider (AC8)', () => {
     expect(ctx.pendingKeys.has('p1:M')).toBe(false);
   });
 
+  it('runs mutations on different lines one after the other, never two at once', async () => {
+    let resolveFirst: (response: Response) => void = () => {};
+    mockFetch
+      .mockResolvedValueOnce(ok(CART))
+      .mockReturnValueOnce(new Promise<Response>((resolve) => (resolveFirst = resolve)))
+      .mockResolvedValueOnce(ok(makeCart([makeLine({ quantity: 3 })])));
+    renderProvider();
+    await screen.findByText(/count:2/);
+
+    let first: Promise<void> = Promise.resolve();
+    let second: Promise<void> = Promise.resolve();
+    act(() => {
+      first = ctx.setQty(LINE, 3);
+      second = ctx.setQty({ productDocumentId: 'p2', sizeKey: 'L' }, 2);
+    });
+    await waitFor(() => expect(ctx.pendingKeys.size).toBe(2));
+    // The second line's PATCH waits for the first to finish.
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      resolveFirst(ok(makeCart([makeLine({ quantity: 3 })])));
+      await first;
+      await second;
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(JSON.parse(mockFetch.mock.calls[2][1].body)).toMatchObject({ productDocumentId: 'p2', sizeKey: 'L', quantity: 2 });
+    expect(ctx.pendingKeys.size).toBe(0);
+  });
+
   it('a failed update flags mutationError and reloads the cart from the server', async () => {
     mockFetch
       .mockResolvedValueOnce(ok(CART))

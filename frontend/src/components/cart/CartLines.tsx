@@ -10,6 +10,8 @@ import { texts } from './cart-texts';
 interface CartLinesProps {
   /** `drawer`: compact rows (76×95 photo). `page`: the cart page rows (110×138 photo). */
   variant: 'drawer' | 'page';
+  /** Called when a product link is followed; the drawer closes itself, even on a same-URL link (AC11). */
+  onNavigate?: () => void;
 }
 
 const NOTE = 'font-mono text-[11.5px] font-semibold uppercase tracking-[0.04em] text-danger';
@@ -18,7 +20,7 @@ const lineRef = ({ productDocumentId, sizeKey }: CartLineView) => ({ productDocu
 const STEP_ICON = 'h-3.5 w-3.5 fill-none stroke-current stroke-2';
 
 /** The cart's lines with quantity steppers and Remove, plus the cart-level notices above them. */
-export function CartLines({ variant }: CartLinesProps) {
+export function CartLines({ variant, onNavigate }: CartLinesProps) {
   const { cart, pendingKeys, mutationError, setQty, remove } = useCart();
   const page = variant === 'page';
   const step = page ? 'h-8 w-8' : 'h-[26px] w-[26px]';
@@ -59,7 +61,7 @@ export function CartLines({ variant }: CartLinesProps) {
 
               <div className={`flex flex-1 flex-col ${page ? 'gap-1.5' : 'gap-1'}`}>
                 <div className="flex justify-between gap-3">
-                  <Link href={line.href} className={`font-bold text-ink hover:text-horizon ${page ? 'text-base' : 'text-sm'}`}>
+                  <Link href={line.href} onClick={onNavigate} className={`font-bold text-ink hover:text-horizon ${page ? 'text-base' : 'text-sm'}`}>
                     {line.name}
                   </Link>
                   {page && (

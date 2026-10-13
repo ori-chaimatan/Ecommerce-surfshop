@@ -89,9 +89,16 @@ describe('CartDrawer (AC11, AC15, AC16)', () => {
     unmount();
 
     const full = open();
-    renderWithCart(<CartDrawer />, full);
+    const { unmount: unmountFull } = renderWithCart(<CartDrawer />, full);
     fireEvent.click(screen.getByRole('link', { name: 'View Cart' }));
     expect(full.closeDrawer).toHaveBeenCalledTimes(1);
+    unmountFull();
+
+    // A line's product link too: on that product's own page the URL doesn't change.
+    const line = open();
+    renderWithCart(<CartDrawer />, line);
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'Samurai Pro' }));
+    expect(line.closeDrawer).toHaveBeenCalledTimes(1);
   });
 
   it('closes when the route changes', () => {

@@ -2,10 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { SESSION_STATE_HEADER } from '@/lib/cart/constants';
 import { CART_API_HREF, CART_LINES_API_HREF } from '@/lib/routes';
-
-/** Set by the /api/cart routes when they dropped an expired session cookie (lib/cart/route-helpers.ts). */
-const SESSION_STATE_HEADER = 'x-westline-session';
 import { EMPTY_CART, type CartView } from './cart';
 import { CartDrawer } from './CartDrawer';
 import {
@@ -22,7 +20,9 @@ type LineMethod = 'POST' | 'PATCH' | 'DELETE';
 /**
  * Holds the shopper's cart for the whole storefront. The server is the only source of
  * truth: every change sends one request and replaces the cart with the response — no
- * optimistic totals. Each line has at most one request in flight.
+ * optimistic totals. Each line has at most one request in flight, and mutations run one at a
+ * time: each one reads and rewrites the whole cart on the server, so two at once (on different
+ * lines) could silently drop one.
  */
 interface CartProviderProps {
   children: ReactNode;
@@ -37,6 +37,7 @@ export function CartProvider({ children, signedIn = false }: CartProviderProps) 
   const [pendingKeys, setPendingKeys] = useState<ReadonlySet<string>>(new Set());
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pending = useRef(new Set<string>());
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
   const opener = useRef<HTMLElement | null>(null);
   const wasOpen = useRef(false);
   // In a ref so the load effect never re-runs because of the router object.
@@ -71,11 +72,15 @@ export function CartProvider({ children, signedIn = false }: CartProviderProps) 
     pending.current.add(key);
     setPendingKeys(new Set(pending.current));
     try {
-      const response = await fetch(CART_LINES_API_HREF, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const request = queue.current.then(() =>
+        fetch(CART_LINES_API_HREF, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+      );
+      queue.current = request.catch(() => undefined);
+      const response = await request;
       checkSession(response);
       return response;
     } catch {

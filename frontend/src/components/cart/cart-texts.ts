@@ -5,7 +5,6 @@ export const texts = {
   closeCart: 'Close cart',
   pageTitle: 'Your Cart',
   home: 'Home',
-  breadcrumbLabel: 'Breadcrumb',
   orderSummary: 'Order Summary',
   subtotal: 'Subtotal',
   shipping: 'Shipping',

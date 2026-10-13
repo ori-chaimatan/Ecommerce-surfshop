@@ -3,16 +3,15 @@ import { toCartView } from '@/components/cart/cart';
 import type { NextRequest } from 'next/server';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/session';
 import type { CartIdentity, CartLineInput, CartResult } from '@/lib/strapi/cart';
+import { MAX_LINE_QUANTITY, SESSION_STATE_HEADER } from './constants';
 import { CART_COOKIE_NAME, getCartCookieOptions, readCartIdentity } from './cookie';
+
+export { MAX_LINE_QUANTITY, SESSION_STATE_HEADER };
 
 const MAX_KEY_LENGTH = 32;
 const MAX_ID_LENGTH = 64;
-export const MAX_LINE_QUANTITY = 99;
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
-
-/** Response header telling the client the session cookie was dropped, so it can refresh the header. */
-export const SESSION_STATE_HEADER = 'x-westline-session';
 
 const isId = (value: unknown, max: number): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= max;
@@ -58,8 +57,8 @@ export function cartResponse(result: CartResult) {
 }
 
 /**
- * Runs a cart call as the current shopper. When Strapi rejects the session JWT (expired —
- * access tokens live 10 minutes in refresh mode — or invalid), the call is repeated as a
+ * Runs a cart call as the current shopper. When Strapi rejects the session JWT (expired or
+ * invalid), the call is repeated as a
  * guest, the dead `westline_session` cookie is cleared and the response is flagged, so an
  * expired session never breaks the cart. Retrying is safe: a 401 means nothing was written.
  */

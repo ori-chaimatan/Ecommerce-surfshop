@@ -62,6 +62,10 @@ describe('CartPage (AC12, AC14–AC17)', () => {
     const busy = screen.getByLabelText('Loading your cart…');
     expect(busy).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Your cart is empty.')).not.toBeInTheDocument();
+    // Visible against the page: bg-background is the body colour itself (AC12).
+    const blocks = busy.querySelectorAll('.animate-pulse');
+    expect(blocks.length).toBeGreaterThan(0);
+    blocks.forEach((block) => expect(block).toHaveClass('bg-surface'));
   });
 
   it('shows the load error with Retry', () => {

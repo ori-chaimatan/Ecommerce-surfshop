@@ -1,3 +1,4 @@
+import { MAX_LINE_QUANTITY } from '@/lib/cart/constants';
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
 import { CART_HREF, productHref } from '@/lib/routes';
 import type { StrapiCart, StrapiCartLine } from '@/lib/strapi/cart';
@@ -73,7 +74,8 @@ function toLineView(line: StrapiCartLine): CartLineView {
     unitPrice: formatPrice(line.price),
     lineTotal: formatPrice(toCents(line.price * line.quantity)),
     quantity: line.quantity,
-    maxQty: line.stock,
+    // Never past what the cart routes accept, however much is in stock.
+    maxQty: Math.min(line.stock, MAX_LINE_QUANTITY),
     image: line.image
       ? {
           src: strapiMediaUrl(line.image.url),
