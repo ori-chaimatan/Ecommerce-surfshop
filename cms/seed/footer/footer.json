@@ -1,0 +1,24 @@
+{
+  "Tagline": "Find Your Line. Surf equipment and lifestyle gear for the progressing surfer.",
+  "Columns": [
+    {
+      "Title": "Shop",
+      "Links": [
+        { "Label": "Surfboards", "Url": "/products/category/surfboards" },
+        { "Label": "Wetsuits", "Url": "/products/category/wetsuits" },
+        { "Label": "Apparel", "Url": "/products/category/clothing" }
+      ]
+    },
+    {
+      "Title": "Account",
+      "Links": [
+        { "Label": "Sign In", "Url": "/auth/login" },
+        { "Label": "Create Account", "Url": "/auth/register" },
+        { "Label": "Wishlist", "Url": "/account#wishlist" },
+        { "Label": "Order History", "Url": "/account#orders" }
+      ]
+    }
+  ],
+  "LegalLinks": [],
+  "Copyright": "© 2026 WESTLINE. Find Your Line."
+}

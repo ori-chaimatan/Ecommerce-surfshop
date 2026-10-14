@@ -3,6 +3,7 @@ import { setupResetPasswordEmail } from './bootstrap/reset-password-email';
 import { setupGoogleLogin } from './bootstrap/google-login';
 import { setupWelcomeEmail } from './bootstrap/welcome-email';
 import { setupHomepage } from './bootstrap/homepage';
+import { setupFooter } from './bootstrap/footer';
 import { setupCatalog } from './bootstrap/catalog';
 import { registerClearStaleSizes } from './api/product/documents/clear-stale-sizes';
 import { registerOrderGuard } from './api/order/order-guard';
@@ -20,6 +21,7 @@ export default {
     await setupGoogleLogin(strapi, clientUrl);
     setupWelcomeEmail(strapi, clientUrl);
     await setupHomepage(strapi);
+    await setupFooter(strapi);
     await setupCatalog(strapi);
     await setupOrderAdmin(strapi);
   },

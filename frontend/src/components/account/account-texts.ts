@@ -25,5 +25,4 @@ export const texts = {
   saveFailed: "Couldn't save your changes. Please try again.",
 
 
-  copyright: '© 2026 WESTLINE. Find Your Line.',
 };

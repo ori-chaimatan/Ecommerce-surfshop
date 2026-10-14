@@ -346,6 +346,32 @@ export interface SharedCarouselHero extends Struct.ComponentSchema {
   };
 }
 
+export interface SharedFooterColumn extends Struct.ComponentSchema {
+  collectionName: 'components_shared_footer_columns';
+  info: {
+    description: 'One footer column: a title and its links';
+    displayName: 'FooterColumn';
+    icon: 'bulletList';
+  };
+  attributes: {
+    Links: Schema.Attribute.Component<'shared.link', true>;
+    Title: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface SharedLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_links';
+  info: {
+    description: 'A labelled link: an internal path (/\u2026) or an http(s) URL';
+    displayName: 'Link';
+    icon: 'link';
+  };
+  attributes: {
+    Label: Schema.Attribute.String & Schema.Attribute.Required;
+    Url: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface SharedTarget extends Struct.ComponentSchema {
   collectionName: 'components_shared_targets';
   info: {
@@ -367,6 +393,8 @@ declare module '@strapi/strapi' {
       'product.surfboard-specs': ProductSurfboardSpecs;
       'shared.button-cta': SharedButtonCta;
       'shared.carousel-hero': SharedCarouselHero;
+      'shared.footer-column': SharedFooterColumn;
+      'shared.link': SharedLink;
       'shared.target': SharedTarget;
     }
   }

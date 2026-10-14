@@ -29,60 +29,50 @@ const TABS: { tab: AccountTab; label: string }[] = [
   { tab: 'details', label: texts.detailsTab },
 ];
 
-/** `/account` (design `my-account.html`): hero, hash-routed tabs, and the minimal footer bar. */
+/** `/account` (design `my-account.html`): hero and hash-routed tabs. The site footer comes from the layout. */
 export function AccountPage({ account, wishlist, orders }: AccountPageProps) {
   const { tab, selectTab } = useAccountTab();
   const [name, setName] = useState({ firstName: account.firstName, lastName: account.lastName });
 
   return (
-    <>
-      <main className={styles.page}>
-        <ProductBreadcrumb items={BREADCRUMB} />
-        <div className={`${CONTAINER} ${styles.body}`}>
-          <div className={styles.hero}>
-            <div>
-              <h1 className={styles.title}>{texts.pageTitle}</h1>
-              <p className={styles.lede}>{texts.welcome(name.firstName, name.lastName)}</p>
-            </div>
-            <SignOutButton />
+    <main className={styles.page}>
+      <ProductBreadcrumb items={BREADCRUMB} />
+      <div className={`${CONTAINER} ${styles.body}`}>
+        <div className={styles.hero}>
+          <div>
+            <h1 className={styles.title}>{texts.pageTitle}</h1>
+            <p className={styles.lede}>{texts.welcome(name.firstName, name.lastName)}</p>
           </div>
-
-          <div role="tablist" aria-label={texts.tabsLabel} className={styles.tabs}>
-            {TABS.map((item) => (
-              <button
-                key={item.tab}
-                type="button"
-                role="tab"
-                id={`account-tab-${item.tab}`}
-                aria-selected={tab === item.tab}
-                aria-controls={`account-panel-${item.tab}`}
-                className={`${styles.tab.base} ${tab === item.tab ? styles.tab.active : styles.tab.inactive}`}
-                onClick={() => selectTab(item.tab)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          <div role="tabpanel" id="account-panel-overview" aria-labelledby="account-tab-overview" hidden={tab !== 'overview'}>
-            <AccountOverview wishlist={wishlist} orders={orders} />
-          </div>
-          <div role="tabpanel" id="account-panel-details" aria-labelledby="account-tab-details" hidden={tab !== 'details'}>
-            <AccountDetailsForm
-              account={account}
-              onSaved={(profile) => setName({ firstName: profile.firstName, lastName: profile.lastName })}
-            />
-          </div>
+          <SignOutButton />
         </div>
-      </main>
 
-      <footer className={styles.footer}>
-        <div className={CONTAINER}>
-          <div className={styles.footerBar}>
-            <span>{texts.copyright}</span>
-          </div>
+        <div role="tablist" aria-label={texts.tabsLabel} className={styles.tabs}>
+          {TABS.map((item) => (
+            <button
+              key={item.tab}
+              type="button"
+              role="tab"
+              id={`account-tab-${item.tab}`}
+              aria-selected={tab === item.tab}
+              aria-controls={`account-panel-${item.tab}`}
+              className={`${styles.tab.base} ${tab === item.tab ? styles.tab.active : styles.tab.inactive}`}
+              onClick={() => selectTab(item.tab)}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
-      </footer>
-    </>
+
+        <div role="tabpanel" id="account-panel-overview" aria-labelledby="account-tab-overview" hidden={tab !== 'overview'}>
+          <AccountOverview wishlist={wishlist} orders={orders} />
+        </div>
+        <div role="tabpanel" id="account-panel-details" aria-labelledby="account-tab-details" hidden={tab !== 'details'}>
+          <AccountDetailsForm
+            account={account}
+            onSaved={(profile) => setName({ firstName: profile.firstName, lastName: profile.lastName })}
+          />
+        </div>
+      </div>
+    </main>
   );
 }

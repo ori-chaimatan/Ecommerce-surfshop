@@ -67,8 +67,8 @@ describe('AccountPage (account-profile AC2, AC4, AC8, AC14)', () => {
     expect(screen.getByText('Welcome back, Jo Reyes.')).toBeInTheDocument();
   });
 
-  it('ends with the minimal footer bar (AC14)', () => {
+  it('renders no footer of its own: the site footer comes from the layout (AC14 superseded by site-footer AC7)', () => {
     render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} orders={[]} />));
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('© 2026 WESTLINE. Find Your Line.');
+    expect(screen.queryByRole('contentinfo')).toBeNull();
   });
 });

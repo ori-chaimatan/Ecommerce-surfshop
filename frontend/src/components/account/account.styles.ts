@@ -3,7 +3,8 @@
  * design system v0.4 (type scale 12 · 14 · 17 · 22 · 32; secondary button; Horizon as the positive colour).
  */
 export const styles = {
-  page: 'pb-0',
+  // Room above the site footer (design system spacing 64px).
+  page: 'pb-16',
   body: 'flex flex-col',
 
   hero: 'mb-8 flex flex-wrap items-end justify-between gap-5 border-b border-border pb-7',
@@ -37,7 +38,4 @@ export const styles = {
     error: 'text-danger',
   },
 
-
-  footer: 'mt-10 border-t border-border',
-  footerBar: 'flex flex-wrap items-center justify-between gap-3 py-[22px] text-xs text-muted',
 };

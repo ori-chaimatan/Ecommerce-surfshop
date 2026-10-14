@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CartProvider } from "@/components/cart";
 import { getSession } from "@/lib/auth/session";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { WishlistProvider } from "@/components/wishlist";
 import "../globals.css";
@@ -40,6 +41,7 @@ export default function RootLayout({
           <WishlistProvider signedIn={getSession() !== null}>
             <SiteNav />
             {children}
+            <SiteFooter />
           </WishlistProvider>
         </CartProvider>
       </body>
