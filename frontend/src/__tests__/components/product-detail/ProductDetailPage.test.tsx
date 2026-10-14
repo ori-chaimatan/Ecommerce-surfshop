@@ -2,6 +2,7 @@ import { screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ProductBySlugResult, StrapiProductDetail } from '@/lib/strapi/product';
 import { renderWithCart } from '../cart/cart-test-utils';
+import { inWishlist } from '../wishlist/wishlist-test-utils';
 
 const mockGetProductBySlug = vi.fn();
 
@@ -46,7 +47,7 @@ function surfboard(extra: Partial<StrapiProductDetail> = {}): StrapiProductDetai
 
 async function renderPage(result: ProductBySlugResult = { kind: 'ok', product: surfboard() }) {
   mockGetProductBySlug.mockResolvedValue(result);
-  return renderWithCart(await ProductDetailPage({ productSlug: 'tideline' }));
+  return renderWithCart(inWishlist(await ProductDetailPage({ productSlug: 'tideline' })));
 }
 
 function meter(label: string) {
@@ -201,7 +202,9 @@ describe('ProductDetailPage', () => {
     await renderPage({ kind: 'ok', product });
 
     expect(screen.queryByText(/thruster|fin setup|3-fin|hidden note/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/wishlist|share|material|fin system|more options|you might also like|house shaper/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/share|material|fin system|more options|you might also like|house shaper/i)).not.toBeInTheDocument();
+    // Wishlist is no longer hidden: wishlist AC2 adds the labelled button.
+    expect(screen.getByRole('button', { name: 'Add to wishlist' })).toHaveTextContent('Wishlist');
     expect(screen.queryByText('Hidden subtitle')).not.toBeInTheDocument();
   });
 
@@ -292,7 +295,9 @@ describe('ProductDetailPage', () => {
       await renderPage({ kind: 'ok', product });
 
       expect(screen.queryByText('Performance stretch')).not.toBeInTheDocument();
-      expect(screen.queryByText(/size chart|color|wishlist|you might also like|details & features|see details|quantity/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/size chart|color|you might also like|details & features|see details|quantity/i)).not.toBeInTheDocument();
+      // Wishlist is no longer hidden: wishlist AC2 adds the icon button beside Add to Cart.
+      expect(screen.getByRole('button', { name: 'Add to wishlist' })).not.toHaveTextContent('Wishlist');
     });
   });
 });

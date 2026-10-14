@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { WishlistButton } from '@/components/wishlist';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { Icon } from '@/shared/components/icons';
 import { texts } from '../product-detail-texts';
@@ -9,7 +10,7 @@ import { useAddToCart } from '../shared/use-add-to-cart';
 import { styles } from './surfboard-buy-panel.styles';
 import type { ISurfboardBuyPanelProps } from './surfboard.types';
 
-export const SurfboardBuyPanel = ({ documentId, price, sizes, defaultSizeIndex }: ISurfboardBuyPanelProps): React.JSX.Element => {
+export const SurfboardBuyPanel = ({ documentId, slug, price, sizes, defaultSizeIndex }: ISurfboardBuyPanelProps): React.JSX.Element => {
   const [selected, setSelected] = useState(Math.max(0, defaultSizeIndex));
   const inStock = defaultSizeIndex >= 0;
   const { adding, message, addSize, clearMessage } = useAddToCart(documentId);
@@ -56,6 +57,12 @@ export const SurfboardBuyPanel = ({ documentId, price, sizes, defaultSizeIndex }
           <p role="alert" className={styles.error}>
             {message}
           </p>
+        )}
+
+        {slug && (
+          <div className={styles.actionsRow}>
+            <WishlistButton slug={slug} variant="labelled" />
+          </div>
         )}
 
         <TrustList />

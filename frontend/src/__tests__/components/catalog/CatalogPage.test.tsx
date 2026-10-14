@@ -19,6 +19,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { CatalogPage } from '@/components/catalog';
+import { inWishlist } from '../wishlist/wishlist-test-utils';
 
 function cat(Slug: string, Name: string, subs: [string, string][]): StrapiNavCategory {
   return { Slug, Name, Subcategories: subs.map(([s, n]) => ({ Slug: s, Name: n, NavLabel: null })) };
@@ -59,7 +60,7 @@ async function renderPage({
 } = {}) {
   mockGetNavigation.mockResolvedValue({ categories, subcategoryGenders: SUBCATEGORY_GENDERS });
   mockGetProductList.mockResolvedValue(products);
-  return render(await CatalogPage({ categorySlug, searchParams }));
+  return render(inWishlist(await CatalogPage({ categorySlug, searchParams })));
 }
 
 function breadcrumb() {
@@ -174,10 +175,10 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('link', { name: 'Longboard' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('renders no heart, sort, filters, Filter button or Finder callout (AC12)', async () => {
+  it('renders no sort, filters, Filter button or Finder callout (AC12); the heart is on (wishlist AC1)', async () => {
     await renderPage();
 
-    expect(screen.queryByRole('button', { name: /wishlist/i })).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Add to wishlist' })).toHaveLength(16);
     expect(screen.queryByRole('combobox')).toBeNull();
     expect(screen.queryByText(/sort by/i)).toBeNull();
     expect(screen.queryByText(/filter/i)).toBeNull();

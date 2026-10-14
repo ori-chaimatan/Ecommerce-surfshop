@@ -24,14 +24,6 @@ export const texts = {
   // Design gap: the design has no error copy for the profile form.
   saveFailed: "Couldn't save your changes. Please try again.",
 
-  wishlist: 'Wishlist',
-  savedCount: (count: number) => `${count} saved`,
-  wishlistEmptyStart: 'Your wishlist is empty. Browse ',
-  surfboards: 'Surfboards',
-  or: ' or ',
-  apparel: 'Apparel',
-  wishlistEmptyEnd: ' to add favorites.',
-
   orderHistory: 'Order History',
   // Design gap: the design has no Order History empty state.
   ordersEmpty: "You haven't placed any orders yet.",

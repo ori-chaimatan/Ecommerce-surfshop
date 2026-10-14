@@ -7,6 +7,7 @@ export interface IStandardGalleryProps {
 
 export interface IStandardBuyPanelProps {
   documentId: string;
+  slug: string;
   sizes: StandardDetail['sizes'];
   defaultSizeIndex: number;
 }

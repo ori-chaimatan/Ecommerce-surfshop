@@ -736,6 +736,39 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiWishlistWishlistItem extends Struct.CollectionTypeSchema {
+  collectionName: 'wishlist_items';
+  info: {
+    description: 'A product a signed-in shopper saved. Only reachable through the custom /wishlist routes';
+    displayName: 'Wishlist Item';
+    pluralName: 'wishlist-items';
+    singularName: 'wishlist-item';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::wishlist.wishlist-item'
+    > &
+      Schema.Attribute.Private;
+    Product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    User: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1252,6 +1285,7 @@ declare module '@strapi/strapi' {
       'api::order.order': ApiOrderOrder;
       'api::product.product': ApiProductProduct;
       'api::subcategory.subcategory': ApiSubcategorySubcategory;
+      'api::wishlist.wishlist-item': ApiWishlistWishlistItem;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

@@ -14,5 +14,7 @@ export const styles = {
     'absolute -right-1.5 -top-1.5 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-danger text-[10px] font-bold leading-none text-white no-underline',
   lowStockNote: 'mb-0 mt-2.5 font-mono text-[11.5px] font-semibold uppercase tracking-[0.05em] text-danger',
   buy: 'mb-5 mt-[22px]',
+  /** Design `.pdp-actions`: Add to Cart beside the wishlist `.btn-wish`. */
+  actions: 'flex gap-3',
   error: 'mb-0 mt-2.5 text-[13px] text-danger',
 } as const;

@@ -1,35 +1,22 @@
-import Link from 'next/link';
-import { categoryHref } from '@/lib/routes';
+import { WishlistSection } from '@/components/wishlist';
+import type { ProductCard } from '@/shared/components/product-card/product-card';
 import { styles } from './account.styles';
 import { texts } from './account-texts';
 import { SECTION_IDS } from './use-account-tab';
 
+interface AccountOverviewProps {
+  /** The saved products, newest first (wishlist spec). */
+  wishlist: ProductCard[];
+}
+
 /**
- * The My Account tab (design `#panelWishlist` + `#panelOrders`): section heads and empty states.
- * The wishlist and order-history specs fill these sections with data.
+ * The My Account tab (design `#panelWishlist` + `#panelOrders`): the wishlist, then the order
+ * history head and empty state. The order-history spec fills the second section with data.
  */
-export function AccountOverview() {
+export function AccountOverview({ wishlist }: AccountOverviewProps) {
   return (
     <>
-      <section id={SECTION_IDS.wishlist} aria-labelledby="account-wishlist-title" className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h2 id="account-wishlist-title" className={styles.sectionTitle}>
-            {texts.wishlist}
-          </h2>
-          <span className={styles.count}>{texts.savedCount(0)}</span>
-        </div>
-        <p className={styles.empty}>
-          {texts.wishlistEmptyStart}
-          <Link href={categoryHref('surfboards')} className={styles.emptyLink}>
-            {texts.surfboards}
-          </Link>
-          {texts.or}
-          <Link href={categoryHref('clothing')} className={styles.emptyLink}>
-            {texts.apparel}
-          </Link>
-          {texts.wishlistEmptyEnd}
-        </p>
-      </section>
+      <WishlistSection id={SECTION_IDS.wishlist} items={wishlist} />
 
       <section id={SECTION_IDS.orders} aria-labelledby="account-orders-title" className={styles.ordersSection}>
         <div className={styles.sectionHead}>

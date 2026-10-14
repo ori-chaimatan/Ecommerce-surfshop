@@ -41,7 +41,7 @@ export async function strapiFetch(
 interface StrapiRequestOptions {
   /** Prefix for log lines, e.g. "cart". */
   label: string;
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   /** Sent as JSON. */
   body?: unknown;
   headers?: Record<string, string>;

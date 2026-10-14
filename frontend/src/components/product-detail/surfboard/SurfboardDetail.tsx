@@ -80,7 +80,7 @@ export const SurfboardDetail = ({ detail }: ISurfboardDetailProps): React.JSX.El
 
         <SurfboardGallery images={detail.images} name={detail.name} />
 
-        <SurfboardBuyPanel documentId={detail.documentId} price={detail.price} sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
+        <SurfboardBuyPanel documentId={detail.documentId} slug={detail.slug} price={detail.price} sizes={detail.sizes} defaultSizeIndex={detail.defaultSizeIndex} />
       </div>
     </section>
   );

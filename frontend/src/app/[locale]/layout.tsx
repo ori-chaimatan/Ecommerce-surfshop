@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CartProvider } from "@/components/cart";
 import { getSession } from "@/lib/auth/session";
 import { SiteNav } from "@/components/site-nav";
+import { WishlistProvider } from "@/components/wishlist";
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -36,8 +37,10 @@ export default function RootLayout({
       </head>
       <body className="font-[Inter,sans-serif] antialiased">
         <CartProvider signedIn={getSession() !== null}>
-          <SiteNav />
-          {children}
+          <WishlistProvider signedIn={getSession() !== null}>
+            <SiteNav />
+            {children}
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

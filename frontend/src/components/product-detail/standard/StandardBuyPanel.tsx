@@ -1,13 +1,14 @@
 'use client';
 
 import { useId, useState } from 'react';
+import { WishlistButton } from '@/components/wishlist';
 import { ButtonCTA } from '@/shared/components/button-cta';
 import { texts } from '../product-detail-texts';
 import { useAddToCart } from '../shared/use-add-to-cart';
 import { styles } from './standard-buy-panel.styles';
 import type { IStandardBuyPanelProps } from './standard.types';
 
-export const StandardBuyPanel = ({ documentId, sizes, defaultSizeIndex }: IStandardBuyPanelProps): React.JSX.Element => {
+export const StandardBuyPanel = ({ documentId, slug, sizes, defaultSizeIndex }: IStandardBuyPanelProps): React.JSX.Element => {
   const [selected, setSelected] = useState(defaultSizeIndex);
   const labelId = useId();
   const inStock = defaultSizeIndex >= 0;
@@ -59,11 +60,14 @@ export const StandardBuyPanel = ({ documentId, sizes, defaultSizeIndex }: IStand
       )}
 
       <div className={styles.buy}>
-        <ButtonCTA
-          text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
-          disabled={!inStock || adding || !current}
-          onClick={() => current && void addSize(current.key)}
-        />
+        <div className={styles.actions}>
+          <ButtonCTA
+            text={!inStock ? texts.soldOut : adding ? texts.adding : texts.addToCart}
+            disabled={!inStock || adding || !current}
+            onClick={() => current && void addSize(current.key)}
+          />
+          {slug && <WishlistButton slug={slug} variant="icon" />}
+        </div>
         {message && (
           <p role="alert" className={styles.error}>
             {message}

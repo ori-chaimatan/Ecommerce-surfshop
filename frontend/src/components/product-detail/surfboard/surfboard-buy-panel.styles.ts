@@ -10,4 +10,6 @@ export const styles = {
   buyRow: 'flex flex-wrap items-center justify-between gap-3.5 border-t border-border pt-[18px]',
   price: 'm-0 border-b-2 border-ink pb-0.5 text-2xl font-bold tabular-nums text-ink',
   error: 'mb-0 mt-2.5 text-[13px] text-danger',
+  /** Design `.pdp-actions-row` (Share is out of scope, so the Wishlist button fills it). */
+  actionsRow: 'mt-4 flex gap-2.5',
 } as const;

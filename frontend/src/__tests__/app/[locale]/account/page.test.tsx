@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getMe: vi.fn(),
+  getWishlist: vi.fn(),
   redirect: vi.fn((url: string) => {
     throw new Error(`redirect:${url}`);
   }),
 }));
 vi.mock('@/lib/auth/session', () => ({ getSession: mocks.getSession }));
 vi.mock('@/lib/strapi/account', () => ({ getMe: mocks.getMe }));
+vi.mock('@/lib/strapi/wishlist', () => ({ getWishlist: mocks.getWishlist }));
 vi.mock('next/navigation', () => ({ redirect: mocks.redirect }));
 vi.mock('@/components/account', () => ({ AccountPage: (props: object) => ({ type: 'AccountPage', props }) }));
 
@@ -39,8 +41,21 @@ describe('/account page (account-profile AC1, AC2)', () => {
     mocks.getSession.mockReturnValue({ jwt: 'jwt-1' });
     mocks.getMe.mockResolvedValue(account);
 
-    const element = (await AccountRoute()) as { props: { account: object } };
+    mocks.getWishlist.mockResolvedValue([{ slug: 'samurai' }]);
+
+    const element = (await AccountRoute()) as { props: { account: object; wishlist: object[] } };
     expect(mocks.getMe).toHaveBeenCalledWith('jwt-1');
     expect(element.props.account).toEqual(account);
+    expect(mocks.getWishlist).toHaveBeenCalledWith('jwt-1');
+    expect(element.props.wishlist).toEqual([{ slug: 'samurai' }]);
+  });
+
+  it('renders an empty wishlist when Strapi fails to return it (wishlist AC5)', async () => {
+    mocks.getSession.mockReturnValue({ jwt: 'jwt-1' });
+    mocks.getMe.mockResolvedValue({ email: 'jamie@example.com', firstName: 'Jamie', lastName: 'Rivera' });
+    mocks.getWishlist.mockResolvedValue(null);
+
+    const element = (await AccountRoute()) as { props: { wishlist: object[] } };
+    expect(element.props.wishlist).toEqual([]);
   });
 });

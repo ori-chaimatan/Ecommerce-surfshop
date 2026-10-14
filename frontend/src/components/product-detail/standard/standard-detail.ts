@@ -12,6 +12,8 @@ const SIZE_ORDER: StandardSizeValue[] = ['S', 'M', 'L', 'XL', 'OneSize'];
 export interface StandardDetail {
   /** The product's Strapi documentId, for Add to Cart. */
   documentId: string;
+  /** The product's slug, for the wishlist control (empty when Strapi didn't return it). */
+  slug: string;
   name: string;
   price: string;
   category: { name: string; href: string };
@@ -44,6 +46,7 @@ export function toStandardDetail(product: StrapiProductDetail): StandardDetail |
 
   return {
     documentId,
+    slug: product.Slug ?? '',
     name: Name,
     price: formatPrice(price),
     category: { name: Category.Name, href: categoryHref(Category.Slug) },

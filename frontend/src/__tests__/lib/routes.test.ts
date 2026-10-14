@@ -11,6 +11,7 @@ import {
   LOGIN_HREF,
   LOGOUT_API_HREF,
   PRODUCTS_HREF,
+  WISHLIST_API_HREF,
   WISHLIST_HREF,
   catalogHref,
   categoryHref,
@@ -18,6 +19,7 @@ import {
   productHref,
   subcategoryGenderHref,
   subcategoryHref,
+  wishlistItemApiHref,
 } from '@/lib/routes';
 
 describe('routes', () => {
@@ -53,6 +55,12 @@ describe('routes', () => {
   it('exposes the account page and the routes it calls (account-profile AC1, AC3, AC9)', () => {
     expect([ACCOUNT_HREF, ACCOUNT_PROFILE_API_HREF, LOGOUT_API_HREF]).toEqual(['/account', '/api/account/profile', '/api/auth/logout']);
     expect(WISHLIST_HREF.startsWith(`${ACCOUNT_HREF}#`)).toBe(true);
+  });
+
+  it('exposes the wishlist route handlers (wishlist AC1, AC9)', () => {
+    expect(WISHLIST_API_HREF).toBe('/api/wishlist');
+    expect(wishlistItemApiHref('samurai')).toBe('/api/wishlist/items/samurai');
+    expect(wishlistItemApiHref('a b')).toBe('/api/wishlist/items/a%20b');
   });
 
   describe('catalogHref (catalog-listing-page AC1, AC3, AC7)', () => {

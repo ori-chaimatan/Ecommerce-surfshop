@@ -28,6 +28,12 @@ export const CHECKOUT_API_HREF = '/api/checkout';
 export const ACCOUNT_PROFILE_API_HREF = '/api/account/profile';
 /** The auth area's sign-out route handler (app/api/auth). */
 export const LOGOUT_API_HREF = '/api/auth/logout';
+/** The storefront's wishlist route handlers (app/api/wishlist). */
+export const WISHLIST_API_HREF = '/api/wishlist';
+
+export function wishlistItemApiHref(slug: string) {
+  return `${WISHLIST_API_HREF}/items/${encodeURIComponent(slug)}`;
+}
 
 const withNext = (path: string, next?: string) => (next ? `${path}?next=${encodeURIComponent(next)}` : path);
 

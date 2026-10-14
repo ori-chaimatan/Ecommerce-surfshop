@@ -2,10 +2,11 @@ import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AccountOverview } from '@/components/account/AccountOverview';
 import { SECTION_IDS } from '@/components/account/use-account-tab';
+import { inWishlist } from '../wishlist/wishlist-test-utils';
 
 describe('AccountOverview (account-profile AC13)', () => {
   it('renders Wishlist first, then Order History, as scroll targets', () => {
-    const { container } = render(<AccountOverview />);
+    const { container } = render(inWishlist(<AccountOverview wishlist={[]} />));
     const sections = container.querySelectorAll('section');
 
     expect(Array.from(sections).map((section) => section.id)).toEqual([SECTION_IDS.wishlist, SECTION_IDS.orders]);
@@ -14,7 +15,7 @@ describe('AccountOverview (account-profile AC13)', () => {
   });
 
   it("shows the wishlist's empty state with a 0 saved count and links to Surfboards and Apparel", () => {
-    render(<AccountOverview />);
+    render(inWishlist(<AccountOverview wishlist={[]} />));
 
     expect(screen.getByText('0 saved')).toBeInTheDocument();
     expect(screen.getByText(/Your wishlist is empty\. Browse/)).toHaveTextContent(
@@ -25,7 +26,7 @@ describe('AccountOverview (account-profile AC13)', () => {
   });
 
   it("shows the order history's empty state", () => {
-    render(<AccountOverview />);
+    render(inWishlist(<AccountOverview wishlist={[]} />));
     expect(screen.getByText("You haven't placed any orders yet.")).toBeInTheDocument();
   });
 });

@@ -11,6 +11,7 @@ export interface ISurfboardGalleryProps {
 
 export interface ISurfboardBuyPanelProps {
   documentId: string;
+  slug: string;
   price: string;
   sizes: SurfboardDetail['sizes'];
   defaultSizeIndex: number;

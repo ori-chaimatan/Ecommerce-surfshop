@@ -2,6 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { cartContext, renderWithCart } from '../../cart/cart-test-utils';
 import { SurfboardBuyPanel } from '@/components/product-detail/surfboard/SurfboardBuyPanel';
+import { fakeWishlist, inWishlist } from '../../wishlist/wishlist-test-utils';
 
 const SIZES = [
   { label: '5\'10" · 27.6L', soldOut: true, key: '5-10-27.6' },
@@ -15,7 +16,7 @@ function select() {
 
 describe('SurfboardBuyPanel (AC11)', () => {
   it('lists every size in order, disabling sold-out ones, and selects the first in-stock size', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     const options = screen.getAllByRole('option') as HTMLOptionElement[];
     expect(options.map((option) => option.textContent)).toEqual(['5\'10" · 27.6L — Sold out', '6\'0" · 29.4L', '6\'2" · 31L']);
@@ -24,7 +25,7 @@ describe('SurfboardBuyPanel (AC11)', () => {
   });
 
   it('changes the selected size', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     fireEvent.change(select(), { target: { value: '2' } });
 
@@ -32,7 +33,7 @@ describe('SurfboardBuyPanel (AC11)', () => {
   });
 
   it('shows the price and an enabled Add to Cart button', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     expect(screen.getByText('$829')).toBeInTheDocument();
     const button = screen.getByRole('button', { name: 'Add to Cart' });
@@ -41,13 +42,13 @@ describe('SurfboardBuyPanel (AC11)', () => {
   });
 
   it('uses the shared ButtonCTA styling for Add to Cart', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     expect(screen.getByRole('button', { name: 'Add to Cart' })).toHaveClass('bg-horizon', 'rounded-[9px]', 'border-2', 'tracking-[0.02em]', 'disabled:bg-muted');
   });
 
   it('disables the select and shows a disabled Sold out button when nothing is in stock', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={[{ label: '6\'0" · 29.4L', soldOut: true, key: '6-0-29.4' }]} defaultSizeIndex={-1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={[{ label: '6\'0" · 29.4L', soldOut: true, key: '6-0-29.4' }]} defaultSizeIndex={-1} />));
 
     expect(select()).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Sold out' })).toBeDisabled();
@@ -55,14 +56,14 @@ describe('SurfboardBuyPanel (AC11)', () => {
   });
 
   it('has no select and a disabled Sold out button when there are no sizes', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={[]} defaultSizeIndex={-1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={[]} defaultSizeIndex={-1} />));
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sold out' })).toBeDisabled();
   });
 
   it('shows the trust list', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
       'Free shipping over $75',
@@ -71,18 +72,19 @@ describe('SurfboardBuyPanel (AC11)', () => {
     ]);
   });
 
-  it('has no wishlist, share or extra selects (AC12)', () => {
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />);
+  it('has the Wishlist button but no share or extra selects (AC12; wishlist AC2 adds the button)', () => {
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />));
 
     expect(screen.getAllByRole('combobox')).toHaveLength(1);
-    expect(screen.queryByText(/wishlist|share|material|fin system|more options/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/share|material|fin system|more options/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add to wishlist' })).toHaveTextContent('Wishlist');
   });
 });
 
 describe('SurfboardBuyPanel Add to Cart (add-to-cart AC9)', () => {
   it('adds the selected board size to the cart', async () => {
     const value = cartContext();
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />, value);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />), value);
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Dimensions' }), { target: { value: '2' } });
     await act(async () => {
@@ -95,7 +97,7 @@ describe('SurfboardBuyPanel Add to Cart (add-to-cart AC9)', () => {
   it('reads "Adding…" and is disabled while the request runs', async () => {
     let finish: (result: 'added') => void = () => {};
     const value = cartContext({ add: vi.fn(() => new Promise<'added'>((resolve) => (finish = resolve))) });
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />, value);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />), value);
 
     fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
     expect(screen.getByRole('button', { name: 'Adding…' })).toBeDisabled();
@@ -105,7 +107,7 @@ describe('SurfboardBuyPanel Add to Cart (add-to-cart AC9)', () => {
 
   it('explains a failure and a size that just sold out', async () => {
     const add = vi.fn().mockResolvedValueOnce('error').mockResolvedValueOnce('sold-out');
-    renderWithCart(<SurfboardBuyPanel documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />, cartContext({ add }));
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />), cartContext({ add }));
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
@@ -117,5 +119,17 @@ describe('SurfboardBuyPanel Add to Cart (add-to-cart AC9)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
     });
     expect(screen.getByRole('alert')).toHaveTextContent('This size just sold out.');
+  });
+});
+
+describe('SurfboardBuyPanel wishlist (wishlist AC2)', () => {
+  it('shows the saved state and toggles this product', () => {
+    const wishlist = fakeWishlist(['tideline']);
+    renderWithCart(inWishlist(<SurfboardBuyPanel slug="tideline" documentId="board-doc" price="$829" sizes={SIZES} defaultSizeIndex={1} />, wishlist));
+
+    const button = screen.getByRole('button', { name: 'Remove from wishlist' });
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(button);
+    expect(wishlist.toggle).toHaveBeenCalledWith('tideline');
   });
 });

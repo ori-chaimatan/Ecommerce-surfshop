@@ -5,7 +5,7 @@ import { buildNavMenu } from '@/components/site-nav/nav-menu';
 import { categoryHref } from '@/lib/routes';
 import { getNavigation } from '@/lib/strapi/navigation';
 import { getProductList } from '@/lib/strapi/products';
-import { ProductCard } from '@/shared/components/product-card';
+import { WishlistProductCard } from '@/components/wishlist';
 import {
   buildBreadcrumb,
   buildPagination,
@@ -93,7 +93,7 @@ export const CatalogPage = async ({ categorySlug, searchParams }: ICatalogPagePr
             ) : (
               <div className={styles.grid}>
                 {view.list.products.map((product, index) => (
-                  <ProductCard key={product.slug} product={product} priority={index < PRIORITY_CARDS} />
+                  <WishlistProductCard key={product.slug} product={product} priority={index < PRIORITY_CARDS} />
                 ))}
               </div>
             )}

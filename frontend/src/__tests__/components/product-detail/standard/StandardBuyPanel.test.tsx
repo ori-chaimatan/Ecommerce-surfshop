@@ -2,6 +2,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { cartContext, renderWithCart } from '../../cart/cart-test-utils';
 import { StandardBuyPanel } from '@/components/product-detail/standard/StandardBuyPanel';
+import { fakeWishlist, inWishlist } from '../../wishlist/wishlist-test-utils';
 
 const SIZES = [
   { label: 'S', soldOut: true, lowStock: false, key: 'S' },
@@ -16,7 +17,7 @@ function sizeGroup() {
 
 describe('StandardBuyPanel sizes (AC11)', () => {
   it('renders one button per size in order and selects the default', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     const buttons = within(sizeGroup()).getAllByRole('button');
     expect(buttons.map((button) => button.textContent)).toEqual(['S', 'M', 'L!', 'XL']);
@@ -26,7 +27,7 @@ describe('StandardBuyPanel sizes (AC11)', () => {
   });
 
   it('selects a size on click and updates the label', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     fireEvent.click(within(sizeGroup()).getByRole('button', { name: 'XL' }));
 
@@ -36,7 +37,7 @@ describe('StandardBuyPanel sizes (AC11)', () => {
   });
 
   it('lays the grid out 5 across, 4 at ≤420px', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     expect(sizeGroup().querySelector('.grid')).toHaveClass('grid-cols-5', 'gap-2', 'max-[420px]:grid-cols-4');
   });
@@ -44,7 +45,7 @@ describe('StandardBuyPanel sizes (AC11)', () => {
 
 describe('StandardBuyPanel stock (AC12)', () => {
   it('disables a sold-out size, strikes it through and names it as sold out', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     const soldOut = within(sizeGroup()).getByRole('button', { name: 'S — Sold out' });
     expect(soldOut).toBeDisabled();
@@ -54,7 +55,7 @@ describe('StandardBuyPanel stock (AC12)', () => {
   });
 
   it('flags a low-stock size and shows the note only while it is selected', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     const low = within(sizeGroup()).getByRole('button', { name: 'L — Low stock' });
     expect(within(low).getByText('!')).toHaveClass('bg-danger');
@@ -68,7 +69,7 @@ describe('StandardBuyPanel stock (AC12)', () => {
   });
 
   it('shows the low-stock note straight away when the default size is low', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={2} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={2} />));
 
     expect(screen.getByText('Low stock')).toBeInTheDocument();
   });
@@ -76,7 +77,7 @@ describe('StandardBuyPanel stock (AC12)', () => {
 
 describe('StandardBuyPanel Add to Cart (AC12, AC13)', () => {
   it('is an enabled Add to Cart button while a size is in stock', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
 
     const cta = screen.getByRole('button', { name: 'Add to Cart' });
     expect(cta).toBeEnabled();
@@ -85,7 +86,7 @@ describe('StandardBuyPanel Add to Cart (AC12, AC13)', () => {
 
   it('reads "Sold out" and is disabled when every size is sold out', () => {
     const allSoldOut = SIZES.map((size) => ({ ...size, soldOut: true, lowStock: false }));
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={allSoldOut} defaultSizeIndex={-1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={allSoldOut} defaultSizeIndex={-1} />));
 
     expect(screen.getByRole('button', { name: 'Sold out' })).toBeDisabled();
     expect(within(sizeGroup()).queryByRole('button', { pressed: true })).not.toBeInTheDocument();
@@ -93,7 +94,7 @@ describe('StandardBuyPanel Add to Cart (AC12, AC13)', () => {
   });
 
   it('has no size grid and a disabled "Sold out" button when there are no sizes', () => {
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={[]} defaultSizeIndex={-1} />);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={[]} defaultSizeIndex={-1} />));
 
     expect(screen.queryByRole('group')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sold out' })).toBeDisabled();
@@ -103,7 +104,7 @@ describe('StandardBuyPanel Add to Cart (AC12, AC13)', () => {
 describe('StandardBuyPanel Add to Cart (add-to-cart AC9)', () => {
   it('adds the selected size to the cart', async () => {
     const value = cartContext();
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />, value);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />), value);
 
     fireEvent.click(within(sizeGroup()).getByRole('button', { name: 'XL' }));
     await act(async () => {
@@ -115,7 +116,7 @@ describe('StandardBuyPanel Add to Cart (add-to-cart AC9)', () => {
   it('reads "Adding…" and is disabled while the request runs', async () => {
     let finish: (result: 'added') => void = () => {};
     const value = cartContext({ add: vi.fn(() => new Promise<'added'>((resolve) => (finish = resolve))) });
-    renderWithCart(<StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />, value);
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />), value);
 
     fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
     expect(screen.getByRole('button', { name: 'Adding…' })).toBeDisabled();
@@ -123,8 +124,7 @@ describe('StandardBuyPanel Add to Cart (add-to-cart AC9)', () => {
   });
 
   it('explains a size that just sold out, and clears the message on a new size', async () => {
-    renderWithCart(
-      <StandardBuyPanel documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />,
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />),
       cartContext({ add: vi.fn(async () => 'sold-out' as const) })
     );
 
@@ -135,5 +135,22 @@ describe('StandardBuyPanel Add to Cart (add-to-cart AC9)', () => {
 
     fireEvent.click(within(sizeGroup()).getByRole('button', { name: 'XL' }));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});
+
+describe('StandardBuyPanel wishlist (wishlist AC2)', () => {
+  it('puts the icon wishlist button beside Add to Cart, toggling this product', () => {
+    const wishlist = fakeWishlist();
+    renderWithCart(inWishlist(<StandardBuyPanel slug="samurai" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />, wishlist));
+
+    const heart = screen.getByRole('button', { name: 'Add to wishlist' });
+    expect(heart.parentElement).toBe(screen.getByRole('button', { name: 'Add to Cart' }).parentElement);
+    fireEvent.click(heart);
+    expect(wishlist.toggle).toHaveBeenCalledWith('samurai');
+  });
+
+  it('shows no wishlist button without a slug', () => {
+    renderWithCart(inWishlist(<StandardBuyPanel slug="" documentId="shorts-doc" sizes={SIZES} defaultSizeIndex={1} />));
+    expect(screen.queryByRole('button', { name: /wishlist/i })).toBeNull();
   });
 });
