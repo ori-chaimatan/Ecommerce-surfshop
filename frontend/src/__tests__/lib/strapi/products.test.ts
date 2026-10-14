@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PAGE_SIZE, getProductList } from '@/lib/strapi/products';
+import { FEATURED_LIMIT, PAGE_SIZE, getFeaturedProducts, getProductList } from '@/lib/strapi/products';
 
 const mockFetch = vi.fn();
 
@@ -119,5 +119,54 @@ describe('getProductList', () => {
 
     mockFetch.mockResolvedValueOnce(strapiResponse({ data: [product('a')] }));
     await expect(getProductList({ page: 1 })).resolves.toBeNull();
+  });
+});
+
+const featuredFetch = vi.fn();
+const featuredJson = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+const featuredProduct = (slug: string, extra: object = {}) => ({
+  Name: `Product ${slug}`,
+  Slug: slug,
+  Price: 79,
+  Images: [{ url: `/uploads/${slug}.jpg`, width: 800, height: 1000 }],
+  Category: { Slug: 'clothing' },
+  ...extra,
+});
+
+describe('getFeaturedProducts (home-featured-gear AC1, AC4)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', featuredFetch);
+    featuredFetch.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('asks for Featured products, newest first, up to 8, with the card fields', async () => {
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: [featuredProduct('a'), featuredProduct('b')] }));
+
+    const cards = await getFeaturedProducts();
+
+    expect(cards?.map((card) => card.slug)).toEqual(['a', 'b']);
+    const url = decodeURIComponent(featuredFetch.mock.calls[0][0] as string);
+    expect(url).toContain('filters[Featured][$eq]=true');
+    expect(url).toContain('sort[0]=updatedAt:desc');
+    expect(url).toContain(`pagination[pageSize]=${FEATURED_LIMIT}`);
+    expect(url).toContain('populate[Images][fields][0]=url');
+    expect(FEATURED_LIMIT).toBe(8);
+  });
+
+  it('drops products the card mapper rejects', async () => {
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: [featuredProduct('ok'), featuredProduct('no-image', { Images: [] })] }));
+    expect((await getFeaturedProducts())?.map((card) => card.slug)).toEqual(['ok']);
+  });
+
+  it('returns null when Strapi fails or answers with a bad shape', async () => {
+    featuredFetch.mockResolvedValueOnce(featuredJson({}, 500));
+    expect(await getFeaturedProducts()).toBeNull();
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: 'nope' }));
+    expect(await getFeaturedProducts()).toBeNull();
   });
 });

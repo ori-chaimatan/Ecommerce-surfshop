@@ -4,11 +4,17 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import seed from '../../scripts/seed-homepage.js';
 
-const { HOMEPAGE_UID, assertNotProduction, readSlides, seedHomepage, slideImagePath } = seed as {
+const { HOMEPAGE_UID, assertNotProduction, readFeatured, readSlides, seedHomepage, slideImagePath } = seed as {
+  readFeatured: (dir?: string) => { FeaturedEyebrow: string | null; FeaturedTitle: string | null };
   HOMEPAGE_UID: string;
   assertNotProduction: () => void;
   readSlides: (dir: string) => { key: string; Title: string; Button: { Text: string; LinkUrl: string } }[];
-  seedHomepage: (strapi: unknown, slides: unknown[], deps: { imageFor: (slide: { key: string; Title: string }) => Promise<number>; removeUploads: (ids: number[]) => Promise<void> }) => Promise<'created' | 'skipped'>;
+  seedHomepage: (
+    strapi: unknown,
+    slides: unknown[],
+    deps: { imageFor: (slide: { key: string; Title: string }) => Promise<number>; removeUploads: (ids: number[]) => Promise<void> },
+    featured?: { FeaturedEyebrow?: string | null; FeaturedTitle?: string | null }
+  ) => Promise<'created' | 'skipped'>;
   slideImagePath: (dir: string, key: string) => string | null;
 };
 
@@ -39,6 +45,14 @@ describe('seedHomepage (home-hero: home shows the hero on a fresh DB)', () => {
         ],
       },
     });
+  });
+
+  it('sets the Featured gear section copy when given (home-featured-gear AC1)', async () => {
+    const { strapi, homepage } = fakeStrapi();
+
+    await seedHomepage(strapi, SLIDES, { imageFor: vi.fn(async () => 11), removeUploads: vi.fn() }, { FeaturedEyebrow: 'New in', FeaturedTitle: 'Featured gear' });
+
+    expect(homepage.create.mock.calls[0][0]).toMatchObject({ data: { FeaturedEyebrow: 'New in', FeaturedTitle: 'Featured gear' } });
   });
 
   it('is create-only: an existing homepage is left untouched and nothing is uploaded', async () => {
@@ -77,6 +91,10 @@ describe('seed data and guards', () => {
       ['Find your Surfboard', 'Take the Finder', '/surfboard-finder'],
       ['The Dawn Patrol Collection', 'Shop the Collection', '/products'],
     ]);
+  });
+
+  it('ships the Featured gear copy from the design (home-featured-gear AC1)', () => {
+    expect(readFeatured(path.join(__dirname, '..', '..', 'seed', 'homepage'))).toEqual({ FeaturedEyebrow: 'New in', FeaturedTitle: 'Featured gear' });
   });
 
   it('rejects unsafe slide keys', () => {

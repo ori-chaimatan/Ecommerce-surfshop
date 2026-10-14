@@ -558,6 +558,8 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    FeaturedEyebrow: Schema.Attribute.String;
+    FeaturedTitle: Schema.Attribute.String;
     Hero: Schema.Attribute.Component<'shared.carousel-hero', true> &
       Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;

@@ -56,3 +56,26 @@ export async function getProductList(query: ProductListQuery): Promise<ProductLi
     pageCount,
   };
 }
+
+/** The Home "Featured gear" slider shows at most this many products. */
+export const FEATURED_LIMIT = 8;
+
+/** Products with `Featured` on, newest first (home-featured-gear). Null when Strapi fails. */
+export async function getFeaturedProducts(): Promise<ProductCard[] | null> {
+  const params = new URLSearchParams({
+    'fields[0]': 'Name',
+    'fields[1]': 'Slug',
+    'fields[2]': 'Price',
+    'populate[Images][fields][0]': 'url',
+    'populate[Images][fields][1]': 'width',
+    'populate[Images][fields][2]': 'height',
+    'populate[Category][fields][0]': 'Slug',
+    'filters[Featured][$eq]': 'true',
+    'sort[0]': 'updatedAt:desc',
+    'pagination[page]': '1',
+    'pagination[pageSize]': String(FEATURED_LIMIT),
+  });
+  const json = (await strapiFetch(`products?${params.toString()}`, { label: 'featured-products', fallback: null })) as RawProductPage | null;
+  if (!Array.isArray(json?.data)) return null;
+  return json.data.map((product) => toProductCard(product)).filter((card): card is ProductCard => card !== null);
+}

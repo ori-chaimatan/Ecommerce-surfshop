@@ -1,4 +1,6 @@
 {
+  "FeaturedEyebrow": "New in",
+  "FeaturedTitle": "Featured gear",
   "slides": [
     { "key": "westline", "Title": "Westline", "Button": { "Text": "Shop Now", "LinkUrl": "/products" } },
     { "key": "find-your-surfboard", "Title": "Find your Surfboard", "Button": { "Text": "Take the Finder", "LinkUrl": "/surfboard-finder" } },

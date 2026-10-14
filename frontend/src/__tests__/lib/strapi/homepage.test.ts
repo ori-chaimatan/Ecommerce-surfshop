@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getHomepageHero } from '@/lib/strapi/homepage';
+import { getHomepageFeaturedText, getHomepageHero } from '@/lib/strapi/homepage';
 
 const mockFetch = vi.fn();
 
@@ -155,5 +155,34 @@ describe('getHomepageHero', () => {
 
     mockFetch.mockResolvedValue(strapiResponse({ data: { Hero: 'nope' } }));
     await expect(getHomepageHero()).resolves.toEqual([]);
+  });
+});
+
+const featuredFetch = vi.fn();
+const featuredJson = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+
+describe('getHomepageFeaturedText (home-featured-gear AC1)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', featuredFetch);
+    featuredFetch.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('reads only the two section fields from the homepage', async () => {
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: { FeaturedEyebrow: ' New in ', FeaturedTitle: 'Featured gear' } }));
+    await expect(getHomepageFeaturedText()).resolves.toEqual({ eyebrow: 'New in', title: 'Featured gear' });
+    const url = decodeURIComponent(featuredFetch.mock.calls[0][0] as string);
+    expect(url).toMatch(/\/api\/homepage\?fields\[0\]=FeaturedEyebrow&fields\[1\]=FeaturedTitle$/);
+  });
+
+  it('returns empty strings for missing fields, and null without a homepage', async () => {
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: {} }));
+    await expect(getHomepageFeaturedText()).resolves.toEqual({ eyebrow: '', title: '' });
+    featuredFetch.mockResolvedValueOnce(featuredJson({ data: null }, 404));
+    await expect(getHomepageFeaturedText()).resolves.toBeNull();
   });
 });

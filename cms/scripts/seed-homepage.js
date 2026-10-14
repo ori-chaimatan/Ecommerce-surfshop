@@ -29,6 +29,12 @@ function assertNotProduction() {
 }
 
 // Keys name image files, so they must stay plain: no `..`, no separators.
+/** The Featured gear section copy (home-featured-gear), optional. */
+function readFeatured(dir = SEED_DIR) {
+  const { FeaturedEyebrow = null, FeaturedTitle = null } = JSON.parse(fs.readFileSync(path.join(dir, 'homepage.json'), 'utf8'));
+  return { FeaturedEyebrow, FeaturedTitle };
+}
+
 function readSlides(dir = SEED_DIR) {
   const { slides } = JSON.parse(fs.readFileSync(path.join(dir, 'homepage.json'), 'utf8'));
   for (const slide of slides) {
@@ -105,7 +111,7 @@ async function removeUploads(strapi, ids) {
 }
 
 /** Creates the homepage unless one exists. `deps` is injectable so the rule is testable without Strapi. */
-async function seedHomepage(strapi, slides, deps) {
+async function seedHomepage(strapi, slides, deps, featured = {}) {
   const homepage = strapi.documents(HOMEPAGE_UID);
   if (await homepage.findFirst()) return 'skipped';
 
@@ -114,6 +120,7 @@ async function seedHomepage(strapi, slides, deps) {
     for (const slide of slides) imageIds.push(await deps.imageFor(slide));
     await homepage.create({
       data: {
+        ...featured,
         Hero: slides.map((slide, index) => ({
           Title: slide.Title,
           BackgroundImg: imageIds[index],
@@ -141,7 +148,7 @@ async function main() {
     result = await seedHomepage(strapi, slides, {
       imageFor: (slide) => slideImageId(strapi, slide),
       removeUploads: (ids) => removeUploads(strapi, ids),
-    });
+    }, readFeatured());
   } finally {
     await strapi.destroy();
   }
@@ -153,7 +160,7 @@ async function main() {
   );
 }
 
-module.exports = { HOMEPAGE_UID, assertNotProduction, readSlides, seedHomepage, slideImagePath };
+module.exports = { HOMEPAGE_UID, assertNotProduction, readFeatured, readSlides, seedHomepage, slideImagePath };
 
 // Exit explicitly: Strapi leaves background timers running after destroy() (see seed-catalog.js).
 if (require.main === module) {

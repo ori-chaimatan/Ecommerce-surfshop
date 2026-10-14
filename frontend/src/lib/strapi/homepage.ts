@@ -48,3 +48,19 @@ export async function getHomepageHero(): Promise<HeroSlide[]> {
 
   return heroes.map(normalizeHero).filter((hero): hero is HeroSlide => hero !== null);
 }
+
+const FEATURED_TEXT_QUERY = new URLSearchParams({ 'fields[0]': 'FeaturedEyebrow', 'fields[1]': 'FeaturedTitle' }).toString();
+
+/** The Home "Featured gear" eyebrow and title (home-featured-gear); empty strings when not set, null without a homepage. */
+export async function getHomepageFeaturedText(): Promise<{ eyebrow: string; title: string } | null> {
+  const json = (await strapiFetch(`homepage?${FEATURED_TEXT_QUERY}`, {
+    label: 'homepage',
+    fallback: null,
+    silentStatuses: [404],
+  })) as { data?: { FeaturedEyebrow?: unknown; FeaturedTitle?: unknown } | null } | null;
+
+  const data = json?.data;
+  if (!data || typeof data !== 'object') return null;
+  const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+  return { eyebrow: text(data.FeaturedEyebrow), title: text(data.FeaturedTitle) };
+}

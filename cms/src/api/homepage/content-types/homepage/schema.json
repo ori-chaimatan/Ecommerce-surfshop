@@ -17,6 +17,12 @@
       "component": "shared.carousel-hero",
       "repeatable": true,
       "required": true
+    },
+    "FeaturedEyebrow": {
+      "type": "string"
+    },
+    "FeaturedTitle": {
+      "type": "string"
     }
   }
 }
