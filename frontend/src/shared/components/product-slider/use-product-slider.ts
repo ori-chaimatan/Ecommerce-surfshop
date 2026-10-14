@@ -8,8 +8,8 @@ export function stepCount(scrollWidth: number, clientWidth: number, step: number
   return max > 1 && step > 0 ? Math.round(max / step) + 1 : 1;
 }
 
-/** Arrow, dot and paging state for the Featured gear track (design index.html slider script). */
-export function useFeaturedSlider() {
+/** Arrow, dot and paging state for a product track (the design's `.prod-slider` script). */
+export function useProductSlider() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState({ positions: 1, current: 0, atStart: true, atEnd: true });
 

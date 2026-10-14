@@ -1,8 +1,9 @@
+import { WishlistProductCard } from '@/components/wishlist';
 import { getHomepageFeaturedText } from '@/lib/strapi/homepage';
 import { getFeaturedProducts } from '@/lib/strapi/products';
+import { ProductSlider } from '@/shared/components/product-slider';
 import { styles } from './featured-gear.styles';
 import { texts } from './featured-gear-texts';
-import { FeaturedSlider } from './FeaturedSlider';
 
 /**
  * Home "Featured gear" (design index.html `section.featured`): the products marked Featured in
@@ -24,7 +25,11 @@ export const FeaturedGear = async (): Promise<React.JSX.Element | null> => {
             {title}
           </h2>
         </div>
-        <FeaturedSlider products={products} />
+        <ProductSlider>
+          {products.map((product) => (
+            <WishlistProductCard key={product.slug} product={product} />
+          ))}
+        </ProductSlider>
       </div>
     </section>
   );

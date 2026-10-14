@@ -2,8 +2,4 @@
 export const texts = {
   eyebrow: 'New in',
   title: 'Featured gear',
-  previous: 'Previous products',
-  next: 'Next products',
-  dotsLabel: 'Featured products',
-  goTo: (n: number) => `Go to slide ${n}`,
 };

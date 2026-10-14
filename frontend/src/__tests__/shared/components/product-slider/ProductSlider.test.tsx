@@ -1,10 +1,19 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FeaturedSlider } from '@/components/home/featured-gear/FeaturedSlider';
-import { stepCount } from '@/components/home/featured-gear/use-featured-slider';
-import { fakeWishlist, makeCard, withWishlist } from '../../wishlist/wishlist-test-utils';
+import { WishlistProductCard } from '@/components/wishlist';
+import { ProductSlider } from '@/shared/components/product-slider';
+import { stepCount } from '@/shared/components/product-slider/use-product-slider';
+import { fakeWishlist, makeCard, withWishlist } from '../../../components/wishlist/wishlist-test-utils';
 
 const CARDS = Array.from({ length: 6 }, (_, i) => makeCard(`board-${i + 1}`));
+
+const slider = (cards = CARDS) => (
+  <ProductSlider>
+    {cards.map((card) => (
+      <WishlistProductCard key={card.slug} product={card} />
+    ))}
+  </ProductSlider>
+);
 
 /** jsdom has no layout: give the track and its cards a size so the slider has something to measure. */
 function fakeLayout({ scrollWidth, clientWidth, cardWidth }: { scrollWidth: number; clientWidth: number; cardWidth: number }) {
@@ -27,13 +36,13 @@ describe('stepCount (home-featured-gear AC3, design: one dot per snap position)'
   });
 });
 
-describe('FeaturedSlider (home-featured-gear AC2, AC3)', () => {
+describe('ProductSlider (home-featured-gear AC2, AC3)', () => {
   let restore = () => {};
   afterEach(() => restore());
 
   it('renders every product as the shared card with the wishlist heart (AC2)', () => {
     const wishlist = fakeWishlist(['board-2']);
-    render(<FeaturedSlider products={CARDS} />, { wrapper: withWishlist(wishlist) });
+    render(slider(), { wrapper: withWishlist(wishlist) });
 
     expect(screen.getAllByRole('article')).toHaveLength(6);
     expect(screen.getAllByRole('button', { name: 'Remove from wishlist' })).toHaveLength(1);
@@ -43,7 +52,7 @@ describe('FeaturedSlider (home-featured-gear AC2, AC3)', () => {
 
   it('hides the arrows and dots when nothing overflows', () => {
     restore = fakeLayout({ scrollWidth: 1000, clientWidth: 1000, cardWidth: 250 });
-    render(<FeaturedSlider products={CARDS.slice(0, 4)} />, { wrapper: withWishlist(fakeWishlist()) });
+    render(slider(CARDS.slice(0, 4)), { wrapper: withWishlist(fakeWishlist()) });
 
     expect(screen.queryByRole('button', { name: 'Previous products' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Next products' })).toBeNull();
@@ -56,7 +65,7 @@ describe('FeaturedSlider (home-featured-gear AC2, AC3)', () => {
     const scrollBy = vi.fn();
     HTMLElement.prototype.scrollTo = scrollTo;
     HTMLElement.prototype.scrollBy = scrollBy;
-    render(<FeaturedSlider products={CARDS} />, { wrapper: withWishlist(fakeWishlist()) });
+    render(slider(), { wrapper: withWishlist(fakeWishlist()) });
 
     expect(screen.queryByRole('button', { name: 'Previous products' })).toBeNull();
     const dots = screen.getAllByRole('button', { name: /Go to slide/ });

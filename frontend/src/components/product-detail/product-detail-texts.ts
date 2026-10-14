@@ -7,6 +7,7 @@ export const texts = {
   home: 'Home',
   breadcrumbLabel: 'Breadcrumb',
   unavailable: "This product couldn't be loaded right now.",
+  relatedTitle: 'You might also like',
   fromTheShaper: 'From the shaper',
   readMore: 'Read more',
   readLess: 'Read less',

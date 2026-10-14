@@ -2,11 +2,13 @@ import { screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ProductBySlugResult, StrapiProductDetail } from '@/lib/strapi/product';
 import { renderWithCart } from '../cart/cart-test-utils';
-import { inWishlist } from '../wishlist/wishlist-test-utils';
+import { inWishlist, makeCard } from '../wishlist/wishlist-test-utils';
 
 const mockGetProductBySlug = vi.fn();
 
 vi.mock('@/lib/strapi/product', () => ({ getProductBySlug: (slug: string) => mockGetProductBySlug(slug) }));
+const mockGetFeatured = vi.fn(async (): Promise<unknown> => []);
+vi.mock('@/lib/strapi/products', () => ({ getFeaturedProducts: () => mockGetFeatured() }));
 vi.mock('next/navigation', () => ({
   notFound: () => {
     throw new Error('NEXT_NOT_FOUND');
@@ -298,6 +300,37 @@ describe('ProductDetailPage', () => {
       expect(screen.queryByText(/size chart|color|you might also like|details & features|see details|quantity/i)).not.toBeInTheDocument();
       // Wishlist is no longer hidden: wishlist AC2 adds the icon button beside Add to Cart.
       expect(screen.getByRole('button', { name: 'Add to wishlist' })).not.toHaveTextContent('Wishlist');
+    });
+  });
+
+  describe('"You might also like" (featured products, 2026-10-14)', () => {
+    it('shows the Featured products minus the one on the page, as cards with hearts', async () => {
+      mockGetFeatured.mockResolvedValueOnce([makeCard('tideline'), makeCard('samurai'), makeCard('two-happy')]);
+      await renderPage();
+
+      const rail = screen.getByRole('region', { name: 'You might also like' });
+      expect(within(rail).getAllByRole('article').map((card) => within(card).getByRole('heading', { level: 3 }).textContent)).toEqual([
+        'Product samurai',
+        'Product two-happy',
+      ]);
+      expect(within(rail).getAllByRole('button', { name: 'Add to wishlist' })).toHaveLength(2);
+    });
+
+    it('is hidden when nothing else is featured or Strapi fails', async () => {
+      mockGetFeatured.mockResolvedValueOnce([makeCard('tideline')]);
+      const { unmount } = await renderPage();
+      expect(screen.queryByRole('region', { name: 'You might also like' })).toBeNull();
+      unmount();
+
+      mockGetFeatured.mockResolvedValueOnce(null);
+      await renderPage();
+      expect(screen.queryByRole('region', { name: 'You might also like' })).toBeNull();
+    });
+
+    it('is not shown on the unavailable state', async () => {
+      mockGetFeatured.mockResolvedValueOnce([makeCard('samurai')]);
+      await renderPage({ kind: 'unavailable' });
+      expect(screen.queryByRole('region', { name: 'You might also like' })).toBeNull();
     });
   });
 });

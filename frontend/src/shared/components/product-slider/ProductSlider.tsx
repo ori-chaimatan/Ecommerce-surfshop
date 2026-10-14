@@ -1,23 +1,24 @@
 'use client';
 
-import { WishlistProductCard } from '@/components/wishlist';
+import { Children, type ReactNode } from 'react';
 import { Icon } from '@/shared/components/icons';
-import type { ProductCard } from '@/shared/components/product-card/product-card';
-import { styles } from './featured-gear.styles';
-import { texts } from './featured-gear-texts';
-import { useFeaturedSlider } from './use-featured-slider';
+import { styles } from './product-slider.styles';
+import { texts } from './product-slider-texts';
+import { useProductSlider } from './use-product-slider';
 
-interface FeaturedSliderProps {
-  products: ProductCard[];
+interface ProductSliderProps {
+  /** One card per child (e.g. `WishlistProductCard`), so the slider stays free of app-level state. */
+  children: ReactNode;
 }
 
 /** Desktop shows 4 per view; more than that overflows into the slider. */
 const DESKTOP_PER_VIEW = 4;
 
-/** The Featured gear track: snap scrolling, edge-aware arrows, one dot per snap position. */
-export function FeaturedSlider({ products }: FeaturedSliderProps) {
-  const slider = useFeaturedSlider();
-  const overflowsDesktop = products.length > DESKTOP_PER_VIEW;
+/** A row of product cards: snap scrolling, edge-aware arrows, one dot per snap position. */
+export function ProductSlider({ children }: ProductSliderProps) {
+  const slider = useProductSlider();
+  const items = Children.toArray(children);
+  const overflowsDesktop = items.length > DESKTOP_PER_VIEW;
 
   return (
     <>
@@ -28,9 +29,9 @@ export function FeaturedSlider({ products }: FeaturedSliderProps) {
           </button>
         )}
         <div ref={slider.trackRef} data-track onScroll={slider.onScroll} className={styles.track}>
-          {products.map((product) => (
-            <div key={product.slug} className={styles.item}>
-              <WishlistProductCard product={product} />
+          {items.map((item, index) => (
+            <div key={index} className={styles.item}>
+              {item}
             </div>
           ))}
         </div>
