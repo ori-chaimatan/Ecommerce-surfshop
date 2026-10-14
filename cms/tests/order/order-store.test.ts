@@ -103,6 +103,7 @@ function fakeEnv() {
 
   const orders = {
     findFirst: vi.fn(async (_params: object): Promise<unknown> => null),
+    findMany: vi.fn(async (_params: object): Promise<unknown[]> => []),
     create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
       log.push(`create order ${data.OrderNumber}`);
       return storedOrder(data);
@@ -335,5 +336,33 @@ describe('order store: reads (AC8)', () => {
     const store = createOrderStore(env.strapi as never, { cartStore: env.cartStore as never });
     await expect(store.findByNumber(user, 'nope')).resolves.toBeNull();
     expect(env.orders.findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe('order store: listForUser (order-history AC1, AC7)', () => {
+  it("lists the user's own orders, newest first, as the owner view", async () => {
+    const env = fakeEnv();
+    const store = createOrderStore(env.strapi as never, { cartStore: env.cartStore as never });
+    env.orders.findMany.mockResolvedValueOnce([
+      storedOrder({ OrderNumber: 'WL-200002', IdempotencyKey: KEY, PaymentReference: 'mock_secret', User: { id: 7 } }),
+      storedOrder({ OrderNumber: 'WL-200001' }),
+    ]);
+
+    const orders = await store.listForUser(user);
+
+    expect(env.orders.findMany).toHaveBeenCalledWith({
+      filters: { User: { id: 7 } },
+      sort: 'PlacedAt:desc',
+      populate: { ShippingAddress: true, Lines: true },
+    });
+    expect(orders.map((order) => order.orderNumber)).toEqual(['WL-200002', 'WL-200001']);
+    const json = JSON.stringify(orders[0]);
+    expect(json).not.toMatch(/idempotency|mock_secret|documentId|"id"/i);
+  });
+
+  it('returns an empty list when the user has no orders', async () => {
+    const env = fakeEnv();
+    const store = createOrderStore(env.strapi as never, { cartStore: env.cartStore as never });
+    await expect(store.listForUser(user)).resolves.toEqual([]);
   });
 });

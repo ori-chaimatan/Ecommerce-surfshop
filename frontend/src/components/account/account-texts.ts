@@ -24,9 +24,6 @@ export const texts = {
   // Design gap: the design has no error copy for the profile form.
   saveFailed: "Couldn't save your changes. Please try again.",
 
-  orderHistory: 'Order History',
-  // Design gap: the design has no Order History empty state.
-  ordersEmpty: "You haven't placed any orders yet.",
 
   copyright: '© 2026 WESTLINE. Find Your Line.',
 };

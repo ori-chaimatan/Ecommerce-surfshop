@@ -69,6 +69,12 @@ export default ({ strapi }: { strapi: Core.Strapi }) => {
         return { status: replayed ? 200 : 201, body: { order } };
       }),
 
+    list: (ctx: Context) =>
+      respond(ctx, async () => {
+        const user = await requireUser(ctx);
+        return { status: 200, body: { orders: await store().listForUser(user) } };
+      }),
+
     findOne: (ctx: Context) =>
       respond(ctx, async () => {
         const user = await requireUser(ctx);

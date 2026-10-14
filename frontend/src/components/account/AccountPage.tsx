@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ProductBreadcrumb } from '@/components/product-detail/shared/ProductBreadcrumb';
 import { CONTAINER } from '@/components/product-detail/shared/layout';
 import type { Profile } from '@/lib/account/validate-profile';
+import type { StrapiOrder } from '@/lib/strapi/orders';
 import type { ProductCard } from '@/shared/components/product-card/product-card';
 import { HOME_HREF } from '@/lib/routes';
 import { styles } from './account.styles';
@@ -17,6 +18,8 @@ interface AccountPageProps {
   account: Profile;
   /** The saved products, newest first, fetched with the page (wishlist spec). */
   wishlist: ProductCard[];
+  /** The shopper's orders, newest first, fetched with the page (order-history spec). */
+  orders: StrapiOrder[];
 }
 
 const BREADCRUMB = [{ label: texts.home, href: HOME_HREF }, { label: texts.pageTitle }];
@@ -27,7 +30,7 @@ const TABS: { tab: AccountTab; label: string }[] = [
 ];
 
 /** `/account` (design `my-account.html`): hero, hash-routed tabs, and the minimal footer bar. */
-export function AccountPage({ account, wishlist }: AccountPageProps) {
+export function AccountPage({ account, wishlist, orders }: AccountPageProps) {
   const { tab, selectTab } = useAccountTab();
   const [name, setName] = useState({ firstName: account.firstName, lastName: account.lastName });
 
@@ -62,7 +65,7 @@ export function AccountPage({ account, wishlist }: AccountPageProps) {
           </div>
 
           <div role="tabpanel" id="account-panel-overview" aria-labelledby="account-tab-overview" hidden={tab !== 'overview'}>
-            <AccountOverview wishlist={wishlist} />
+            <AccountOverview wishlist={wishlist} orders={orders} />
           </div>
           <div role="tabpanel" id="account-panel-details" aria-labelledby="account-tab-details" hidden={tab !== 'details'}>
             <AccountDetailsForm

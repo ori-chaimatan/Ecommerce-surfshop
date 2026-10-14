@@ -4,6 +4,7 @@ import { AccountPage } from '@/components/account';
 import { getSession } from '@/lib/auth/session';
 import { ACCOUNT_HREF, loginHref } from '@/lib/routes';
 import { getMe } from '@/lib/strapi/account';
+import { getOrders } from '@/lib/strapi/orders';
 import { getWishlist } from '@/lib/strapi/wishlist';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,7 @@ export default async function AccountRoute() {
   const account = session ? await getMe(session.jwt) : null;
   if (!account || !session) redirect(loginHref(ACCOUNT_HREF));
 
-  // A Strapi failure shows the empty wishlist rather than breaking the page.
-  const wishlist = (await getWishlist(session.jwt)) ?? [];
-  return <AccountPage account={account} wishlist={wishlist} />;
+  // A Strapi failure shows an empty wishlist / order history rather than breaking the page.
+  const [wishlist, orders] = await Promise.all([getWishlist(session.jwt), getOrders(session.jwt)]);
+  return <AccountPage account={account} wishlist={wishlist ?? []} orders={orders ?? []} />;
 }

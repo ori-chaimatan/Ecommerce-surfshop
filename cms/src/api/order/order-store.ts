@@ -59,6 +59,7 @@ export function createOrderStore(strapi: Core.Strapi, deps: Deps) {
   const nextNumber = deps.nextNumber;
   const orders = () => strapi.documents(ORDER_UID as never) as unknown as {
     findFirst(params: object): Promise<StoredOrder | null>;
+    findMany(params: object): Promise<StoredOrder[]>;
     create(params: object): Promise<StoredOrder>;
   };
 
@@ -168,7 +169,13 @@ export function createOrderStore(strapi: Core.Strapi, deps: Deps) {
     return order ? toOrderResponse(order) : null;
   }
 
-  return { place, findByNumber };
+  /** The user's own orders, newest first (order-history). */
+  async function listForUser(user: UserIdentity): Promise<OrderResponse[]> {
+    const stored = await orders().findMany({ filters: { User: { id: user.userId } }, sort: 'PlacedAt:desc', populate: ORDER_POPULATE });
+    return stored.map(toOrderResponse);
+  }
+
+  return { place, findByNumber, listForUser };
 }
 
 export type OrderStore = ReturnType<typeof createOrderStore>;

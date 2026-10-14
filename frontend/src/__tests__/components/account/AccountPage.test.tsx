@@ -19,7 +19,7 @@ describe('AccountPage (account-profile AC2, AC4, AC8, AC14)', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('shows the breadcrumb, heading and welcome line (AC2)', () => {
-    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} />));
+    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} orders={[]} />));
 
     const breadcrumb = screen.getByRole('navigation', { name: /breadcrumb/i });
     expect(breadcrumb).toHaveTextContent('Home/My Account');
@@ -30,12 +30,12 @@ describe('AccountPage (account-profile AC2, AC4, AC8, AC14)', () => {
   });
 
   it('greets a shopper without a name without a dangling comma', () => {
-    render(inWishlist(<AccountPage account={{ ...ACCOUNT, firstName: '', lastName: '' }} wishlist={[]} />));
+    render(inWishlist(<AccountPage account={{ ...ACCOUNT, firstName: '', lastName: '' }} wishlist={[]} orders={[]} />));
     expect(screen.getByText('Welcome back.')).toBeInTheDocument();
   });
 
   it('has two tabs with exactly one active panel, switched by clicking (AC4)', () => {
-    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} />));
+    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} orders={[]} />));
     const overview = screen.getByRole('tab', { name: 'My Account' });
     const details = screen.getByRole('tab', { name: 'Account Details' });
 
@@ -55,7 +55,7 @@ describe('AccountPage (account-profile AC2, AC4, AC8, AC14)', () => {
     mockFetch.mockResolvedValue(
       new Response(JSON.stringify({ profile: { ...ACCOUNT, firstName: 'Jo', lastName: 'Reyes' } }), { status: 200 })
     );
-    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} />));
+    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} orders={[]} />));
     fireEvent.click(screen.getByRole('tab', { name: 'Account Details' }));
     fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Jo' } });
     fireEvent.change(screen.getByLabelText('Last name'), { target: { value: 'Reyes' } });
@@ -68,7 +68,7 @@ describe('AccountPage (account-profile AC2, AC4, AC8, AC14)', () => {
   });
 
   it('ends with the minimal footer bar (AC14)', () => {
-    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} />));
+    render(inWishlist(<AccountPage account={ACCOUNT} wishlist={[]} orders={[]} />));
     expect(screen.getByRole('contentinfo')).toHaveTextContent('© 2026 WESTLINE. Find Your Line.');
   });
 });

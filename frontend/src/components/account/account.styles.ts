@@ -31,11 +31,6 @@ export const styles = {
     error: 'text-danger',
   },
 
-  ordersSection: 'mt-14 scroll-mt-24',
-  sectionHead: 'mb-5 flex items-baseline justify-between gap-4',
-  sectionTitle:
-    'm-0 font-display text-[clamp(20px,2.6vw,26px)] font-extrabold uppercase leading-[0.95] tracking-[0.01em] text-ink',
-  empty: 'm-0 max-w-[560px] rounded-[9px] border border-dashed border-border p-8 text-center text-[14.5px] text-muted',
 
   footer: 'mt-10 border-t border-border',
   footerBar: 'flex flex-wrap items-center justify-between gap-3 py-[22px] text-[12.5px] text-muted',

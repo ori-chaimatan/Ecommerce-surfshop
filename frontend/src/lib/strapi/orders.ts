@@ -117,3 +117,11 @@ export async function getOrder(jwt: string, orderNumber: string): Promise<{ ok: 
   }
   return { ok: true, order };
 }
+
+/** The signed-in shopper's own orders, newest first (order-history). Null when the session is rejected or Strapi fails. */
+export async function getOrders(jwt: string): Promise<StrapiOrder[] | null> {
+  const { ok, data } = await strapiRequest('orders', { label: LABEL, headers: bearer(jwt), silentStatuses: [401] });
+  const orders = (data as { orders?: unknown } | null)?.orders;
+  if (!ok || !Array.isArray(orders)) return null;
+  return orders.filter(isOrder);
+}

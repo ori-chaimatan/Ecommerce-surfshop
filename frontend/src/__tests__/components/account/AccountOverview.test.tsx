@@ -6,7 +6,7 @@ import { inWishlist } from '../wishlist/wishlist-test-utils';
 
 describe('AccountOverview (account-profile AC13)', () => {
   it('renders Wishlist first, then Order History, as scroll targets', () => {
-    const { container } = render(inWishlist(<AccountOverview wishlist={[]} />));
+    const { container } = render(inWishlist(<AccountOverview wishlist={[]} orders={[]} />));
     const sections = container.querySelectorAll('section');
 
     expect(Array.from(sections).map((section) => section.id)).toEqual([SECTION_IDS.wishlist, SECTION_IDS.orders]);
@@ -15,7 +15,7 @@ describe('AccountOverview (account-profile AC13)', () => {
   });
 
   it("shows the wishlist's empty state with a 0 saved count and links to Surfboards and Apparel", () => {
-    render(inWishlist(<AccountOverview wishlist={[]} />));
+    render(inWishlist(<AccountOverview wishlist={[]} orders={[]} />));
 
     expect(screen.getByText('0 saved')).toBeInTheDocument();
     expect(screen.getByText(/Your wishlist is empty\. Browse/)).toHaveTextContent(
@@ -26,7 +26,7 @@ describe('AccountOverview (account-profile AC13)', () => {
   });
 
   it("shows the order history's empty state", () => {
-    render(inWishlist(<AccountOverview wishlist={[]} />));
+    render(inWishlist(<AccountOverview wishlist={[]} orders={[]} />));
     expect(screen.getByText("You haven't placed any orders yet.")).toBeInTheDocument();
   });
 });

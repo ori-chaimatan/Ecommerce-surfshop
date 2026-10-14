@@ -22,7 +22,7 @@ const body = {
 };
 
 function setup() {
-  const store = { place: vi.fn(), findByNumber: vi.fn() };
+  const store = { place: vi.fn(), findByNumber: vi.fn(), listForUser: vi.fn() };
   const strapi = { service: vi.fn(() => store), log: { error: vi.fn() } };
   const controller = controllerFactory({ strapi: strapi as never });
   const ctx = (request: { body?: unknown; params?: Record<string, string> } = {}) =>
@@ -34,9 +34,10 @@ function setup() {
 }
 
 describe('order routes (AC3, AC8)', () => {
-  it('declares only POST /orders and GET /orders/:orderNumber, with auth handled in the controller', () => {
+  it('declares only POST /orders, GET /orders (order-history) and GET /orders/:orderNumber, with auth handled in the controller', () => {
     expect(routes.routes).toEqual([
       { method: 'POST', path: '/orders', handler: 'order.place', config: { auth: false } },
+      { method: 'GET', path: '/orders', handler: 'order.list', config: { auth: false } },
       { method: 'GET', path: '/orders/:orderNumber', handler: 'order.findOne', config: { auth: false } },
     ]);
   });
@@ -208,5 +209,38 @@ describe('order controller: findOne (AC8)', () => {
 
     await env.controller.findOne(ctx as never);
     expect(ctx.status).toBe(401);
+  });
+});
+
+describe('order controller: list (order-history AC1, AC7)', () => {
+  let env: ReturnType<typeof setup>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.identify.mockResolvedValue(user);
+    env = setup();
+  });
+
+  it("returns the signed-in user's orders", async () => {
+    env.store.listForUser.mockResolvedValue([orderView]);
+    const ctx = env.ctx();
+
+    await env.controller.list(ctx as never);
+
+    expect(env.store.listForUser).toHaveBeenCalledWith(user);
+    expect(ctx.status).toBe(200);
+    expect(ctx.body).toEqual({ orders: [orderView] });
+  });
+
+  it.each([
+    ['nobody', () => mocks.identify.mockResolvedValue({ kind: 'none' })],
+    ['a guest', () => mocks.identify.mockResolvedValue({ kind: 'guest', token: 'x' })],
+    ['a bad JWT', () => mocks.identify.mockRejectedValue(new CartError('unauthorized', 'Invalid or expired session.'))],
+  ])('answers 401 for %s without reading orders', async (_who, arrange) => {
+    arrange();
+    const ctx = env.ctx();
+    await env.controller.list(ctx as never);
+    expect(ctx.status).toBe(401);
+    expect(env.store.listForUser).not.toHaveBeenCalled();
   });
 });

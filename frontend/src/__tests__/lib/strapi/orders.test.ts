@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getOrder, placeOrder, type StrapiOrder } from '@/lib/strapi/orders';
+import { getOrder, getOrders, placeOrder, type StrapiOrder } from '@/lib/strapi/orders';
 
 const mockFetch = vi.fn();
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
@@ -110,5 +110,46 @@ describe('lib/strapi/orders (checkout AC3, AC8, AC21)', () => {
     mockFetch.mockResolvedValueOnce(json({ error: { code: 'not-found' } }, 404));
     await getOrder('jwt-1', '../users/me');
     expect(lastCall()[0]).toMatch(/\/api\/orders\/\.\.%2Fusers%2Fme$/);
+  });
+});
+
+describe('lib/strapi/orders getOrders (order-history AC1, AC7, AC8)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("GETs /api/orders with the JWT, uncached, and returns the owner's orders in order", async () => {
+    const second = { ...ORDER, orderNumber: 'WL-100001' };
+    mockFetch.mockResolvedValueOnce(json({ orders: [ORDER, second] }));
+
+    await expect(getOrders('jwt-1')).resolves.toEqual([ORDER, second]);
+    const [url, init] = lastCall();
+    expect(url).toMatch(/\/api\/orders$/);
+    expect(init.method).toBe('GET');
+    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer jwt-1');
+    expect(init.cache).toBe('no-store');
+  });
+
+  it('drops entries with a bad shape', async () => {
+    mockFetch.mockResolvedValueOnce(json({ orders: [ORDER, { orderNumber: 'WL-1' }] }));
+    await expect(getOrders('jwt-1')).resolves.toEqual([ORDER]);
+  });
+
+  it('returns null on a rejected session, an error, a bad body or a network failure', async () => {
+    mockFetch.mockResolvedValueOnce(json({ error: {} }, 401));
+    await expect(getOrders('jwt-1')).resolves.toBeNull();
+    mockFetch.mockResolvedValueOnce(json({ error: {} }, 500));
+    await expect(getOrders('jwt-1')).resolves.toBeNull();
+    mockFetch.mockResolvedValueOnce(json({ nope: true }));
+    await expect(getOrders('jwt-1')).resolves.toBeNull();
+    mockFetch.mockRejectedValueOnce(new Error('down'));
+    await expect(getOrders('jwt-1')).resolves.toBeNull();
   });
 });
