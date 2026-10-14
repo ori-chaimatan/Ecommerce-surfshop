@@ -139,3 +139,7 @@ node_modules
 # Downloaded/local-only product photos not committed to the repo. seed-catalog.js
 # checks here first, before the committed seed/catalog/<slug>/ folders.
 seed/catalog/images-local/
+
+# Local-only hero photos (extracted from the design files, not cleared for the repo).
+# seed-homepage.js checks here first, then seed/homepage/<key>.jpg, then a placeholder.
+seed/homepage/images-local/
