@@ -1,0 +1,16 @@
+export const texts = {
+  home: 'Home',
+  allProducts: 'All Products',
+  breadcrumbLabel: 'Breadcrumb',
+  categories: 'Categories',
+  results: (count: number) => `${count} ${count === 1 ? 'result' : 'results'}`,
+  allCategory: (name: string) => `All ${name}`,
+  shopAll: (name: string) => `Shop All ${name}`,
+  allGender: (label: string) => `All ${label}`,
+  empty: 'No products here yet',
+  unavailable: "Products couldn't be loaded right now.",
+  paginationLabel: 'Pagination',
+  previousPage: 'Previous page',
+  nextPage: 'Next page',
+  pageLabel: (page: number) => `Page ${page}`,
+};

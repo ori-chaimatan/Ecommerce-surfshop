@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "footers",
+  "info": {
+    "singularName": "footer",
+    "pluralName": "footers",
+    "displayName": "Footer",
+    "description": "The storefront footer on every page: tagline, link columns, legal links and copyright"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Tagline": { "type": "text" },
+    "Columns": { "type": "component", "component": "shared.footer-column", "repeatable": true },
+    "LegalLinks": { "type": "component", "component": "shared.link", "repeatable": true },
+    "Copyright": { "type": "string" }
+  }
+}

@@ -63,3 +63,41 @@ describe('POST /api/auth/login', () => {
     expect(res.cookies.get('westline_session')).toBeUndefined();
   });
 });
+
+describe('POST /api/auth/login — guest cart merge (add-to-cart AC5)', () => {
+  const cartFetch = vi.fn();
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', cartFetch);
+    cartFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('merges the guest cart into the new session and clears the guest cookie', async () => {
+    cartFetch
+      .mockResolvedValueOnce(json({ jwt: 'a.jwt.token', user: { id: 1, email: 'jamie@example.com' } }))
+      .mockResolvedValueOnce(json({ lines: [], removedCount: 0 }));
+
+    const { POST } = await import('@/app/api/auth/login/route');
+    const res = await POST(
+      new NextRequest('http://localhost/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'jamie@example.com', password: 'password123' }),
+        headers: { cookie: 'westline_cart=guest-token' },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(cartFetch).toHaveBeenLastCalledWith(
+      'http://localhost:1337/api/carts/merge',
+      expect.objectContaining({ headers: { Authorization: 'Bearer a.jwt.token', 'x-cart-token': 'guest-token' } })
+    );
+    expect(res.cookies.get('westline_session')?.value).toBe('a.jwt.token');
+    expect(res.cookies.get('westline_cart')?.maxAge).toBe(0);
+  });
+});

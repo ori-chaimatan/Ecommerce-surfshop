@@ -11,9 +11,12 @@ import { OrDivider } from '../_components/or-divider';
 import { FormError } from '../_components/form-error';
 import { MIN_PASSWORD_LENGTH, PASSWORD_HINT, PASSWORD_TOO_SHORT_MESSAGE } from '@/lib/auth/password';
 import { handleSubmit as submitAuthForm } from '../utils';
+import { nextFromSearchParams } from '@/lib/auth/next-path';
+import { loginHref } from '@/lib/routes';
 import { texts } from './register-texts';
 
-export default function SignupPage() {
+export default function SignupPage({ searchParams }: { searchParams?: { next?: string | string[] } }) {
+  const next = nextFromSearchParams(searchParams);
   const router = useRouter();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -31,7 +34,7 @@ export default function SignupPage() {
       setError,
       setSubmitting,
       onSuccess: () => {
-        router.push('/');
+        router.push(next ?? '/');
         router.refresh();
       },
     });
@@ -65,10 +68,10 @@ export default function SignupPage() {
       </form>
 
       <OrDivider />
-      <GoogleButton />
+      <GoogleButton next={next} />
       <p className="mt-5 text-center text-sm text-muted">
         {texts.alreadyHaveAccountPrefix}{' '}
-        <Link href="/auth/login" className="font-bold text-horizon hover:underline">
+        <Link href={loginHref(next)} className="font-bold text-horizon hover:underline">
           {texts.signInLink}
         </Link>
       </p>
