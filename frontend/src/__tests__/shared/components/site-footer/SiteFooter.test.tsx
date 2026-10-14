@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({ getFooter: vi.fn() }));
 vi.mock('@/lib/strapi/footer', () => ({ getFooter: mocks.getFooter }));
 
-import { SiteFooter } from '@/components/site-footer';
+import { SiteFooter } from '@/shared/components/site-footer';
 
 const FOOTER = {
   tagline: 'Find Your Line. Surf equipment and lifestyle gear for the progressing surfer.',
