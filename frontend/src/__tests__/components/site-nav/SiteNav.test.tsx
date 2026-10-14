@@ -305,17 +305,83 @@ describe('SiteNav', () => {
     expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('shows Sign In when logged out and Log Out when logged in, plus the Wishlist link and the Cart button (AC8; cart button per add-to-cart AC10)', async () => {
-    const { unmount } = await renderNav();
+  it('shows Sign In when logged out, the Cart button, and no wishlist heart (AC8; cart button per add-to-cart AC10; heart removed 2026-10-14)', async () => {
+    await renderNav();
     expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/auth/login');
-    expect(screen.getByRole('link', { name: 'Wishlist' })).toHaveAttribute('href', '/account#wishlist');
     expect(screen.getByRole('button', { name: 'Cart' })).toHaveAttribute('aria-haspopup', 'dialog');
-    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
-    unmount();
+    expect(screen.queryByRole('link', { name: 'Wishlist' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+  });
 
-    await renderNav({ loggedIn: true });
-    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Account' })).not.toBeInTheDocument();
+  describe('account menu when logged in (2026-10-14 decision)', () => {
+    const fetchMock = vi.fn();
+    beforeEach(() => {
+      vi.stubGlobal('fetch', fetchMock);
+      fetchMock.mockReset();
+      window.history.replaceState(null, '', '/products');
+    });
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('replaces Sign In and the heart with an account button that opens My Account, Wishlist and Sign Out', async () => {
+      await renderNav({ loggedIn: true });
+      expect(screen.queryByRole('link', { name: 'Account' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Wishlist' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /log out|sign out/i })).not.toBeInTheDocument();
+
+      const trigger = screen.getByRole('button', { name: 'Account' });
+      expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      fireEvent.click(trigger);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      const menu = screen.getByRole('menu', { name: 'Account' });
+      const items = within(menu).getAllByRole('menuitem');
+      expect(items.map((item) => item.textContent)).toEqual(['My Account', 'Wishlist', 'Sign Out']);
+      expect(items[0]).toHaveAttribute('href', '/account');
+      expect(items[1]).toHaveAttribute('href', '/account#wishlist');
+    });
+
+    it('closes on Escape (focus back on the button), on an outside click and on a second click', async () => {
+      await renderNav({ loggedIn: true });
+      const trigger = screen.getByRole('button', { name: 'Account' });
+
+      fireEvent.click(trigger);
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+
+      fireEvent.click(trigger);
+      fireEvent.pointerDown(document.body);
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+      fireEvent.click(trigger);
+      fireEvent.click(trigger);
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('signs out through the logout route', async () => {
+      fetchMock.mockResolvedValue(new Response(null, { status: 200 }));
+      await renderNav({ loggedIn: true });
+      fireEvent.click(screen.getByRole('button', { name: 'Account' }));
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Sign Out' }));
+      });
+
+      expect(fetchMock).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('on My Account, Wishlist switches via the hash so the tabs follow it', async () => {
+      window.history.replaceState(null, '', '/account#details');
+      await renderNav({ loggedIn: true });
+      fireEvent.click(screen.getByRole('button', { name: 'Account' }));
+
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Wishlist' }));
+
+      expect(window.location.hash).toBe('#wishlist');
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
   });
 
   it('renders no search or Surfboard Finder link/promo, and no cart count for an empty cart (AC9; count per add-to-cart AC10)', async () => {

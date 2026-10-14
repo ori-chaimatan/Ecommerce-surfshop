@@ -5,5 +5,4 @@ export const styles = {
   actions: 'flex items-center gap-4',
   signIn: 'flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-horizon',
   signInLabel: 'hidden sm:inline',
-  iconLink: 'flex p-1.5 text-ink hover:text-horizon',
 } as const;

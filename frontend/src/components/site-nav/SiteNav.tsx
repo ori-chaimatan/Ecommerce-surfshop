@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { CartNavButton } from '@/components/cart';
-import { LogoutButton } from '@/components/logout-button';
 import { Icon } from '@/shared/components/icons';
 import { getSession } from '@/lib/auth/session';
-import { HOME_HREF, LOGIN_HREF, WISHLIST_HREF } from '@/lib/routes';
+import { HOME_HREF, LOGIN_HREF } from '@/lib/routes';
 import { getNavigation } from '@/lib/strapi/navigation';
+import { AccountMenu } from './AccountMenu';
 import { DesktopMenu } from './DesktopMenu';
 import { MobileMenu } from './MobileMenu';
 import { buildNavMenu } from './nav-menu';
@@ -27,7 +27,7 @@ export const SiteNav = async (): Promise<React.JSX.Element> => {
 
         <div className={styles.actions}>
           {session ? (
-            <LogoutButton />
+            <AccountMenu />
           ) : (
             <Link
               href={LOGIN_HREF}
@@ -38,9 +38,6 @@ export const SiteNav = async (): Promise<React.JSX.Element> => {
               <span className={styles.signInLabel}>{texts.signIn}</span>
             </Link>
           )}
-          <Link href={WISHLIST_HREF} aria-label={texts.wishlistLabel} className={styles.iconLink}>
-            <Icon name="heart" width="20" height="20" stroke="currentColor" strokeWidth="1.7" fill="none" />
-          </Link>
           <CartNavButton />
           <MobileMenu items={items} />
         </div>
