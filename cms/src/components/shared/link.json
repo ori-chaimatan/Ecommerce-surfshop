@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_shared_links",
+  "info": {
+    "displayName": "Link",
+    "icon": "link",
+    "description": "A labelled link: an internal path (/…) or an http(s) URL"
+  },
+  "options": {},
+  "attributes": {
+    "Label": { "type": "string", "required": true },
+    "Url": { "type": "string", "required": true }
+  },
+  "config": {}
+}

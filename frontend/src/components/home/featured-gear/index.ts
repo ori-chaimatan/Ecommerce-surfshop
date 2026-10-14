@@ -1,0 +1,1 @@
+export { FeaturedGear } from './FeaturedGear';

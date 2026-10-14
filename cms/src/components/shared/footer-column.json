@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_shared_footer_columns",
+  "info": {
+    "displayName": "FooterColumn",
+    "icon": "bulletList",
+    "description": "One footer column: a title and its links"
+  },
+  "options": {},
+  "attributes": {
+    "Title": { "type": "string", "required": true },
+    "Links": { "type": "component", "component": "shared.link", "repeatable": true }
+  },
+  "config": {}
+}

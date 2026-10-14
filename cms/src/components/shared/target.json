@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_shared_targets",
+  "info": {
+    "displayName": "target"
+  },
+  "options": {},
+  "attributes": {
+    "targetLink": {
+      "type": "enumeration",
+      "enum": [
+        "_blank",
+        "_self"
+      ]
+    }
+  },
+  "config": {}
+}
