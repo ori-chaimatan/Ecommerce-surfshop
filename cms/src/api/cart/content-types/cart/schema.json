@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "carts",
+  "info": {
+    "singularName": "cart",
+    "pluralName": "carts",
+    "displayName": "Cart",
+    "description": "A shopper's cart — a guest (by Token) or a signed-in user. Only reachable through the custom /carts routes"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Token": {
+      "type": "string",
+      "unique": true,
+      "private": true
+    },
+    "User": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "Lines": {
+      "type": "component",
+      "component": "cart.line",
+      "repeatable": true
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "collectionName": "components_product_surfboard_specs",
+  "info": {
+    "displayName": "SurfboardSpecs",
+    "icon": "star",
+    "description": "Surfboard-only specs: skill level, fins and 0\u2013100 attribute scales"
+  },
+  "options": {},
+  "attributes": {
+    "SkillLevel": {
+      "type": "enumeration",
+      "enum": [
+        "Beginner",
+        "Intermediate",
+        "Advanced"
+      ],
+      "required": true
+    },
+    "Video": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "videos"
+      ]
+    },
+    "FinSetup": {
+      "type": "enumeration",
+      "enum": [
+        "Thruster",
+        "Twin",
+        "Quad",
+        "Single",
+        "TwoPlusOne"
+      ],
+      "required": true
+    },
+    "FinSetupNote": {
+      "type": "text"
+    },
+    "WaveSize": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "Break": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "Power": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "Approach": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "FootOrientation": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "Foil": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "NoseShape": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "TailWidth": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "EntryRocker": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "ExitRocker": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    "RockerStyle": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "max": 100
+    }
+  },
+  "config": {}
+}

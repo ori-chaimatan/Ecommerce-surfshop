@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_shared_carousel_heroes",
+  "info": {
+    "displayName": "CarouselHero"
+  },
+  "options": {},
+  "attributes": {
+    "BackgroundImg": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "Title": {
+      "type": "string",
+      "required": true
+    },
+    "Button": {
+      "type": "component",
+      "component": "shared.button-cta",
+      "repeatable": false,
+      "required": true
+    }
+  },
+  "config": {}
+}
