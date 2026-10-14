@@ -26,7 +26,9 @@ const deniedTypes = [
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
   'users-permissions': {
     config: {
-      jwtManagement: 'refresh',
+      // Plain 30-day JWTs (jwt.expiresIn default). 'refresh' issued 10-minute access tokens and the
+      // storefront has no refresh-token flow, so sessions died 10 minutes after login.
+      jwtManagement: 'legacy-support',
       sessions: {
         httpOnly: true,
       },
