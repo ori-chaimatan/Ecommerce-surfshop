@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_order_addresses",
+  "info": { "displayName": "Order Address", "icon": "pinMap", "description": "Shipping address as entered at checkout (US only in v1)" },
+  "options": {},
+  "attributes": {
+    "FirstName": { "type": "string", "required": true, "maxLength": 50 },
+    "LastName": { "type": "string", "required": true, "maxLength": 50 },
+    "Address1": { "type": "string", "required": true, "maxLength": 100 },
+    "Address2": { "type": "string", "maxLength": 100 },
+    "City": { "type": "string", "required": true, "maxLength": 60 },
+    "State": { "type": "string", "required": true, "minLength": 2, "maxLength": 2 },
+    "PostalCode": { "type": "string", "required": true, "maxLength": 10 },
+    "Country": { "type": "string", "required": true, "default": "US", "maxLength": 2 },
+    "Phone": { "type": "string", "maxLength": 10 }
+  },
+  "config": {}
+}
