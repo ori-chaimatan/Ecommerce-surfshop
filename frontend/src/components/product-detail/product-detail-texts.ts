@@ -1,0 +1,53 @@
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
+import { formatPrice } from '@/shared/components/product-card/product-card';
+
+const FREE_SHIPPING = formatPrice(FREE_SHIPPING_THRESHOLD);
+
+export const texts = {
+  home: 'Home',
+  breadcrumbLabel: 'Breadcrumb',
+  unavailable: "This product couldn't be loaded right now.",
+  fromTheShaper: 'From the shaper',
+  readMore: 'Read more',
+  readLess: 'Read less',
+  attributes: 'Attributes',
+  sections: { wave: 'Wave', performance: 'Performance', shape: 'Shape' },
+  scales: {
+    waveSize: { label: 'Size', scale: ['Knee', 'Double+'] },
+    break: { label: 'Break', scale: ['Point', 'Reef', 'Beachbreak'] },
+    power: { label: 'Power', scale: ['Weak / Mushy', 'Medium / Steep', 'Strong / Barrels'] },
+    approach: { label: 'Approach', scale: ['Vertical / Pocket', 'Power / Carving', 'Cruisy / Positional'] },
+    skillLevel: { label: 'Skill Level', scale: ['Beginner', 'Intermediate', 'Advanced'] },
+    footOrientation: { label: 'Foot Orientation', scale: ['Back Foot', 'Neutral', 'Front Foot'] },
+    foil: { label: 'Foil / Rails', scale: ['Thin', 'Medium', 'Full'] },
+    noseShape: { label: 'Nose Shape', scale: ['Pointed', 'Hybrid', 'Round'] },
+    tailWidth: { label: 'Tail Width', scale: ['Narrow', 'Medium', 'Wide'] },
+    entryRocker: { label: 'Entry Rocker', scale: ['Relaxed', 'Medium', 'Aggressive'] },
+    exitRocker: { label: 'Exit Rocker', scale: ['Relaxed', 'Medium', 'Aggressive'] },
+    rockerStyle: { label: 'Rocker Style', scale: ['Staged', 'Continuous'] },
+  },
+  dimensions: 'Dimensions',
+  soldOutOption: (label: string) => `${label} — Sold out`,
+  addToCart: 'Add to Cart',
+  adding: 'Adding…',
+  addFailed: "Couldn't add to cart. Try again.",
+  addSoldOut: 'This size just sold out.',
+  soldOut: 'Sold out',
+  trust: { shipping: `Free shipping over ${FREE_SHIPPING}`, returns: '30-day returns', dispatch: 'Ships in 3–5 business days' },
+  standard: {
+    size: 'Size',
+    selectedSize: (label: string) => `Size — ${label}`,
+    soldOutSize: (label: string) => `${label} — Sold out`,
+    lowStockSize: (label: string) => `${label} — Low stock`,
+    lowStock: 'Low stock',
+    description: 'Description',
+    shippingReturns: 'Shipping & Returns',
+    shippingLines: [`Free shipping on orders over ${FREE_SHIPPING}.`, '30-day returns.'],
+  },
+  previousPhoto: 'Previous photo',
+  nextPhoto: 'Next photo',
+  openPhoto: (n: number, total: number) => `Open photo ${n} of ${total}`,
+  photoViewer: 'Photo viewer',
+  closePhotoViewer: 'Close photo viewer',
+  photoCount: (n: number, total: number) => `${n} / ${total}`,
+};

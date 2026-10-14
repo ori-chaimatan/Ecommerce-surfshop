@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookieOptions, SESSION_COOKIE_NAME } from '@/lib/auth/session';
+import { withGuestCartMerge } from '@/lib/cart/merge-on-auth';
 
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337';
 
@@ -24,5 +25,5 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ user: data.user }, { status: 200 });
   response.cookies.set(SESSION_COOKIE_NAME, data.jwt, getSessionCookieOptions());
-  return response;
+  return withGuestCartMerge(request, response, data.jwt);
 }

@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": "A placed order: a snapshot of what was bought, at what price, shipped where. Only created through POST /orders"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "OrderNumber": { "type": "string", "required": true, "unique": true, "maxLength": 16 },
+    "Status": {
+      "type": "enumeration",
+      "enum": ["processing", "shipped", "delivered", "cancelled"],
+      "default": "processing",
+      "required": true
+    },
+    "User": { "type": "relation", "relation": "manyToOne", "target": "plugin::users-permissions.user" },
+    "Email": { "type": "email", "required": true },
+    "ShippingAddress": { "type": "component", "component": "order.address", "repeatable": false, "required": true },
+    "ShippingMethod": { "type": "enumeration", "enum": ["standard", "express"], "required": true },
+    "Lines": { "type": "component", "component": "order.line", "repeatable": true, "required": true, "min": 1 },
+    "Subtotal": { "type": "decimal", "required": true, "min": 0 },
+    "ShippingCost": { "type": "decimal", "required": true, "min": 0 },
+    "Total": { "type": "decimal", "required": true, "min": 0 },
+    "Currency": { "type": "string", "required": true, "default": "USD", "maxLength": 3 },
+    "PaymentBrand": { "type": "enumeration", "enum": ["visa", "mastercard", "amex"], "required": true },
+    "PaymentLast4": { "type": "string", "required": true, "minLength": 4, "maxLength": 4 },
+    "PaymentReference": { "type": "string", "required": true, "maxLength": 64 },
+    "IdempotencyKey": { "type": "string", "required": true, "unique": true, "private": true, "maxLength": 36 },
+    "PlacedAt": { "type": "datetime", "required": true }
+  }
+}

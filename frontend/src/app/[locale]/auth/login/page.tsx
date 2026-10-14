@@ -10,9 +10,12 @@ import { PrimaryButton } from '../_components/primary-button';
 import { OrDivider } from '../_components/or-divider';
 import { FormError } from '../_components/form-error';
 import { handleSubmit as submitAuthForm } from '../utils';
+import { nextFromSearchParams } from '@/lib/auth/next-path';
+import { registerHref } from '@/lib/routes';
 import { texts } from './login-texts';
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: { searchParams?: { next?: string | string[] } }) {
+  const next = nextFromSearchParams(searchParams);
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +30,7 @@ export default function LoginPage() {
       setError,
       setSubmitting,
       onSuccess: () => {
-        router.push('/');
+        router.push(next ?? '/');
         router.refresh();
       },
     });
@@ -61,10 +64,10 @@ export default function LoginPage() {
       </form>
 
       <OrDivider />
-      <GoogleButton />
+      <GoogleButton next={next} />
       <p className="mt-5 text-center text-sm text-muted">
         {texts.newToWestlinePrefix}{' '}
-        <Link href="/auth/register" className="font-bold text-horizon hover:underline">
+        <Link href={registerHref(next)} className="font-bold text-horizon hover:underline">
           {texts.createAccountLink}
         </Link>
       </p>
