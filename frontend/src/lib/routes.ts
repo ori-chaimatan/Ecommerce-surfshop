@@ -13,7 +13,8 @@ export const GENDERED_CATEGORY_SLUGS = ['clothing'];
 export const HOME_HREF = '/';
 export const PRODUCTS_HREF = '/products';
 export const LOGIN_HREF = '/auth/login';
-export const WISHLIST_HREF = '/account#wishlist';
+export const ACCOUNT_HREF = '/account';
+export const WISHLIST_HREF = `${ACCOUNT_HREF}#wishlist`;
 export const CART_HREF = '/cart';
 export const CHECKOUT_HREF = '/checkout';
 export const REGISTER_HREF = '/auth/register';
@@ -23,6 +24,10 @@ export const CART_API_HREF = '/api/cart';
 export const CART_LINES_API_HREF = '/api/cart/lines';
 /** The storefront's place-order route handler (app/api/checkout). */
 export const CHECKOUT_API_HREF = '/api/checkout';
+/** The storefront's profile route handler (app/api/account). */
+export const ACCOUNT_PROFILE_API_HREF = '/api/account/profile';
+/** The auth area's sign-out route handler (app/api/auth). */
+export const LOGOUT_API_HREF = '/api/auth/logout';
 
 const withNext = (path: string, next?: string) => (next ? `${path}?next=${encodeURIComponent(next)}` : path);
 

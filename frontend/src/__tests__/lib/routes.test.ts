@@ -1,12 +1,15 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  ACCOUNT_HREF,
+  ACCOUNT_PROFILE_API_HREF,
   CART_HREF,
   GENDERS,
   GENDER_FILTER,
   GENDERED_CATEGORY_SLUGS,
   HOME_HREF,
   LOGIN_HREF,
+  LOGOUT_API_HREF,
   PRODUCTS_HREF,
   WISHLIST_HREF,
   catalogHref,
@@ -45,6 +48,11 @@ describe('routes', () => {
 
   it('exposes the fixed site URLs used by the header (site-nav AC8)', () => {
     expect([HOME_HREF, LOGIN_HREF, WISHLIST_HREF, CART_HREF]).toEqual(['/', '/auth/login', '/account#wishlist', '/cart']);
+  });
+
+  it('exposes the account page and the routes it calls (account-profile AC1, AC3, AC9)', () => {
+    expect([ACCOUNT_HREF, ACCOUNT_PROFILE_API_HREF, LOGOUT_API_HREF]).toEqual(['/account', '/api/account/profile', '/api/auth/logout']);
+    expect(WISHLIST_HREF.startsWith(`${ACCOUNT_HREF}#`)).toBe(true);
   });
 
   describe('catalogHref (catalog-listing-page AC1, AC3, AC7)', () => {
