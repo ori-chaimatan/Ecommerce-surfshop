@@ -1,0 +1,16 @@
+export const texts = {
+  wordmark: 'WESTLINE',
+  signIn: 'Sign In',
+  accountLabel: 'Account',
+  wishlistLabel: 'Wishlist',
+  myAccount: 'My Account',
+  signOut: 'Sign Out',
+  signingOut: 'Signing out…',
+  mainNavLabel: 'Main',
+  menuButtonLabel: 'Menu',
+  mobileNavLabel: 'Mobile',
+  allCategory: (name: string) => `All ${name}`,
+  toggleSubmenu: (item: string) => `Toggle ${item} submenu`,
+  men: 'Men',
+  women: 'Women',
+};

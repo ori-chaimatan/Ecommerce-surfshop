@@ -1,11 +1,13 @@
 import { texts } from './components-texts';
 
-export function GoogleButton() {
+/** With `next`, sign-in starts at our own route so the destination survives the trip to Google. */
+export function GoogleButton({ next }: { next?: string } = {}) {
   const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+  const href = next ? `/api/auth/google?next=${encodeURIComponent(next)}` : `${strapiUrl}/api/connect/google`;
 
   return (
     <a
-      href={`${strapiUrl}/api/connect/google`}
+      href={href}
       className="flex w-full items-center justify-center gap-2.5 rounded-[9px] border border-border bg-white px-5 py-4 text-sm font-bold uppercase tracking-wide text-ink hover:bg-[#F9F9F9]"
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">

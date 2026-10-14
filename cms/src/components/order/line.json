@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_order_lines",
+  "info": { "displayName": "Order Line", "icon": "shoppingCart", "description": "One product + size as bought: name, size, price and image are snapshots, never read live" },
+  "options": {},
+  "attributes": {
+    "Product": { "type": "relation", "relation": "manyToOne", "target": "api::product.product" },
+    "ProductDocumentId": { "type": "string", "required": true, "maxLength": 64 },
+    "Name": { "type": "string", "required": true },
+    "Slug": { "type": "string", "required": true },
+    "SizeKey": { "type": "string", "required": true, "maxLength": 32 },
+    "SizeLabel": { "type": "string", "required": true, "maxLength": 32 },
+    "UnitPrice": { "type": "decimal", "required": true, "min": 0 },
+    "Quantity": { "type": "integer", "required": true, "min": 1, "max": 99 },
+    "LineTotal": { "type": "decimal", "required": true, "min": 0 },
+    "ImageUrl": { "type": "string" },
+    "ImageAlt": { "type": "string" }
+  },
+  "config": {}
+}
