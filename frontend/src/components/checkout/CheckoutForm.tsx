@@ -89,7 +89,7 @@ export function CheckoutForm({
         <h2 className={SECTION_TITLE}>{texts.delivery}</h2>
         <div className={ROWS}>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[12.5px] font-semibold text-muted">{texts.country}</span>
+            <span className="font-mono text-xs uppercase tracking-[0.06em] text-muted">{texts.country}</span>
             <span className="rounded-[9px] border border-border bg-surface px-3.5 py-3 text-[14.5px] leading-[1.2] text-ink">{texts.unitedStates}</span>
           </div>
           <div className={ROW}>

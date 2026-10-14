@@ -20,6 +20,7 @@ const config: Config = {
         "horizon-ink": "#F5F9FA",
         danger: "#C0392B",
         surface: "#F9F9F9",
+        sand: "#94A3B8",
       },
       fontFamily: {
         display: ["Poppins", "sans-serif"],

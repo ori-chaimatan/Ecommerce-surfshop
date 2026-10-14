@@ -66,7 +66,10 @@ export function OrderHistorySection({ id, orders }: OrderHistorySectionProps) {
                       <span className={`${styles.date} block`}>{item.placedLabel}</span>
                     </span>
                     <span className={styles.count}>{item.itemCount}</span>
-                    <span className={`${styles.status.base} ${styles.status[item.status.key]}`}>{item.status.label}</span>
+                    <span className={styles.status.base}>
+                      <span aria-hidden className={`${styles.status.dot} ${styles.status[item.status.key]}`} />
+                      {item.status.label}
+                    </span>
                     <span className={styles.right}>
                       <span className={styles.total}>{item.total}</span>
                       <Icon name="chevron-down" className={`${styles.chevron.base} ${isOpen ? styles.chevron.open : ''}`} />
@@ -101,15 +104,15 @@ export function OrderHistorySection({ id, orders }: OrderHistorySectionProps) {
                         <div className={styles.totals}>
                           <div className={styles.totalsRow}>
                             <span>{texts.subtotal}</span>
-                            <span>{item.subtotal}</span>
+                            <span className={styles.totalsValue}>{item.subtotal}</span>
                           </div>
                           <div className={styles.totalsRow}>
                             <span>{texts.shipping}</span>
-                            <span>{item.shipping}</span>
+                            <span className={styles.totalsValue}>{item.shipping}</span>
                           </div>
                           <div className={styles.totalsGrand}>
                             <span>{texts.total}</span>
-                            <span>{item.total}</span>
+                            <span className={styles.totalsValue}>{item.total}</span>
                           </div>
                         </div>
                       </div>

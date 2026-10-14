@@ -24,9 +24,9 @@ interface FormFieldProps {
 }
 
 const CONTROL =
-  'w-full rounded-[9px] border bg-white px-3.5 py-3 text-[14.5px] leading-[1.2] text-ink placeholder:text-[#9aa7ac] focus:border-horizon focus:outline-none focus:ring-[3px] focus:ring-horizon/[.12] disabled:bg-surface';
+  'w-full rounded-[9px] border bg-white px-3.5 py-3 text-[15px] leading-[1.2] text-ink placeholder:text-[#9aa7ac] focus:border-horizon focus:outline-none focus:ring-[3px] focus:ring-horizon/[.12] disabled:bg-surface';
 
-/** A labelled input or select with its hint and inline error, as in the design's `.co-field`. */
+/** A labelled input or select with its hint and inline error: the design's `.co-field`, with the design system's mono uppercase label and 15px input. */
 export const FormField = forwardRef<HTMLInputElement & HTMLSelectElement, FormFieldProps>(function FormField(
   { id, label, value, onChange, error, hint, options, type = 'text', placeholder, autoComplete, inputMode, maxLength, disabled },
   ref
@@ -47,7 +47,7 @@ export const FormField = forwardRef<HTMLInputElement & HTMLSelectElement, FormFi
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-      <label htmlFor={id} className="text-[12.5px] font-semibold text-muted">
+      <label htmlFor={id} className="font-mono text-xs uppercase tracking-[0.06em] text-muted">
         {label}
       </label>
       {options ? (

@@ -34,8 +34,11 @@ describe('OrderHistorySection (order-history AC1-AC6)', () => {
     expect(second).toHaveTextContent('WL-200001');
     expect(second).toHaveTextContent('1 item');
     expect(second).toHaveTextContent('Cancelled');
-    expect(within(first).getByText('Shipped').className).toContain('text-horizon');
-    expect(within(second).getByText('Cancelled').className).toContain('text-muted');
+    // Design system pill: bordered, with a Horizon (shipped/delivered) or Sand (processing/cancelled) dot.
+    const dotOf = (pill: HTMLElement) => pill.querySelector('[aria-hidden]')!.className;
+    expect(within(first).getByText('Shipped').className).toContain('border-border');
+    expect(dotOf(within(first).getByText('Shipped'))).toContain('bg-horizon');
+    expect(dotOf(within(second).getByText('Cancelled'))).toContain('bg-sand');
   });
 
   it('shows the note under a non-empty list (AC6)', () => {
